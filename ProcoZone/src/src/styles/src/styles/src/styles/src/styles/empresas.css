@@ -14,7 +14,10 @@
 
 .search-box {
   position: relative;
-  width: 300px;
+  width: min(100%, 360px);
+  flex: 1 1 280px;
+  max-width: 420px;
+  min-width: 220px;
 }
 
 .search-box__icon {
@@ -24,10 +27,12 @@
   transform: translateY(-50%);
   color: var(--text-muted);
   font-size: var(--text-sm);
+  pointer-events: none;
 }
 
 .search-box__input {
   width: 100%;
+  height: 42px;
   padding: var(--space-2) var(--space-4) var(--space-2) var(--space-9);
   background: var(--bg-tertiary);
   border: 1px solid var(--border);
@@ -35,6 +40,7 @@
   color: var(--text);
   font-size: var(--text-sm);
   transition: all var(--transition-fast);
+  box-sizing: border-box;
 }
 
 .search-box__input:focus {
@@ -127,7 +133,16 @@
 }
 
 @media (max-width: 768px) {
-  .search-box { width: 100%; }
+  .empresas-header {
+    align-items: stretch;
+  }
+
+  .search-box {
+    width: 100%;
+    max-width: none;
+    min-width: 0;
+  }
+
   .empresa-detalle { grid-template-columns: 1fr; }
   .empresa-cumplimiento { min-width: 120px; }
 }
