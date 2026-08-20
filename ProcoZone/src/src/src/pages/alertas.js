@@ -8,6 +8,7 @@ import { formatearFecha, tiempoRelativo, colorDesdeString, obtenerIniciales } fr
 import { ALERTA_BADGE, ALERTA_TEXTO, ALERTA_ESTADO_TEXTO, TIPOS_ALERTA } from '../../utils/constantes.js';
 import { toast } from '../../services/notificacion-service.js';
 import { esAnalista } from '../../utils/auth.js';
+import { esConsulta, obtenerSesion } from '../../utils/auth.js';
 
 let destroyFn = null;
 let filtroAlerta = 'todas';
@@ -33,6 +34,11 @@ export async function init() {
         http.get('alertas'),
         http.get('empresas')
       ]);
+      if (esConsulta()) {
+        const empresaId = obtenerSesion()?.empresaId;
+        alertas = alertas.filter(alerta => alerta.empresaId === empresaId);
+        empresas = empresas.filter(empresa => empresa.id === empresaId);
+      }
       renderAlertas();
     } catch (error) {
       container.innerHTML = renderError(error.message, () => cargarAlertas());

@@ -14,6 +14,10 @@ export function esAnalista() {
   return tieneRol('Analista');
 }
 
+export function esConsulta() {
+  return tieneRol('Consulta');
+}
+
 export function cerrarSesion() {
   sessionStorage.removeItem('procozone-session');
   sessionStorage.removeItem('procozone-authenticated');
