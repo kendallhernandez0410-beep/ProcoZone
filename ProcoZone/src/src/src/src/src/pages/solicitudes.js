@@ -9,6 +9,7 @@ import { abrirModalSolicitud, cerrarModal, mostrarIaLoadingEnModal, actualizarIa
 import { clasificarSolicitud } from '../../../services/ia-service.js';
 import { toast } from '../../../../services/notificacion-service.js';
 import { esAnalista } from '../../../../utils/auth.js';
+import { esConsulta, obtenerSesion } from '../../../../utils/auth.js';
 
 let filtroActual = 'todos';
 let destroyFn = null;
@@ -37,6 +38,9 @@ export async function init() {
         http.get('empresas'),
         http.get('solicitudes')
       ]);
+      if (esConsulta()) {
+        solicitudes = solicitudes.filter(solicitud => solicitud.empresaId === obtenerSesion()?.empresaId);
+      }
 
       renderSolicitudes();
     } catch (error) {

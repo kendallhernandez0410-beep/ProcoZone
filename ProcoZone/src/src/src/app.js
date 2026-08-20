@@ -5,11 +5,12 @@
 import { renderSidebar, iniciarSidebar } from './components/sidebar.js';
 import { renderHeader } from '../components/header.js';
 import { navegar } from '../router.js';
-import { esAnalista } from '../utils/auth.js';
-import { applyTheme } from '../utils/theme.js';
-import { getLanguage, t } from '../utils/translations.js';
+import { esAnalista, esConsulta, obtenerSesion } from '../utils/auth.js';
+import { iniciarBusqueda } from '../components/header.js';
+import { iniciarChatbot } from './components/chatbot.js';
 
 const rutasPublicas = ['/landing', '/login'];
+const rutasConsulta = ['/solicitudes', '/nueva-solicitud', '/alertas'];
 
 function rutaActual() {
   return window.location.hash.slice(1) || '/landing';
@@ -24,9 +25,12 @@ function montarAplicacion() {
   document.documentElement.lang = lang;
 
   let ruta = rutaActual();
-  if (ruta === '/nueva-solicitud' && !esAnalista()) {
+  if (esConsulta() && !rutasConsulta.includes(ruta)) {
     window.location.hash = '#/solicitudes';
     ruta = '/solicitudes';
+  } else if (esAnalista() && ruta === '/nueva-solicitud') {
+    window.location.hash = '#/';
+    ruta = '/';
   }
   if (!rutasPublicas.includes(ruta) && sessionStorage.getItem('procozone-authenticated') !== 'true') {
     window.location.hash = '#/login';
@@ -50,6 +54,8 @@ function montarAplicacion() {
     </div>
   `;
   iniciarSidebar();
+  iniciarBusqueda();
+  if (esConsulta()) iniciarChatbot();
 
   // Actualizar título dinámicamente desde el router
   const headerTitle = document.getElementById('headerTitle');
@@ -73,9 +79,12 @@ export function iniciarApp() {
   window.addEventListener('app:theme-updated', () => montarAplicacion());
   window.addEventListener('hashchange', () => {
     let ruta = rutaActual();
-    if (ruta === '/nueva-solicitud' && !esAnalista()) {
+    if (esConsulta() && !rutasConsulta.includes(ruta)) {
       window.location.hash = '#/solicitudes';
       ruta = '/solicitudes';
+    } else if (esAnalista() && ruta === '/nueva-solicitud') {
+      window.location.hash = '#/';
+      ruta = '/';
     }
     const esPublica = rutasPublicas.includes(ruta);
     const hayShell = document.querySelector('.app-layout');

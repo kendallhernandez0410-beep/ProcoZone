@@ -326,7 +326,8 @@
       "usuario": "usuario",
       "contrasena": "usuario",
       "nombre": "Usuario Consulta",
-      "rol": "Consulta"
+      "rol": "Consulta",
+      "empresaId": 1
     }
   ],
   "zonasFrancas": [

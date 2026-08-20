@@ -21,7 +21,7 @@ const titulos = {
   '/solicitudes': 'Solicitudes',
   '/nueva-solicitud': 'Nueva Solicitud',
   '/empresas': 'Empresas',
-  '/cumplimiento': 'Cumplimiento',
+  '/cumplimiento': 'Reportes de Cumplimiento',
   '/alertas': 'Alertas'
 };
 

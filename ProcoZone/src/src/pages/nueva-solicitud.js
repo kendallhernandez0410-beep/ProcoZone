@@ -6,6 +6,7 @@ import { http } from '../services/http-client.js';
 import { toast } from '../services/notificacion-service.js';
 import { validarSolicitud } from '../utils/validaciones.js';
 import { CATEGORIAS_ZF, ZONAS_FRANCAS, TIPOS_SOLICITUD, TIPO_TEXTO } from '../utils/constantes.js';
+import { esConsulta, obtenerSesion } from '../utils/auth.js';
 
 let destroyFn = null;
 
@@ -15,7 +16,7 @@ export async function render() {
   try {
     const empresas = await http.get('empresas');
     opcionesEmpresas += empresas
-      .filter(e => e.estado !== 'Suspendida')
+      .filter(e => e.estado !== 'Suspendida' && (!esConsulta() || e.id === obtenerSesion()?.empresaId))
       .map(e => `<option value="${e.id}">${e.nombre} — ${e.zonaFranca}</option>`)
       .join('');
   } catch (e) {
@@ -39,7 +40,7 @@ export async function render() {
           <div class="form-grid">
             <div class="form-group">
               <label class="form-label" for="empresaId">Empresa *</label>
-              <select class="form-select" id="empresaId" name="empresaId" required>
+              <select class="form-select" id="empresaId" name="empresaId" ${esConsulta() ? 'disabled' : ''} required>
                 ${opcionesEmpresas}
               </select>
               <span class="form-error" id="error-empresaId"></span>

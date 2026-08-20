@@ -1,9 +1,7 @@
 /* ============================================
    ProcoZone — Componente Sidebar
    ============================================ */
-import { esAnalista, obtenerSesion, cerrarSesion } from '../../utils/auth.js';
-import { renderThemeLanguageControls, bindThemeLanguageControls } from '../../components/theme-language-controls.js';
-import { t } from '../../utils/translations.js';
+import { esAnalista, esConsulta, obtenerSesion, cerrarSesion } from '../../utils/auth.js';
 
 function navItemsBase() {
   return [
@@ -17,8 +15,11 @@ function navItemsBase() {
 export function renderSidebar(rutaActual) {
   const navItems = navItemsBase();
   const items = esAnalista()
-    ? [{ ruta: '/nueva-solicitud', icono: 'fa-plus-circle', texto: t('new_application') }, { ruta: '/empresas', icono: 'fa-building', texto: t('companies') }, ...navItems.slice(1)]
-    : navItems;
+    ? navItems.filter(item => item.ruta !== '/nueva-solicitud')
+    : esConsulta()
+      ? [{ ruta: '/solicitudes', icono: 'fa-file-circle-plus', texto: 'Mis Solicitudes' }, { ruta: '/nueva-solicitud', icono: 'fa-plus-circle', texto: 'Nueva Solicitud' }, { ruta: '/alertas', icono: 'fa-bell', texto: 'Mis Alertas' }]
+      : navItems;
+  if (esAnalista()) items.splice(2, 0, { ruta: '/empresas', icono: 'fa-building', texto: 'Empresas' });
   const navHTML = items.map(item => {
     const isActive = rutaActual === item.ruta;
     return `
