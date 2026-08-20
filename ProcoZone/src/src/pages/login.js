@@ -89,7 +89,8 @@ export function init() {
         id: cuenta.id,
         usuario: cuenta.usuario,
         nombre: cuenta.nombre,
-        rol: cuenta.rol
+        rol: cuenta.rol,
+        empresaId: cuenta.empresaId ?? null
       }));
       window.location.hash = '#/';
     } catch (requestError) {

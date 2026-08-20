@@ -3,11 +3,11 @@
    Layout principal: Sidebar + Header + Content
    ============================================ */
 import { renderSidebar, iniciarSidebar } from './components/sidebar.js';
-import { renderHeader } from '../components/header.js';
+import { renderHeader, iniciarBusqueda, iniciarAlertasDropdown } from '../components/header.js';
 import { navegar } from '../router.js';
 import { esAnalista, esConsulta, obtenerSesion } from '../utils/auth.js';
-import { iniciarBusqueda } from '../components/header.js';
 import { iniciarChatbot } from './components/chatbot.js';
+import { mostrarCookieConsent } from './components/cookie-consent.js';
 import { applyTheme } from '../utils/theme.js';
 import { getLanguage, t } from '../utils/translations.js';
 
@@ -40,6 +40,7 @@ function montarAplicacion() {
   }
   if (rutasPublicas.includes(ruta)) {
     app.innerHTML = '<main id="public-content"></main>';
+    mostrarCookieConsent();
     navegar(ruta);
     return;
   }
@@ -57,6 +58,7 @@ function montarAplicacion() {
   `;
   iniciarSidebar();
   iniciarBusqueda();
+  iniciarAlertasDropdown();
   if (esConsulta()) iniciarChatbot();
 
   // Actualizar título dinámicamente desde el router
@@ -66,11 +68,6 @@ function montarAplicacion() {
     const h1 = app.querySelector('.header__title');
     if (h1) h1.id = 'headerTitle';
   }
-
-  // Navegación desde el sidebar al alertas
-  document.getElementById('alertasBtn')?.addEventListener('click', () => {
-    window.location.hash = '#/alertas';
-  });
 
   navegar(ruta);
 }

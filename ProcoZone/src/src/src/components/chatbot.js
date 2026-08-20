@@ -29,7 +29,7 @@ export function iniciarChatbot() {
   const nombre = obtenerSesion()?.nombre || 'empresa';
   document.body.insertAdjacentHTML('beforeend', `
     <section class="chatbot" id="chatbot" aria-label="Chatbot de consultas">
-      <button class="chatbot__toggle" id="chatbotToggle" type="button"><i class="fa-solid fa-comments"></i><span>Consultas</span></button>
+      <button class="chatbot__toggle" id="chatbotToggle" type="button" aria-label="Abrir consultas"><i class="fa-solid fa-robot"></i><span>Consultas</span></button>
       <div class="chatbot__panel" id="chatbotPanel" hidden>
         <header><div><strong>Asistente ProcoZone</strong><small>Hola, ${nombre}</small></div><button id="chatbotClose" type="button" aria-label="Cerrar chatbot">&times;</button></header>
         <div class="chatbot__messages" id="chatbotMessages"><div class="chatbot__message chatbot__message--bot">¿En qué puedo ayudarte sobre tu solicitud?</div></div>

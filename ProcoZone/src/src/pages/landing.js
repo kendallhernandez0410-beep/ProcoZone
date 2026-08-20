@@ -1,5 +1,8 @@
 import { t } from '../utils/translations.js';
 
+const DURACION_SLIDE = 6000;
+let intervaloSlides = null;
+
 export function render() {
   return `
     <div class="public-page landing-page">
@@ -12,7 +15,23 @@ export function render() {
       </nav>
 
       <main class="landing-main">
-        <section class="landing-hero">
+        <section class="landing-hero landing-hero--media">
+          <div class="hero-media" aria-hidden="true">
+            <div class="hero-media__slide is-active">
+              <img src="https://images.unsplash.com/photo-1536147116438-62679a5e01f2?auto=format&fit=crop&w=1920&q=80" alt="" loading="eager" />
+              <span class="hero-media__caption"><i class="fa-solid fa-leaf"></i> Zonas verdes · Costa Rica</span>
+            </div>
+            <div class="hero-media__slide">
+              <img src="https://images.unsplash.com/photo-1553413077-190dd305871c?auto=format&fit=crop&w=1920&q=80" alt="" loading="lazy" />
+              <span class="hero-media__caption"><i class="fa-solid fa-warehouse"></i> Bodegas y logística</span>
+            </div>
+            <div class="hero-media__slide">
+              <img src="https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&w=1920&q=80" alt="" loading="lazy" />
+              <span class="hero-media__caption"><i class="fa-solid fa-industry"></i> Procesos de manufactura</span>
+            </div>
+            <div class="hero-media__overlay"></div>
+          </div>
+
           <div class="landing-copy">
             <p class="eyebrow"><span></span> ${t('landing_eyebrow')}</p>
             <h1>${t('landing_title')}</h1>
@@ -47,4 +66,23 @@ export function render() {
       <footer class="landing-footer"><span>ProcoZone</span><span>Gestión institucional de Zonas Francas</span><span>© 2026 PROCOMER</span></footer>
     </div>
   `;
+}
+
+export function init() {
+  const slides = document.querySelectorAll('.hero-media__slide');
+  if (slides.length > 1) {
+    let actual = 0;
+    intervaloSlides = setInterval(() => {
+      slides[actual].classList.remove('is-active');
+      actual = (actual + 1) % slides.length;
+      slides[actual].classList.add('is-active');
+    }, DURACION_SLIDE);
+  }
+}
+
+export function destroy() {
+  if (intervaloSlides) {
+    clearInterval(intervaloSlides);
+    intervaloSlides = null;
+  }
 }

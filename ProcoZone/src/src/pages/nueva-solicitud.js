@@ -13,12 +13,13 @@ let destroyFn = null;
 
 export async function render() {
   // Cargar empresas para el select
+  const sesion = obtenerSesion();
   let opcionesEmpresas = '<option value="">Seleccione una empresa</option>';
   try {
     const empresas = await http.get('empresas');
     opcionesEmpresas += empresas
-      .filter(e => e.estado !== 'Suspendida' && (!esConsulta() || e.id === obtenerSesion()?.empresaId))
-      .map(e => `<option value="${e.id}">${e.nombre} — ${e.zonaFranca}</option>`)
+      .filter(e => e.estado !== 'Suspendida' && (!esConsulta() || e.id === sesion?.empresaId))
+      .map(e => `<option value="${e.id}" ${esConsulta() && e.id === sesion?.empresaId ? 'selected' : ''}>${e.nombre} — ${e.zonaFranca}</option>`)
       .join('');
   } catch (e) {
     // Si falla, mostrar opciones vacías
@@ -60,11 +61,6 @@ export async function render() {
               <label class="form-label" for="descripcion">${t('description')} *</label>
               <textarea class="form-textarea" id="descripcion" name="descripcion" rows="3" placeholder="Describa detalladamente la solicitud..." required></textarea>
               <span class="form-error" id="error-descripcion"></span>
-            </div>
-            <div class="form-group">
-              <label class="form-label" for="responsable">Responsable / Analista Asignado *</label>
-              <input class="form-input" type="text" id="responsable" name="responsable" placeholder="Nombre del analista" required />
-              <span class="form-error" id="error-responsable"></span>
             </div>
           </div>
         </div>
@@ -126,7 +122,6 @@ export async function init() {
       empresaId: parseInt(document.getElementById('empresaId').value) || null,
       tipo: document.getElementById('tipo').value,
       descripcion: document.getElementById('descripcion').value,
-      responsable: document.getElementById('responsable').value,
       tipoActividad: document.getElementById('tipoActividad').value,
       areaSolicitada: parseFloat(document.getElementById('areaSolicitada').value) || null,
       inversionEstimada: parseFloat(document.getElementById('inversionEstimada').value) || null,

@@ -103,7 +103,6 @@ export function validarSolicitud(datos) {
       () => requerido(datos.empleosNuevos, 'Empleos nuevos'),
       () => numeroPositivo(datos.empleosNuevos, 'Empleos nuevos'),
       () => rango(datos.empleosNuevos, 'Empleos nuevos', 1, 5000)
-    ],
-    responsable: [() => requerido(datos.responsable, 'Responsable')]
+    ]
   });
 }
