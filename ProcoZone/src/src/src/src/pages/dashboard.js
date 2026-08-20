@@ -7,6 +7,7 @@ import { renderLoading, renderError } from '../../components/estado-carga.js';
 import { formatearMoneda, formatearFecha, tiempoRelativo, colorCumplimiento, colorDesdeString, obtenerIniciales } from '../../../utils/formateador.js';
 import { ESTADO_BADGE, TIPO_TEXTO, UMBRALES_CUMPLIMIENTO, ALERTA_BADGE, ALERTA_TEXTO } from '../../../utils/constantes.js';
 import { renderIndicador } from '../components/indicador-cumplimiento.js';
+import { t } from '../../../utils/translations.js';
 
 let destroyFn = null;
 
@@ -15,7 +16,7 @@ export async function render() {
     <div class="page-enter" id="dashboardPage">
       <div class="loading-overlay">
         <div class="spinner"></div>
-        <span>Cargando datos del dashboard...</span>
+        <span>${t('loading_dashboard')}</span>
       </div>
     </div>
   `;
@@ -62,22 +63,22 @@ export async function init() {
         <div class="stat-card stat-card--primary">
           <div class="stat-card__icon"><i class="fa-solid fa-file-circle-plus"></i></div>
           <div class="stat-card__value">${solicitudesPendientes}</div>
-          <div class="stat-card__label">Solicitudes Pendientes</div>
+          <div class="stat-card__label">${t('pending_applications')}</div>
         </div>
         <div class="stat-card stat-card--accent">
           <div class="stat-card__icon"><i class="fa-solid fa-building"></i></div>
           <div class="stat-card__value">${empresasActivas}</div>
-          <div class="stat-card__label">Empresas Activas</div>
+          <div class="stat-card__label">${t('active_companies')}</div>
         </div>
         <div class="stat-card stat-card--success">
           <div class="stat-card__icon"><i class="fa-solid fa-chart-line"></i></div>
           <div class="stat-card__value">${avgCumplimiento}%</div>
-          <div class="stat-card__label">Cumplimiento Promedio</div>
+          <div class="stat-card__label">${t('average_compliance')}</div>
         </div>
         <div class="stat-card stat-card--error">
           <div class="stat-card__icon"><i class="fa-solid fa-bell"></i></div>
           <div class="stat-card__value">${alertasAbiertas}</div>
-          <div class="stat-card__label">Alertas Abiertas</div>
+          <div class="stat-card__label">${t('open_alerts')}</div>
         </div>
       </div>
 
@@ -86,8 +87,8 @@ export async function init() {
         <!-- Solicitudes recientes -->
         <div class="card">
           <div class="section-header">
-            <h2>Solicitudes Recientes</h2>
-            <a href="#/solicitudes" class="btn btn-ghost btn-sm">Ver todas <i class="fa-solid fa-arrow-right" style="font-size: 10px;"></i></a>
+            <h2>${t('recent_applications')}</h2>
+              <a href="#/solicitudes" class="btn btn-ghost btn-sm">${t('view_all')} <i class="fa-solid fa-arrow-right" style="font-size: 10px;"></i></a>
           </div>
           ${recientes.length > 0 ? recientes.map(sol => {
             const empresa = empresas.find(e => e.id === sol.empresaId);
@@ -114,8 +115,8 @@ export async function init() {
         <!-- Empresas en riesgo -->
         <div class="card">
           <div class="section-header">
-            <h2>Empresas en Riesgo</h2>
-            <a href="#/cumplimiento" class="btn btn-ghost btn-sm">Ver cumplimiento <i class="fa-solid fa-arrow-right" style="font-size: 10px;"></i></a>
+            <h2>${t('risk_companies')}</h2>
+              <a href="#/cumplimiento" class="btn btn-ghost btn-sm">${t('see_compliance')} <i class="fa-solid fa-arrow-right" style="font-size: 10px;"></i></a>
           </div>
           ${empresasRiesgo.length > 0 ? empresasRiesgo.map(emp => {
             const color = colorCumplimiento(emp.porcentajeCumplimiento);
@@ -140,8 +141,8 @@ export async function init() {
       <!-- Alertas recientes -->
       <div class="card" style="margin-top: var(--space-6);">
         <div class="section-header">
-          <h2>Alertas Recientes</h2>
-          <a href="#/alertas" class="btn btn-ghost btn-sm">Ver todas <i class="fa-solid fa-arrow-right" style="font-size: 10px;"></i></a>
+          <h2>${t('recent_alerts')}</h2>
+          <a href="#/alertas" class="btn btn-ghost btn-sm">${t('view_all')} <i class="fa-solid fa-arrow-right" style="font-size: 10px;"></i></a>
         </div>
         ${alertas.slice(0, 3).map(alerta => {
           const empresa = empresas.find(e => e.id === alerta.empresaId);

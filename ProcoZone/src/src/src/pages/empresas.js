@@ -7,6 +7,7 @@ import { renderLoading, renderError, renderSkeletonRows } from '../components/es
 import { formatearFecha, formatearNumero, formatearMoneda, colorCumplimiento, colorDesdeString, obtenerIniciales } from '../../utils/formateador.js';
 import { EMPRESA_ESTADO_BADGE, ESTADOS_EMPRESA } from '../../utils/constantes.js';
 import { toast } from '../../services/notificacion-service.js';
+import { t } from '../../utils/translations.js';
 
 let destroyFn = null;
 
@@ -47,10 +48,10 @@ export async function init() {
 
     container.innerHTML = `
       <div class="empresas-header">
-        <h1>Empresas</h1>
+        <h1>${t('companies')}</h1>
         <div class="search-box">
           <i class="fa-solid fa-magnifying-glass search-box__icon"></i>
-          <input type="text" class="search-box__input" id="searchEmpresas" placeholder="Buscar por nombre, cédula o zona franca..." value="${terminoBusqueda}" />
+          <input type="text" class="search-box__input" id="searchEmpresas" placeholder="${t('search_companies')}" value="${terminoBusqueda}" />
         </div>
       </div>
 
@@ -105,8 +106,8 @@ export async function init() {
       ` : `
         <div class="empty-state">
           <i class="fa-solid fa-building"></i>
-          <h3>No se encontraron empresas</h3>
-          <p>Intente con un término de búsqueda diferente.</p>
+          <h3>${t('no_companies')}</h3>
+          <p>${t('no_companies_message')}</p>
         </div>
       `}
     `;

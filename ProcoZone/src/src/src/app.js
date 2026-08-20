@@ -8,6 +8,8 @@ import { navegar } from '../router.js';
 import { esAnalista, esConsulta, obtenerSesion } from '../utils/auth.js';
 import { iniciarBusqueda } from '../components/header.js';
 import { iniciarChatbot } from './components/chatbot.js';
+import { applyTheme } from '../utils/theme.js';
+import { getLanguage, t } from '../utils/translations.js';
 
 const rutasPublicas = ['/landing', '/login'];
 const rutasConsulta = ['/solicitudes', '/nueva-solicitud', '/alertas'];

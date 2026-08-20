@@ -9,6 +9,7 @@ import { ALERTA_BADGE, ALERTA_TEXTO, ALERTA_ESTADO_TEXTO, TIPOS_ALERTA } from '.
 import { toast } from '../../services/notificacion-service.js';
 import { esAnalista } from '../../utils/auth.js';
 import { esConsulta, obtenerSesion } from '../../utils/auth.js';
+import { t } from '../../utils/translations.js';
 
 let destroyFn = null;
 let filtroAlerta = 'todas';
@@ -55,8 +56,8 @@ export async function init() {
 
     container.innerHTML = `
       <div style="margin-bottom: var(--space-6);">
-        <h1 style="font-size: var(--text-2xl); margin-bottom: var(--space-2);">Alertas</h1>
-        <p style="color: var(--text-muted); font-size: var(--text-sm);">Notificaciones de incumplimiento y situaciones que requieren atención.</p>
+        <h1 style="font-size: var(--text-2xl); margin-bottom: var(--space-2);">${t('alerts')}</h1>
+        <p style="color: var(--text-muted); font-size: var(--text-sm);">${t('alerts_description')}</p>
       </div>
 
       <div class="solicitudes-filtros" style="margin-bottom: var(--space-6);">
@@ -110,8 +111,8 @@ export async function init() {
         }).join('') : `
           <div class="empty-state">
             <i class="fa-solid fa-bell-slash"></i>
-            <h3>Sin alertas</h3>
-            <p>No hay alertas del tipo seleccionado.</p>
+            <h3>${t('no_alerts')}</h3>
+            <p>${t('no_alerts_message')}</p>
           </div>
         `}
       </div>

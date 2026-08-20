@@ -7,6 +7,7 @@ import { toast } from '../services/notificacion-service.js';
 import { validarSolicitud } from '../utils/validaciones.js';
 import { CATEGORIAS_ZF, ZONAS_FRANCAS, TIPOS_SOLICITUD, TIPO_TEXTO } from '../utils/constantes.js';
 import { esConsulta, obtenerSesion } from '../utils/auth.js';
+import { t } from '../utils/translations.js';
 
 let destroyFn = null;
 
@@ -26,8 +27,8 @@ export async function render() {
   return `
     <div class="page-enter" id="nuevaSolicitudPage">
       <div style="margin-bottom: var(--space-6);">
-        <h1 style="font-size: var(--text-2xl); margin-bottom: var(--space-2);">Nueva Solicitud</h1>
-        <p style="color: var(--text-muted); font-size: var(--text-sm);">Complete el formulario para registrar una nueva solicitud de instalación o expansión.</p>
+        <h1 style="font-size: var(--text-2xl); margin-bottom: var(--space-2);">${t('new_request')}</h1>
+        <p style="color: var(--text-muted); font-size: var(--text-sm);">${t('request_description')}</p>
       </div>
 
       <form id="formSolicitud" novalidate>
@@ -46,7 +47,7 @@ export async function render() {
               <span class="form-error" id="error-empresaId"></span>
             </div>
             <div class="form-group">
-              <label class="form-label" for="tipo">Tipo de Solicitud *</label>
+              <label class="form-label" for="tipo">${t('request_type')} *</label>
               <select class="form-select" id="tipo" name="tipo" required>
                 <option value="">Seleccione un tipo</option>
                 ${Object.entries(TIPOS_SOLICITUD).map(([key, val]) =>
@@ -56,7 +57,7 @@ export async function render() {
               <span class="form-error" id="error-tipo"></span>
             </div>
             <div class="form-group form-group--full">
-              <label class="form-label" for="descripcion">Descripción de la Solicitud *</label>
+              <label class="form-label" for="descripcion">${t('description')} *</label>
               <textarea class="form-textarea" id="descripcion" name="descripcion" rows="3" placeholder="Describa detalladamente la solicitud..." required></textarea>
               <span class="form-error" id="error-descripcion"></span>
             </div>
@@ -100,9 +101,9 @@ export async function render() {
 
         <!-- Botones -->
         <div style="display: flex; gap: var(--space-3); justify-content: flex-end; padding-top: var(--space-4); border-top: 1px solid var(--border);">
-          <a href="#/solicitudes" class="btn btn-outline">Cancelar</a>
+          <a href="#/solicitudes" class="btn btn-outline">${t('cancel')}</a>
           <button type="submit" class="btn btn-primary btn-lg" id="btnSubmit">
-            <i class="fa-solid fa-paper-plane"></i> Enviar Solicitud
+            <i class="fa-solid fa-paper-plane"></i> ${t('submit_request')}
           </button>
         </div>
       </form>

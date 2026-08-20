@@ -10,6 +10,7 @@ import { clasificarSolicitud } from '../../../services/ia-service.js';
 import { toast } from '../../../../services/notificacion-service.js';
 import { esAnalista } from '../../../../utils/auth.js';
 import { esConsulta, obtenerSesion } from '../../../../utils/auth.js';
+import { t } from '../../../../utils/translations.js';
 
 let filtroActual = 'todos';
 let destroyFn = null;
@@ -61,7 +62,7 @@ export async function init() {
 
     container.innerHTML = `
       <div class="solicitudes-header">
-        <h1>Solicitudes</h1>
+        <h1>${t('applications')}</h1>
         ${esAnalista() ? `<a href="#/nueva-solicitud" class="btn btn-primary">
           <i class="fa-solid fa-plus"></i> Nueva Solicitud
         </a>` : ''}
@@ -95,8 +96,8 @@ export async function init() {
       ` : `
         <div class="empty-state">
           <i class="fa-solid fa-inbox"></i>
-          <h3>No hay solicitudes</h3>
-          <p>No se encontraron solicitudes con el filtro seleccionado.</p>
+          <h3>${t('no_requests')}</h3>
+          <p>${t('no_requests_message')}</p>
         </div>
       `}
     `;

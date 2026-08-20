@@ -7,6 +7,7 @@ import { renderLoading, renderError } from '../components/estado-carga.js';
 import { renderIndicador } from '../src/components/indicador-cumplimiento.js';
 import { formatearFecha, colorCumplimiento, colorDesdeString, obtenerIniciales } from '../../utils/formateador.js';
 import { UMBRALES_CUMPLIMIENTO } from '../../utils/constantes.js';
+import { t } from '../../utils/translations.js';
 
 let destroyFn = null;
 
@@ -31,8 +32,8 @@ export async function init() {
 
     container.innerHTML = `
       <div style="margin-bottom: var(--space-6);">
-        <h1 style="font-size: var(--text-2xl); margin-bottom: var(--space-2);">Reportes de Cumplimiento</h1>
-        <p style="color: var(--text-muted); font-size: var(--text-sm);">Evaluación trimestral del cumplimiento de las empresas operando bajo el régimen de Zonas Francas.</p>
+        <h1 style="font-size: var(--text-2xl); margin-bottom: var(--space-2);">${t('compliance_reports')}</h1>
+        <p style="color: var(--text-muted); font-size: var(--text-sm);">${t('compliance_description')}</p>
       </div>
 
       <div class="cumplimiento-grid">

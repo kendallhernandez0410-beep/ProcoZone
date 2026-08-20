@@ -2,9 +2,7 @@ const THEME_KEY = 'procozone_theme';
 
 export function getTheme() {
   const stored = localStorage.getItem(THEME_KEY);
-  if (stored === 'dark') return 'dark';
-  if (stored === 'light') return 'light';
-  return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  return stored === 'dark' ? 'dark' : 'light';
 }
 
 export function setTheme(theme) {

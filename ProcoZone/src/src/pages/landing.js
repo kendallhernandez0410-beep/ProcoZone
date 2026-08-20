@@ -1,3 +1,5 @@
+import { t } from '../utils/translations.js';
+
 export function render() {
   return `
     <div class="public-page landing-page">
@@ -6,15 +8,15 @@ export function render() {
           <span class="brand-mark"><i class="fa-solid fa-cubes"></i></span>
           <span><strong>ProcoZone</strong><small>PROCOMER</small></span>
         </a>
-        <a class="btn btn-outline" href="#/login"><i class="fa-solid fa-arrow-right-to-bracket"></i> Ingresar</a>
+        <a class="btn btn-outline" href="#/login"><i class="fa-solid fa-arrow-right-to-bracket"></i> ${t('login')}</a>
       </nav>
 
       <main class="landing-main">
         <section class="landing-hero">
           <div class="landing-copy">
-            <p class="eyebrow"><span></span> Plataforma institucional PROCOMER</p>
-            <h1>Gestión clara para el régimen de <em>Zonas Francas</em>.</h1>
-            <p class="landing-lead">Centraliza solicitudes, cumplimiento y alertas en un solo espacio de trabajo para tomar decisiones con trazabilidad.</p>
+            <p class="eyebrow"><span></span> ${t('landing_eyebrow')}</p>
+            <h1>${t('landing_title')}</h1>
+            <p class="landing-lead">${t('landing_lead')}</p>
             <div class="landing-actions">
               <a class="btn btn-primary btn-lg" href="#/login">Acceder a la plataforma <i class="fa-solid fa-arrow-right"></i></a>
               <a class="text-link" href="#landing-features">Conocer el sistema <i class="fa-solid fa-arrow-down"></i></a>

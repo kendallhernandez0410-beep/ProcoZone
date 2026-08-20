@@ -49,7 +49,29 @@ const translations = {
     loading_applications: 'Cargando solicitudes...',
     loading_alerts: 'Cargando alertas...',
     loading_reports: 'Cargando reportes de cumplimiento...',
-    loading_companies: 'Cargando empresas...'
+    loading_companies: 'Cargando empresas...',
+    request_description: 'Complete el formulario para registrar una nueva solicitud de instalación o expansión.',
+    compliance_description: 'Evaluación trimestral del cumplimiento de las empresas operando bajo el régimen de Zonas Francas.',
+    alerts_description: 'Notificaciones de incumplimiento y situaciones que requieren atención.',
+    search_companies: 'Buscar por nombre, cédula o zona franca...',
+    no_companies: 'No se encontraron empresas',
+    no_companies_message: 'Intente con un término de búsqueda diferente.',
+    no_requests: 'No hay solicitudes',
+    no_requests_message: 'No se encontraron solicitudes con el filtro seleccionado.',
+    compliance_reports: 'Reportes de Cumplimiento',
+    new_request: 'Nueva Solicitud',
+    request_type: 'Tipo de Solicitud',
+    description: 'Descripción de la Solicitud',
+    cancel: 'Cancelar',
+    submit_request: 'Enviar Solicitud'
+    ,landing_eyebrow: 'Plataforma institucional PROCOMER'
+    ,landing_title: 'Gestión clara para el régimen de Zonas Francas.'
+    ,landing_lead: 'Centraliza solicitudes, cumplimiento y alertas en un solo espacio de trabajo para tomar decisiones con trazabilidad.'
+    ,login: 'Ingresar'
+    ,login_title: 'Bienvenido de nuevo'
+    ,login_subtitle: 'Ingresa tus credenciales para continuar.'
+    ,username: 'Usuario'
+    ,password: 'Contraseña'
   },
   en: {
     dashboard: 'Dashboard',
@@ -101,7 +123,29 @@ const translations = {
     loading_applications: 'Loading applications...',
     loading_alerts: 'Loading alerts...',
     loading_reports: 'Loading compliance reports...',
-    loading_companies: 'Loading companies...'
+    loading_companies: 'Loading companies...',
+    request_description: 'Complete the form to register a new installation or expansion request.',
+    compliance_description: 'Quarterly assessment of companies operating under the Free Trade Zone regime.',
+    alerts_description: 'Notifications about non-compliance and situations requiring attention.',
+    search_companies: 'Search by name, ID, or free zone...',
+    no_companies: 'No companies found',
+    no_companies_message: 'Try a different search term.',
+    no_requests: 'No requests',
+    no_requests_message: 'No requests were found for the selected filter.',
+    compliance_reports: 'Compliance Reports',
+    new_request: 'New Request',
+    request_type: 'Request Type',
+    description: 'Request Description',
+    cancel: 'Cancel',
+    submit_request: 'Submit Request'
+    ,landing_eyebrow: 'PROCOMER institutional platform'
+    ,landing_title: 'Clear management for the Free Trade Zone regime.'
+    ,landing_lead: 'Centralize applications, compliance, and alerts in one workspace to make traceable decisions.'
+    ,login: 'Sign in'
+    ,login_title: 'Welcome back'
+    ,login_subtitle: 'Enter your credentials to continue.'
+    ,username: 'Username'
+    ,password: 'Password'
   }
 };
 

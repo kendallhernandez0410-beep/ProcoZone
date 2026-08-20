@@ -1,4 +1,5 @@
 import { http } from '../services/http-client.js';
+import { t } from '../utils/translations.js';
 
 export function render() {
   return `
@@ -14,9 +15,9 @@ export function render() {
           <div class="login-card">
             <div class="login-card__heading"><p class="eyebrow">Acceso de analistas</p><h2>Bienvenido de nuevo</h2><p>Ingresa tus credenciales para continuar.</p></div>
             <form id="loginForm" class="login-form">
-              <label for="loginEmail">Usuario</label>
+              <label for="loginEmail">${t('username')}</label>
               <div class="input-wrap"><i class="fa-regular fa-user"></i><input id="loginEmail" type="text" placeholder="admin o usuario" autocomplete="username" required></div>
-              <label for="loginPassword">Contraseña</label>
+              <label for="loginPassword">${t('password')}</label>
               <div class="input-wrap"><i class="fa-solid fa-lock"></i><input id="loginPassword" type="password" placeholder="Ingresa tu contraseña" autocomplete="current-password" required><button type="button" class="password-toggle" aria-label="Mostrar contraseña"><i class="fa-regular fa-eye"></i></button></div>
               <div class="login-options"><label class="checkbox-label"><input type="checkbox"> <span>Recordarme</span></label><button type="button" class="login-link" id="forgotPassword">¿Olvidaste tu contraseña?</button></div>
               <p class="login-error" id="loginError" role="alert"></p>

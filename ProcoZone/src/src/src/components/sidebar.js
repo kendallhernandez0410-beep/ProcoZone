@@ -2,6 +2,8 @@
    ProcoZone — Componente Sidebar
    ============================================ */
 import { esAnalista, esConsulta, obtenerSesion, cerrarSesion } from '../../utils/auth.js';
+import { t } from '../../utils/translations.js';
+import { renderThemeLanguageControls, bindThemeLanguageControls } from '../../components/theme-language-controls.js';
 
 function navItemsBase() {
   return [
