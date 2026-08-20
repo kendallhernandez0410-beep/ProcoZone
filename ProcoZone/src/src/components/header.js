@@ -1,6 +1,7 @@
 /* ============================================
    ProcoZone — Componente Header
    ============================================ */
+import { t } from '../utils/translations.js';
 
 export function renderHeader(titulo, subtitulo = '') {
   return `
@@ -17,9 +18,9 @@ export function renderHeader(titulo, subtitulo = '') {
       <div class="header__right">
         <div class="header__search">
           <i class="fa-solid fa-magnifying-glass"></i>
-          <input type="text" placeholder="Buscar..." class="header__search-input" id="globalSearch" />
+          <input type="text" placeholder="${t('search_placeholder')}" class="header__search-input" id="globalSearch" />
         </div>
-        <button class="header__icon-btn" id="alertasBtn" aria-label="Alertas">
+        <button class="header__icon-btn" id="alertasBtn" aria-label="${t('alerts')}">
           <i class="fa-solid fa-bell"></i>
           <span class="header__badge" id="alertasCount">3</span>
         </button>
