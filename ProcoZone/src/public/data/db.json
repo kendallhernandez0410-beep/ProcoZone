@@ -1,0 +1,339 @@
+{
+  "empresas": [
+    {
+      "id": 1,
+      "nombre": "Tecnova Solutions CR S.A.",
+      "cedulaJuridica": "3-101-123456",
+      "zonaFranca": "Zona Franca América",
+      "categoria": "Servicios Tecnológicos",
+      "estado": "Activa",
+      "fechaRegistro": "2023-03-15",
+      "empleados": 150,
+      "contactoNombre": "María González",
+      "contactoEmail": "maria.gonzalez@tecnova.cr",
+      "contactoTelefono": "+506 2234-5678",
+      "porcentajeCumplimiento": 92
+    },
+    {
+      "id": 2,
+      "nombre": "BioPharm Costa Rica Ltda.",
+      "cedulaJuridica": "3-102-789012",
+      "zonaFranca": "Parque Logístico Atlántico",
+      "categoria": "Biotecnología",
+      "estado": "Activa",
+      "fechaRegistro": "2022-08-20",
+      "empleados": 230,
+      "contactoNombre": "Roberto Sánchez",
+      "contactoEmail": "roberto.s@biopharm.cr",
+      "contactoTelefono": "+506 2256-7890",
+      "porcentajeCumplimiento": 78
+    },
+    {
+      "id": 3,
+      "nombre": "ElectroLine Manufacturing",
+      "cedulaJuridica": "3-103-345678",
+      "zonaFranca": "Zona Franca Coyol",
+      "categoria": "Manufactura Electrónica",
+      "estado": "Activa",
+      "fechaRegistro": "2024-01-10",
+      "empleados": 85,
+      "contactoNombre": "Ana Lucía Ramírez",
+      "contactoEmail": "ana.ramirez@electroline.cr",
+      "contactoTelefono": "+506 2278-1234",
+      "porcentajeCumplimiento": 95
+    },
+    {
+      "id": 4,
+      "nombre": "GreenPack Industries",
+      "cedulaJuridica": "3-104-901234",
+      "zonaFranca": "Zona Franca El Coyol",
+      "categoria": "Empaques Biodegradables",
+      "estado": "En Revisión",
+      "fechaRegistro": "2024-06-01",
+      "empleados": 42,
+      "contactoNombre": "Carlos Méndez",
+      "contactoEmail": "carlos.m@greenpack.cr",
+      "contactoTelefono": "+506 2290-5678",
+      "porcentajeCumplimiento": 61
+    },
+    {
+      "id": 5,
+      "nombre": "DataCore Analytics CR",
+      "cedulaJuridica": "3-105-567890",
+      "zonaFranca": "Zona Franca América",
+      "categoria": "Análisis de Datos",
+      "estado": "Activa",
+      "fechaRegistro": "2023-11-05",
+      "empleados": 68,
+      "contactoNombre": "Patricia Vega",
+      "contactoEmail": "patricia.v@datacore.cr",
+      "contactoTelefono": "+506 2312-9012",
+      "porcentajeCumplimiento": 88
+    },
+    {
+      "id": 6,
+      "nombre": "AeroComposites Intl.",
+      "cedulaJuridica": "3-106-234567",
+      "zonaFranca": "Parque Logístico Pacífico",
+      "categoria": "Materiales Compuestos",
+      "estado": "Suspendida",
+      "fechaRegistro": "2021-09-12",
+      "empleados": 120,
+      "contactoNombre": "Jorge Castillo",
+      "contactoEmail": "jorge.c@aerocomposites.cr",
+      "contactoTelefono": "+506 2334-3456",
+      "porcentajeCumplimiento": 35
+    }
+  ],
+  "solicitudes": [
+    {
+      "id": 1,
+      "empresaId": 1,
+      "tipo": "instalacion",
+      "estado": "aprobada",
+      "fechaSolicitud": "2025-10-15",
+      "descripcion": "Instalación de nueva línea de servidores y centro de datos en el módulo C-3 para expansión de servicios cloud.",
+      "clasificacionIa": {
+        "puntajeAfinidad": 92,
+        "nivelRiesgo": "Bajo",
+        "recomendacion": "Aprobar",
+        "factores": [
+          "Categoria alineada con zona franca",
+          "Inversión superior al mínimo requerido",
+          "Generación de empleo calificado",
+          "Sin antecedentes de incumplimiento"
+        ],
+        "fechaClasificacion": "2025-10-15T10:30:00Z"
+      },
+      "detalles": {
+        "areaSolicitada": 350,
+        "tipoActividad": "Servicios de cloud computing",
+        "inversionEstimada": 1800000,
+        "empleosNuevos": 25
+      },
+      "responsable": "Ana Rodríguez",
+      "observaciones": "Aprobado por comité el 20/10/2025."
+    },
+    {
+      "id": 2,
+      "empresaId": 2,
+      "tipo": "expansion",
+      "estado": "en_revision",
+      "fechaSolicitud": "2025-11-02",
+      "descripcion": "Expansión del laboratorio de investigación para desarrollo de nuevos compuestos farmacéuticos.",
+      "clasificacionIa": {
+        "puntajeAfinidad": 74,
+        "nivelRiesgo": "Medio",
+        "recomendacion": "Revisar",
+        "factores": [
+          "Cumplimiento actual del 78% (por debajo del óptimo)",
+          "Solicitud de área considerable",
+          "Requiere verificación de permisos ambientales",
+          "Historial de reportes tardíos"
+        ],
+        "fechaClasificacion": "2025-11-02T14:15:00Z"
+      },
+      "detalles": {
+        "areaSolicitada": 800,
+        "tipoActividad": "Investigación farmacéutica",
+        "inversionEstimada": 4500000,
+        "empleosNuevos": 60
+      },
+      "responsable": "Luis Fernández",
+      "observaciones": ""
+    },
+    {
+      "id": 3,
+      "empresaId": 4,
+      "tipo": "instalacion",
+      "estado": "rechazada",
+      "fechaSolicitud": "2025-09-20",
+      "descripcion": "Instalación de planta de procesamiento de plásticos reciclados en módulo A-1.",
+      "clasificacionIa": {
+        "puntajeAfinidad": 28,
+        "nivelRiesgo": "Alto",
+        "recomendacion": "Rechazar",
+        "factores": [
+          "Actividad no clasificada dentro del régimen de zona franca",
+          "Porcentaje de cumplimiento crítico (61%)",
+          "Estado actual: En Revisión",
+          "Posible impacto ambiental sin estudio aprobado"
+        ],
+        "fechaClasificacion": "2025-09-20T09:45:00Z"
+      },
+      "detalles": {
+        "areaSolicitada": 1200,
+        "tipoActividad": "Procesamiento de plásticos",
+        "inversionEstimada": 800000,
+        "empleosNuevos": 15
+      },
+      "responsable": "Ana Rodríguez",
+      "observaciones": "Rechazado: actividad no compatible con el régimen."
+    },
+    {
+      "id": 4,
+      "empresaId": 3,
+      "tipo": "instalacion",
+      "estado": "pendiente",
+      "fechaSolicitud": "2025-11-18",
+      "descripcion": "Nueva línea de ensamblaje de circuitos impresos para exportación a mercado estadounidense.",
+      "clasificacionIa": null,
+      "detalles": {
+        "areaSolicitada": 450,
+        "tipoActividad": "Manufactura electrónica",
+        "inversionEstimada": 3200000,
+        "empleosNuevos": 40
+      },
+      "responsable": "Luis Fernández",
+      "observaciones": ""
+    },
+    {
+      "id": 5,
+      "empresaId": 5,
+      "tipo": "expansion",
+      "estado": "pendiente",
+      "fechaSolicitud": "2025-11-20",
+      "descripcion": "Ampliación del área de trabajo para incorporar equipo de procesamiento de datos en tiempo real.",
+      "clasificacionIa": null,
+      "detalles": {
+        "areaSolicitada": 200,
+        "tipoActividad": "Procesamiento de datos",
+        "inversionEstimada": 950000,
+        "empleosNuevos": 12
+      },
+      "responsable": "Ana Rodríguez",
+      "observaciones": ""
+    }
+  ],
+  "reportesCumplimiento": [
+    {
+      "id": 1,
+      "empresaId": 1,
+      "periodo": "2025-Q3",
+      "fechaReporte": "2025-10-05",
+      "porcentajeCumplimiento": 92,
+      "indicadores": {
+        "exportaciones": { "requerido": 75, "actual": 88, "estado": "cumple" },
+        "empleoNacional": { "requerido": 90, "actual": 95, "estado": "cumple" },
+        "inversion": { "requerido": 1000000, "actual": 1500000, "estado": "cumple" },
+        "reportesOportunos": { "requerido": 100, "actual": 85, "estado": "alerta" }
+      },
+      "alertasGeneradas": [
+        "2 reportes trimestrales presentados fuera de plazo"
+      ]
+    },
+    {
+      "id": 2,
+      "empresaId": 2,
+      "periodo": "2025-Q3",
+      "fechaReporte": "2025-10-08",
+      "porcentajeCumplimiento": 78,
+      "indicadores": {
+        "exportaciones": { "requerido": 75, "actual": 82, "estado": "cumple" },
+        "empleoNacional": { "requerido": 90, "actual": 76, "estado": "incumple" },
+        "inversion": { "requerido": 2000000, "actual": 2100000, "estado": "cumple" },
+        "reportesOportunos": { "requerido": 100, "actual": 50, "estado": "incumple" }
+      },
+      "alertasGeneradas": [
+        "Empleo nacional por debajo del mínimo requerido",
+        "50% de reportes presentados tarde"
+      ]
+    },
+    {
+      "id": 3,
+      "empresaId": 3,
+      "periodo": "2025-Q3",
+      "fechaReporte": "2025-10-03",
+      "porcentajeCumplimiento": 95,
+      "indicadores": {
+        "exportaciones": { "requerido": 75, "actual": 96, "estado": "cumple" },
+        "empleoNacional": { "requerido": 90, "actual": 98, "estado": "cumple" },
+        "inversion": { "requerido": 1500000, "actual": 2800000, "estado": "cumple" },
+        "reportesOportunos": { "requerido": 100, "actual": 100, "estado": "cumple" }
+      },
+      "alertasGeneradas": []
+    },
+    {
+      "id": 4,
+      "empresaId": 6,
+      "periodo": "2025-Q3",
+      "fechaReporte": "2025-10-10",
+      "porcentajeCumplimiento": 35,
+      "indicadores": {
+        "exportaciones": { "requerido": 75, "actual": 30, "estado": "incumple" },
+        "empleoNacional": { "requerido": 90, "actual": 45, "estado": "incumple" },
+        "inversion": { "requerido": 3000000, "actual": 800000, "estado": "incumple" },
+        "reportesOportunos": { "requerido": 100, "actual": 25, "estado": "incumple" }
+      },
+      "alertasGeneradas": [
+        "CRÍTICO: Todas las métricas por debajo del mínimo",
+        "Empresa suspendida pending revisión del régimen"
+      ]
+    }
+  ],
+  "alertas": [
+    {
+      "id": 1,
+      "empresaId": 6,
+      "tipo": "critica",
+      "titulo": "Suspensión inminente del régimen",
+      "descripcion": "AeroComposites Intl. acumula 3 trimestres consecutivos con cumplimiento menor al 50%. Se recomienda iniciar proceso de suspensión.",
+      "fechaCreacion": "2025-10-12",
+      "estado": "abierta",
+      "reporteId": 4
+    },
+    {
+      "id": 2,
+      "empresaId": 2,
+      "tipo": "warning",
+      "titulo": "Empleo nacional por debajo del mínimo",
+      "descripcion": "BioPharm Costa Rica presenta 76% de empleo nacional contra el 90% requerido. Requiere plan de corrección.",
+      "fechaCreacion": "2025-10-08",
+      "estado": "abierta",
+      "reporteId": 2
+    },
+    {
+      "id": 3,
+      "empresaId": 4,
+      "tipo": "info",
+      "titulo": "Empresa en estado de revisión",
+      "descripcion": "GreenPack Industries se encuentra en proceso de revisión desde junio 2024. Pendiente documentación adicional.",
+      "fechaCreacion": "2025-09-15",
+      "estado": "en_proceso",
+      "reporteId": null
+    },
+    {
+      "id": 4,
+      "empresaId": 1,
+      "tipo": "warning",
+      "titulo": "Reportes presentados fuera de plazo",
+      "descripcion": "Tecnova Solutions ha presentado 2 de 12 reportes trimestrales fuera del plazo establecido.",
+      "fechaCreacion": "2025-10-05",
+      "estado": "cerrada",
+      "reporteId": 1
+    }
+  ],
+  "zonasFrancas": [
+  {
+    "id": 1,
+    "nombre": "Zona Franca América",
+    "inversionMinima": 500000,
+    "empleosMinimos": 10,
+    "sectoresPermitidos": ["Servicios Tecnológicos", "Análisis de Datos", "BPO"]
+  },
+  {
+    "id": 2,
+    "nombre": "Parque Logístico Atlántico",
+    "inversionMinima": 1000000,
+    "empleosMinimos": 15,
+    "sectoresPermitidos": ["Biotecnología", "Dispositivos Médicos", "Manufactura Farmacéutica"]
+  },
+  {
+    "id": 3,
+    "nombre": "Zona Franca Coyol",
+    "inversionMinima": 750000,
+    "empleosMinimos": 12,
+    "sectoresPermitidos": ["Manufactura Electrónica", "Materiales Compuestos", "Logística Avanzada"]
+  }
+  ]
+}
