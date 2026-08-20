@@ -1,0 +1,131 @@
+/* ============================================
+   ProcoZone — Design Tokens
+  ZoFranca CR — Institutional Clarity
+   ============================================ */
+
+:root {
+  /* Fondos */
+  --bg: #F9F9FF;
+  --bg-secondary: #F0F3FF;
+  --bg-tertiary: #E1E7F5;
+  --card: #FFFFFF;
+  --card-hover: #F0F3FF;
+  --card-elevated: #FFFFFF;
+
+  /* Bordes */
+  --border: #CFDAF1;
+  --border-light: #B9C8E5;
+  --border-focus: #14B8A6;
+
+  /* Texto */
+  --text: #00234B;
+  --text-secondary: #1F2937;
+  --text-muted: #64748B;
+  --text-inverse: #FFFFFF;
+
+  /* Primario — Teal */
+  --primary: #00234B;
+  --primary-hover: #063766;
+  --primary-active: #001A38;
+  --primary-soft: rgba(0, 35, 75, 0.08);
+  --primary-glow: rgba(0, 35, 75, 0.16);
+
+  /* Acento — Dorado */
+  --accent: #14B8A6;
+  --accent-hover: #0F9F90;
+  --accent-soft: rgba(20, 184, 166, 0.12);
+  --accent-glow: rgba(20, 184, 166, 0.2);
+
+  /* Semánticos */
+  --success: #10B981;
+  --success-soft: rgba(16, 185, 129, 0.12);
+  --warning: #F59E0B;
+  --warning-soft: rgba(245, 158, 11, 0.12);
+  --error: #B91C1C;
+  --error-soft: rgba(185, 28, 28, 0.1);
+  --info: #38BDF8;
+  --info-soft: rgba(56, 189, 248, 0.12);
+
+  /* Tipografía */
+  --font-heading: 'Inter', sans-serif;
+  --font-body: 'Inter', sans-serif;
+  --font-mono: 'Fira Code', 'Courier New', monospace;
+
+  /* Tamaños texto */
+  --text-xs: 0.75rem;
+  --text-sm: 0.8125rem;
+  --text-base: 0.9375rem;
+  --text-lg: 1.125rem;
+  --text-xl: 1.25rem;
+  --text-2xl: 1.5rem;
+  --text-3xl: 2rem;
+  --text-4xl: 2.5rem;
+
+  /* Espaciado */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.25rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --space-10: 2.5rem;
+  --space-12: 3rem;
+
+  /* Radios */
+  --radius-sm: 2px;
+  --radius-md: 4px;
+  --radius-lg: 4px;
+  --radius-xl: 4px;
+  --radius-full: 9999px;
+
+  /* Sombras */
+  --shadow-sm: 0 1px 2px rgba(0, 35, 75, 0.06);
+  --shadow-md: 0 3px 10px rgba(0, 35, 75, 0.08);
+  --shadow-lg: 0 8px 24px rgba(0, 35, 75, 0.12);
+  --shadow-glow-primary: 0 0 20px var(--primary-glow);
+  --shadow-glow-accent: 0 0 20px var(--accent-glow);
+
+  /* Layout */
+  --sidebar-width: 260px;
+  --sidebar-collapsed: 72px;
+  --header-height: 64px;
+
+  /* Transiciones */
+  --transition-fast: 150ms ease;
+  --transition-base: 250ms ease;
+  --transition-slow: 400ms ease;
+}
+
+html[data-theme='dark'] {
+  --bg: #0B1220;
+  --bg-secondary: #111B2A;
+  --bg-tertiary: #172537;
+  --card: #101C2B;
+  --card-hover: #142338;
+  --card-elevated: #172841;
+  --border: rgba(148, 163, 184, 0.22);
+  --border-light: rgba(148, 163, 184, 0.18);
+  --border-focus: #2DD4BF;
+  --text: #E5EEF9;
+  --text-secondary: #D7E4F5;
+  --text-muted: #9DB0C7;
+  --text-inverse: #061420;
+  --primary: #9AD0FF;
+  --primary-hover: #B9DFFF;
+  --primary-active: #7EB7F3;
+  --primary-soft: rgba(154, 208, 255, 0.12);
+  --primary-glow: rgba(154, 208, 255, 0.24);
+  --accent: #2DD4BF;
+  --accent-hover: #4FE3D1;
+  --accent-soft: rgba(45, 212, 191, 0.14);
+  --accent-glow: rgba(45, 212, 191, 0.22);
+  --success: #34D399;
+  --success-soft: rgba(52, 211, 153, 0.14);
+  --warning: #FBBF24;
+  --warning-soft: rgba(251, 191, 36, 0.16);
+  --error: #F87171;
+  --error-soft: rgba(248, 113, 113, 0.14);
+  --info: #7DD3FC;
+  --info-soft: rgba(125, 211, 252, 0.12);
+}

@@ -1,0 +1,148 @@
+/* Empresas */
+.empresas-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-6);
+  flex-wrap: wrap;
+  gap: var(--space-4);
+}
+
+.empresas-header h1 {
+  font-size: var(--text-2xl);
+}
+
+.search-box {
+  position: relative;
+  width: min(100%, 360px);
+  flex: 1 1 280px;
+  max-width: 420px;
+  min-width: 220px;
+}
+
+.search-box__icon {
+  position: absolute;
+  left: var(--space-3);
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-muted);
+  font-size: var(--text-sm);
+  pointer-events: none;
+}
+
+.search-box__input {
+  width: 100%;
+  height: 42px;
+  padding: var(--space-2) var(--space-4) var(--space-2) var(--space-9);
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-full);
+  color: var(--text);
+  font-size: var(--text-sm);
+  transition: all var(--transition-fast);
+  box-sizing: border-box;
+}
+
+.search-box__input:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px var(--primary-soft);
+}
+
+.empresa-row {
+  cursor: pointer;
+  transition: background var(--transition-fast);
+}
+
+.empresa-nombre {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.empresa-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: var(--text-sm);
+  flex-shrink: 0;
+}
+
+.empresa-cumplimiento {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-width: 160px;
+}
+
+.empresa-cumplimiento__bar {
+  flex: 1;
+}
+
+.empresa-cumplimiento__valor {
+  font-family: var(--font-heading);
+  font-weight: 600;
+  font-size: var(--text-sm);
+  min-width: 40px;
+  text-align: right;
+}
+
+/* Detalle empresa */
+.empresa-detalle {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-6);
+}
+
+.empresa-detalle__info {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.empresa-detalle__metricas {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-4);
+}
+
+.metrica-card {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: var(--space-4);
+  text-align: center;
+}
+
+.metrica-card__valor {
+  font-family: var(--font-heading);
+  font-size: var(--text-2xl);
+  font-weight: 700;
+  color: var(--text);
+}
+
+.metrica-card__label {
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+  margin-top: var(--space-1);
+}
+
+@media (max-width: 768px) {
+  .empresas-header {
+    align-items: stretch;
+  }
+
+  .search-box {
+    width: 100%;
+    max-width: none;
+    min-width: 0;
+  }
+
+  .empresa-detalle { grid-template-columns: 1fr; }
+  .empresa-cumplimiento { min-width: 120px; }
+}
