@@ -20,6 +20,10 @@ function montarAplicacion() {
   const app = document.getElementById('app');
   if (!app) return;
 
+  applyTheme();
+  const lang = getLanguage();
+  document.documentElement.lang = lang;
+
   let ruta = rutaActual();
   if (esConsulta() && !rutasConsulta.includes(ruta)) {
     window.location.hash = '#/solicitudes';
@@ -42,7 +46,7 @@ function montarAplicacion() {
     <div class="app-layout">
       ${renderSidebar(ruta)}
       <div class="app-main">
-        ${renderHeader('Dashboard', 'Gestión de Zonas Francas — PROCOMER')}
+        ${renderHeader(t('dashboard'), t('dashboard_subtitle'))}
         <main class="app-content" id="content">
           <!-- El router inyecta las páginas aquí -->
         </main>
@@ -71,6 +75,8 @@ function montarAplicacion() {
 
 export function iniciarApp() {
   montarAplicacion();
+  window.addEventListener('app:language-updated', () => montarAplicacion());
+  window.addEventListener('app:theme-updated', () => montarAplicacion());
   window.addEventListener('hashchange', () => {
     let ruta = rutaActual();
     if (esConsulta() && !rutasConsulta.includes(ruta)) {

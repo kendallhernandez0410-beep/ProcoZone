@@ -3,6 +3,7 @@ import { esAnalista } from '../utils/auth.js';
 /* ============================================
    ProcoZone — Componente Header
    ============================================ */
+import { t } from '../utils/translations.js';
 
 export function renderHeader(titulo, subtitulo = '') {
   return `
@@ -22,7 +23,7 @@ export function renderHeader(titulo, subtitulo = '') {
           <input type="search" placeholder="Buscar por título..." class="header__search-input" id="globalSearch" autocomplete="off" />
           <div class="search-results" id="searchResults" hidden></div>
         </div>
-        <button class="header__icon-btn" id="alertasBtn" aria-label="Alertas">
+        <button class="header__icon-btn" id="alertasBtn" aria-label="${t('alerts')}">
           <i class="fa-solid fa-bell"></i>
           <span class="header__badge" id="alertasCount">3</span>
         </button>
