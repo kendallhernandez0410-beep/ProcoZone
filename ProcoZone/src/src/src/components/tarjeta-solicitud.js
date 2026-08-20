@@ -3,6 +3,7 @@
    ============================================ */
 import { ESTADO_BADGE, TIPO_TEXTO } from '../../utils/constantes.js';
 import { formatearFecha, truncarTexto, colorAfinidad } from '../../utils/formateador.js';
+import { esAnalista } from '../../utils/auth.js';
 
 export function renderTarjetaSolicitud(solicitud, empresa) {
   const estado = ESTADO_BADGE[solicitud.estado] || ESTADO_BADGE.pendiente;
@@ -28,9 +29,9 @@ export function renderTarjetaSolicitud(solicitud, empresa) {
           <i class="fa-solid fa-clock"></i>
           <span>Sin clasificación IA</span>
         </div>
-        <button class="btn btn-sm btn-accent btn-clasificar" data-id="${solicitud.id}">
+        ${esAnalista() ? `<button class="btn btn-sm btn-accent btn-clasificar" data-id="${solicitud.id}">
           <i class="fa-solid fa-wand-magic-sparkles"></i> Clasificar
-        </button>
+        </button>` : '<span class="sin-clasificacion__readonly">Pendiente de análisis</span>'}
       </div>
     `;
   }

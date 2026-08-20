@@ -28,5 +28,6 @@ function mostrar(tipo, titulo, mensaje) {
 export const toast = {
 	success: (titulo, mensaje) => mostrar('success', titulo, mensaje),
 	warning: (titulo, mensaje) => mostrar('warning', titulo, mensaje),
-	error: (titulo, mensaje) => mostrar('error', titulo, mensaje)
+	error: (titulo, mensaje) => mostrar('error', titulo, mensaje),
+	info: (titulo, mensaje) => mostrar('success', titulo, mensaje)
 };

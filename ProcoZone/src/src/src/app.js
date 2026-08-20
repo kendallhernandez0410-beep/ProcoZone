@@ -2,24 +2,39 @@
    ProcoZone — Shell de la aplicación
    Layout principal: Sidebar + Header + Content
    ============================================ */
-import { renderSidebar } from './components/sidebar.js';
+import { renderSidebar, iniciarSidebar } from './components/sidebar.js';
 import { renderHeader } from '../components/header.js';
-import { iniciarRouter } from '../router.js';
-import { http } from '../services/http-client.js';
+import { navegar } from '../router.js';
+import { esAnalista } from '../utils/auth.js';
 
-/**
- * Inicializa el layout completo de la aplicación
- */
-export function iniciarApp() {
+const rutasPublicas = ['/landing', '/login'];
+
+function rutaActual() {
+  return window.location.hash.slice(1) || '/landing';
+}
+
+function montarAplicacion() {
   const app = document.getElementById('app');
   if (!app) return;
 
-  // Obtener ruta actual para marcar sidebar
-  const rutaActual = window.location.hash.slice(1) || '/';
+  let ruta = rutaActual();
+  if (ruta === '/nueva-solicitud' && !esAnalista()) {
+    window.location.hash = '#/solicitudes';
+    ruta = '/solicitudes';
+  }
+  if (!rutasPublicas.includes(ruta) && sessionStorage.getItem('procozone-authenticated') !== 'true') {
+    window.location.hash = '#/login';
+    ruta = '/login';
+  }
+  if (rutasPublicas.includes(ruta)) {
+    app.innerHTML = '<main id="public-content"></main>';
+    navegar(ruta);
+    return;
+  }
 
   app.innerHTML = `
     <div class="app-layout">
-      ${renderSidebar(rutaActual)}
+      ${renderSidebar(ruta)}
       <div class="app-main">
         ${renderHeader('Dashboard', 'Gestión de Zonas Francas — PROCOMER')}
         <main class="app-content" id="content">
@@ -28,6 +43,7 @@ export function iniciarApp() {
       </div>
     </div>
   `;
+  iniciarSidebar();
 
   // Actualizar título dinámicamente desde el router
   const headerTitle = document.getElementById('headerTitle');
@@ -42,6 +58,20 @@ export function iniciarApp() {
     window.location.hash = '#/alertas';
   });
 
-  // Iniciar el router
-  iniciarRouter();
+  navegar(ruta);
+}
+
+export function iniciarApp() {
+  montarAplicacion();
+  window.addEventListener('hashchange', () => {
+    let ruta = rutaActual();
+    if (ruta === '/nueva-solicitud' && !esAnalista()) {
+      window.location.hash = '#/solicitudes';
+      ruta = '/solicitudes';
+    }
+    const esPublica = rutasPublicas.includes(ruta);
+    const hayShell = document.querySelector('.app-layout');
+    if (esPublica !== !hayShell) montarAplicacion();
+    else navegar(ruta);
+  });
 }

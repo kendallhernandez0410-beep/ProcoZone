@@ -7,6 +7,7 @@ import { renderLoading, renderError } from '../components/estado-carga.js';
 import { formatearFecha, tiempoRelativo, colorDesdeString, obtenerIniciales } from '../../utils/formateador.js';
 import { ALERTA_BADGE, ALERTA_TEXTO, ALERTA_ESTADO_TEXTO, TIPOS_ALERTA } from '../../utils/constantes.js';
 import { toast } from '../../services/notificacion-service.js';
+import { esAnalista } from '../../utils/auth.js';
 
 let destroyFn = null;
 let filtroAlerta = 'todas';
@@ -84,6 +85,7 @@ export async function init() {
                 </div>
               </div>
               <div class="alerta-card__actions">
+                ${!esAnalista() ? '<span class="badge badge-info">Solo consulta</span>' : `
                 ${alerta.estado === 'abierta' ? `
                   <button class="btn btn-sm btn-outline btn-atender" data-id="${alerta.id}">
                     <i class="fa-solid fa-eye"></i> Atender
@@ -94,6 +96,7 @@ export async function init() {
                   </button>
                 ` : `
                   <span class="badge badge-neutral"><i class="fa-solid fa-check" style="margin-right: 4px;"></i>Resuelta</span>
+                `}
                 `}
               </div>
             </div>

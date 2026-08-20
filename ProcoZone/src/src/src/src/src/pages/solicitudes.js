@@ -8,6 +8,7 @@ import { renderTarjetaSolicitud } from '../../../components/tarjeta-solicitud.js
 import { abrirModalSolicitud, cerrarModal, mostrarIaLoadingEnModal, actualizarIaEnModal } from '../../../components/modal-solicitud.js';
 import { clasificarSolicitud } from '../../../services/ia-service.js';
 import { toast } from '../../../../services/notificacion-service.js';
+import { esAnalista } from '../../../../utils/auth.js';
 
 let filtroActual = 'todos';
 let destroyFn = null;
@@ -57,9 +58,9 @@ export async function init() {
     container.innerHTML = `
       <div class="solicitudes-header">
         <h1>Solicitudes</h1>
-        <a href="#/nueva-solicitud" class="btn btn-primary">
+        ${esAnalista() ? `<a href="#/nueva-solicitud" class="btn btn-primary">
           <i class="fa-solid fa-plus"></i> Nueva Solicitud
-        </a>
+        </a>` : ''}
       </div>
 
       <div class="solicitudes-filtros">

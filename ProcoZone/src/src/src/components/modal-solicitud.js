@@ -5,6 +5,7 @@
 import { ESTADO_BADGE, TIPO_TEXTO, NIVELES_RIESGO } from '../../utils/constantes.js';
 import { formatearFecha, formatearMoneda, formatearNumero, colorAfinidad } from '../../utils/formateador.js';
 import { renderLoading } from './estado-carga.js';
+import { esAnalista } from '../../utils/auth.js';
 
 export function abrirModalSolicitud(solicitud, empresa) {
   const container = document.getElementById('modal-container');
@@ -87,7 +88,7 @@ export function abrirModalSolicitud(solicitud, empresa) {
       </div>
 
       <div class="modal-footer" id="modalFooter">
-        ${solicitud.estado === 'en_revision' ? `
+        ${esAnalista() && solicitud.estado === 'en_revision' ? `
           <button class="btn btn-danger" id="btnRechazar" data-id="${solicitud.id}">
             <i class="fa-solid fa-xmark"></i> Rechazar
           </button>
@@ -162,9 +163,9 @@ function renderSinClasificacion(solicitudId) {
       <div style="padding: var(--space-4) 0;">
         <i class="fa-solid fa-robot" style="font-size: 2rem; color: var(--text-muted); opacity: 0.4; margin-bottom: var(--space-3);"></i>
         <p style="color: var(--text-muted); font-size: var(--text-sm); margin-bottom: var(--space-4);">Esta solicitud aún no ha sido clasificada por el motor de IA.</p>
-        <button class="btn btn-accent" id="btnClasificarModal" data-id="${solicitudId}">
+        ${esAnalista() ? `<button class="btn btn-accent" id="btnClasificarModal" data-id="${solicitudId}">
           <i class="fa-solid fa-wand-magic-sparkles"></i> Clasificar con IA
-        </button>
+        </button>` : '<span class="sin-clasificacion__readonly">Disponible para el analista</span>'}
       </div>
     </div>
   `;

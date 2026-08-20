@@ -4,6 +4,8 @@
    ============================================ */
 
 const rutas = {
+  '/landing': () => import('./pages/landing.js'),
+  '/login': () => import('./pages/login.js'),
   '/': () => import('./src/src/pages/dashboard.js'),
   '/solicitudes': () => import('./src/src/src/pages/solicitudes.js'),
   '/nueva-solicitud': () => import('./pages/nueva-solicitud.js'),
@@ -13,6 +15,8 @@ const rutas = {
 };
 
 const titulos = {
+  '/landing': 'Inicio',
+  '/login': 'Acceso',
   '/': 'Dashboard',
   '/solicitudes': 'Solicitudes',
   '/nueva-solicitud': 'Nueva Solicitud',
@@ -27,7 +31,7 @@ let moduloActual = null;
  * Navega a una ruta específica
  */
 export async function navegar(ruta) {
-  const contentEl = document.getElementById('content');
+  const contentEl = document.getElementById('content') || document.getElementById('public-content');
   if (!contentEl) return;
 
   // Destruir página anterior si existe
@@ -92,12 +96,6 @@ export async function navegar(ruta) {
  * Inicializa el router escuchando cambios de hash
  */
 export function iniciarRouter() {
-  window.addEventListener('hashchange', () => {
-    const hash = window.location.hash.slice(1) || '/';
-    navegar(hash);
-  });
-
-  // Carga inicial
   const hash = window.location.hash.slice(1) || '/';
   navegar(hash);
 }

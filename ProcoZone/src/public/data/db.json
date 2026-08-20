@@ -313,6 +313,22 @@
       "reporteId": 1
     }
   ],
+  "usuarios": [
+    {
+      "id": 1,
+      "usuario": "admin",
+      "contrasena": "admin",
+      "nombre": "Ana Rodríguez",
+      "rol": "Analista"
+    },
+    {
+      "id": 2,
+      "usuario": "usuario",
+      "contrasena": "usuario",
+      "nombre": "Usuario Consulta",
+      "rol": "Consulta"
+    }
+  ],
   "zonasFrancas": [
   {
     "id": 1,
