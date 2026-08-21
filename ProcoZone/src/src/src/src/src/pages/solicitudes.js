@@ -6,13 +6,15 @@ import { http } from '../../../../services/http-client.js';
 import { renderLoading, renderError, renderSkeletonCards } from '../../../components/estado-carga.js';
 import { renderTarjetaSolicitud } from '../../../components/tarjeta-solicitud.js';
 import { abrirModalSolicitud, cerrarModal, mostrarIaLoadingEnModal, actualizarIaEnModal } from '../../../components/modal-solicitud.js';
-import { clasificarSolicitud } from '../../../services/ia-service.js';
+import { clasificarSolicitud, clasificarSolicitudesPendientes } from '../../../services/ia-service.js';
 import { toast } from '../../../../services/notificacion-service.js';
 import { esAnalista } from '../../../../utils/auth.js';
 import { esConsulta, obtenerSesion } from '../../../../utils/auth.js';
 import { t } from '../../../../utils/translations.js';
 
 let filtroActual = 'todos';
+let filtroZona = 'todos';
+let filtroFecha = '';
 let destroyFn = null;
 
 export async function render() {
@@ -28,6 +30,7 @@ export async function init() {
   if (!container) return;
 
   let empresas = [];
+  let zonas = [];
   let solicitudes = [];
 
   async function cargarSolicitudes() {
@@ -35,9 +38,10 @@ export async function init() {
       container.innerHTML = renderSkeletonCards(4);
 
       // Carga paralela con Promise.all
-      [empresas, solicitudes] = await Promise.all([
+      [empresas, solicitudes, zonas] = await Promise.all([
         http.get('empresas'),
-        http.get('solicitudes')
+        http.get('solicitudes'),
+        http.get('zonasFrancas')
       ]);
       if (esConsulta()) {
         solicitudes = solicitudes.filter(solicitud => solicitud.empresaId === obtenerSesion()?.empresaId);
@@ -54,18 +58,20 @@ export async function init() {
   }
 
   function renderSolicitudes() {
-    const filtradas = filtroActual === 'todos'
+    let filtradas = filtroActual === 'todos'
       ? solicitudes
       : solicitudes.filter(s => s.estado === filtroActual);
+    if (filtroZona !== 'todos') filtradas = filtradas.filter((solicitud) => solicitud.zonaFrancaId === Number(filtroZona));
+    if (filtroFecha) filtradas = filtradas.filter((solicitud) => solicitud.fechaSolicitud === filtroFecha);
 
     const contar = (estado) => solicitudes.filter(s => s.estado === estado).length;
 
     container.innerHTML = `
       <div class="solicitudes-header">
         <h1>${t('applications')}</h1>
-        ${esAnalista() ? `<a href="#/nueva-solicitud" class="btn btn-primary">
+        ${esAnalista() ? `<div style="display:flex;gap:var(--space-2)"><button class="btn btn-outline" id="btnClasificarPendientes">Evaluar pendientes</button><a href="#/nueva-solicitud" class="btn btn-primary">
           <i class="fa-solid fa-plus"></i> Nueva Solicitud
-        </a>` : ''}
+        </a></div>` : ''}
       </div>
 
       <div class="solicitudes-filtros">
@@ -84,6 +90,8 @@ export async function init() {
         <button class="filtro-btn ${filtroActual === 'rechazada' ? 'active' : ''}" data-filtro="rechazada">
           Rechazadas (${contar('rechazada')})
         </button>
+        <select class="form-select" id="filtroZona" style="width:auto"><option value="todos">Todas las zonas</option>${zonas.map((zona) => `<option value="${zona.id}" ${Number(filtroZona) === zona.id ? 'selected' : ''}>${zona.nombre}</option>`).join('')}</select>
+        <input class="form-input" id="filtroFecha" type="date" value="${filtroFecha}" style="width:auto">
       </div>
 
       ${filtradas.length > 0 ? `
@@ -113,6 +121,9 @@ export async function init() {
         renderSolicitudes();
       });
     });
+    document.getElementById('filtroZona')?.addEventListener('change', (event) => { filtroZona = event.target.value; renderSolicitudes(); });
+    document.getElementById('filtroFecha')?.addEventListener('change', (event) => { filtroFecha = event.target.value; renderSolicitudes(); });
+    document.getElementById('btnClasificarPendientes')?.addEventListener('click', async () => { try { const resultados = await clasificarSolicitudesPendientes(); toast.success('Evaluación completada', `${resultados.length} solicitudes pendientes procesadas en paralelo.`); await cargarSolicitudes(); } catch (error) { console.error(error); toast.error('No fue posible evaluar pendientes', error.message); } });
 
     // Click en tarjeta → abrir modal
     container.querySelectorAll('.solicitud-card').forEach(card => {
@@ -180,7 +191,8 @@ export async function init() {
     // Aprobar solicitud
     document.getElementById('btnAprobar')?.addEventListener('click', async () => {
       try {
-        await http.patch('solicitudes', solicitud.id, { estado: 'aprobada' });
+        const decisionAnalista = { decision: 'aprobada', fecha: new Date().toISOString(), analista: obtenerSesion()?.nombre || 'Analista', justificacion: window.prompt('Justificación de la decisión (opcional):') || '' };
+        await http.patch('solicitudes', solicitud.id, { estado: 'aprobada', decisionAnalista });
         solicitud.estado = 'aprobada';
         cerrarModal();
         toast.success('Solicitud aprobada', `La solicitud #${solicitud.id} ha sido aprobada.`);
@@ -193,7 +205,8 @@ export async function init() {
     // Rechazar solicitud
     document.getElementById('btnRechazar')?.addEventListener('click', async () => {
       try {
-        await http.patch('solicitudes', solicitud.id, { estado: 'rechazada' });
+        const decisionAnalista = { decision: 'rechazada', fecha: new Date().toISOString(), analista: obtenerSesion()?.nombre || 'Analista', justificacion: window.prompt('Justificación de la decisión (opcional):') || '' };
+        await http.patch('solicitudes', solicitud.id, { estado: 'rechazada', decisionAnalista });
         solicitud.estado = 'rechazada';
         cerrarModal();
         toast.warning('Solicitud rechazada', `La solicitud #${solicitud.id} ha sido rechazada.`);

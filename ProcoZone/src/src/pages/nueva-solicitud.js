@@ -1,207 +1,46 @@
-/* ============================================
-   ProcoZone — Página Nueva Solicitud
-   Formulario completo con validación y submit
-   ============================================ */
 import { http } from '../services/http-client.js';
 import { toast } from '../services/notificacion-service.js';
-import { validarSolicitud } from '../utils/validaciones.js';
-import { CATEGORIAS_ZF, ZONAS_FRANCAS, TIPOS_SOLICITUD, TIPO_TEXTO } from '../utils/constantes.js';
+import { clasificarSolicitud } from '../src/services/ia-service.js';
 import { esConsulta, obtenerSesion } from '../utils/auth.js';
-import { t } from '../utils/translations.js';
 
-let destroyFn = null;
+const campo = (id, etiqueta, tipo = 'text', extra = '') => `<div class="form-group"><label class="form-label" for="${id}">${etiqueta} *</label><input class="form-input" id="${id}" type="${tipo}" ${extra} required><span class="form-error" id="error-${id}"></span></div>`;
 
 export async function render() {
-  // Cargar empresas para el select
-  const sesion = obtenerSesion();
-  let opcionesEmpresas = '<option value="">Seleccione una empresa</option>';
   try {
-    const empresas = await http.get('empresas');
-    opcionesEmpresas += empresas
-      .filter(e => e.estado !== 'Suspendida' && (!esConsulta() || e.id === sesion?.empresaId))
-      .map(e => `<option value="${e.id}" ${esConsulta() && e.id === sesion?.empresaId ? 'selected' : ''}>${e.nombre} — ${e.zonaFranca}</option>`)
-      .join('');
-  } catch (e) {
-    // Si falla, mostrar opciones vacías
-  }
-
-  return `
-    <div class="page-enter" id="nuevaSolicitudPage">
-      <div style="margin-bottom: var(--space-6);">
-        <h1 style="font-size: var(--text-2xl); margin-bottom: var(--space-2);">${t('new_request')}</h1>
-        <p style="color: var(--text-muted); font-size: var(--text-sm);">${t('request_description')}</p>
-      </div>
-
-      <form id="formSolicitud" novalidate>
-        <!-- Sección: Información General -->
-        <div class="form-section">
-          <div class="form-section-title">
-            <i class="fa-solid fa-circle-info"></i>
-            Información General
-          </div>
-          <div class="form-grid">
-            <div class="form-group">
-              <label class="form-label" for="empresaId">Empresa *</label>
-              <select class="form-select" id="empresaId" name="empresaId" ${esConsulta() ? 'disabled' : ''} required>
-                ${opcionesEmpresas}
-              </select>
-              <span class="form-error" id="error-empresaId"></span>
-            </div>
-            <div class="form-group">
-              <label class="form-label" for="tipo">${t('request_type')} *</label>
-              <select class="form-select" id="tipo" name="tipo" required>
-                <option value="">Seleccione un tipo</option>
-                ${Object.entries(TIPOS_SOLICITUD).map(([key, val]) =>
-                  `<option value="${val}">${TIPO_TEXTO[val]}</option>`
-                ).join('')}
-              </select>
-              <span class="form-error" id="error-tipo"></span>
-            </div>
-            <div class="form-group form-group--full">
-              <label class="form-label" for="descripcion">${t('description')} *</label>
-              <textarea class="form-textarea" id="descripcion" name="descripcion" rows="3" placeholder="Describa detalladamente la solicitud..." required></textarea>
-              <span class="form-error" id="error-descripcion"></span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Sección: Detalles Técnicos -->
-        <div class="form-section">
-          <div class="form-section-title">
-            <i class="fa-solid fa-gear"></i>
-            Detalles Técnicos
-          </div>
-          <div class="form-grid">
-            <div class="form-group">
-              <label class="form-label" for="tipoActividad">Tipo de Actividad *</label>
-              <input class="form-input" type="text" id="tipoActividad" name="tipoActividad" placeholder="Ej: Manufactura electrónica" required />
-              <span class="form-error" id="error-tipoActividad"></span>
-            </div>
-            <div class="form-group">
-              <label class="form-label" for="areaSolicitada">Área Solicitada (m²) *</label>
-              <input class="form-input" type="number" id="areaSolicitada" name="areaSolicitada" placeholder="Ej: 500" min="1" max="10000" required />
-              <span class="form-error" id="error-areaSolicitada"></span>
-            </div>
-            <div class="form-group">
-              <label class="form-label" for="inversionEstimada">Inversión Estimada (CRC) *</label>
-              <input class="form-input" type="number" id="inversionEstimada" name="inversionEstimada" placeholder="Ej: 2000000" min="1" required />
-              <span class="form-error" id="error-inversionEstimada"></span>
-            </div>
-            <div class="form-group">
-              <label class="form-label" for="empleosNuevos">Empleos Nuevos Generados *</label>
-              <input class="form-input" type="number" id="empleosNuevos" name="empleosNuevos" placeholder="Ej: 30" min="1" max="5000" required />
-              <span class="form-error" id="error-empleosNuevos"></span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Botones -->
-        <div style="display: flex; gap: var(--space-3); justify-content: flex-end; padding-top: var(--space-4); border-top: 1px solid var(--border);">
-          <a href="#/solicitudes" class="btn btn-outline">${t('cancel')}</a>
-          <button type="submit" class="btn btn-primary btn-lg" id="btnSubmit">
-            <i class="fa-solid fa-paper-plane"></i> ${t('submit_request')}
-          </button>
-        </div>
-      </form>
-    </div>
-  `;
+    const [empresas, zonas] = await Promise.all([http.get('empresas'), http.get('zonasFrancas')]);
+    const sesion = obtenerSesion();
+    const disponibles = empresas.filter((empresa) => empresa.estado !== 'Suspendida');
+    return `<div class="page-enter"><div style="margin-bottom:var(--space-6)"><h1>Nueva solicitud de instalación</h1><p>Complete todos los datos para enviarla a la evaluación automática.</p></div><form id="formSolicitud" novalidate>
+      <div class="form-section"><div class="form-section-title">Empresa y destino</div><div class="form-grid">
+        <div class="form-group"><label class="form-label" for="empresaId">Empresa *</label><select class="form-select" id="empresaId" required><option value="">Seleccione una empresa</option>${disponibles.map((empresa) => `<option value="${empresa.id}" data-cedula="${empresa.cedulaJuridica}">${empresa.nombre}</option>`).join('')}</select><span class="form-error" id="error-empresaId"></span></div>
+        <div class="form-group"><label class="form-label" for="cedulaJuridica">Cédula jurídica</label><input class="form-input" id="cedulaJuridica" readonly placeholder="Se completa al elegir empresa"><span class="form-error" id="error-cedulaJuridica"></span></div>
+        <div class="form-group"><label class="form-label" for="zonaFrancaId">Zona franca destino *</label><select class="form-select" id="zonaFrancaId" required><option value="">Seleccione una zona</option>${zonas.map((zona) => `<option value="${zona.id}">${zona.nombre}</option>`).join('')}</select><span class="form-error" id="error-zonaFrancaId"></span></div>
+        <div class="form-group"><label class="form-label" for="sector">Sector *</label><select class="form-select" id="sector" required disabled><option value="">Seleccione primero la zona</option></select><span class="form-error" id="error-sector"></span></div>
+      </div></div>
+      <div class="form-section"><div class="form-section-title">Proyección de la solicitud</div><div class="form-grid">
+        <div class="form-group"><label class="form-label" for="tipo">Tipo *</label><select class="form-select" id="tipo" required><option value="">Seleccione un tipo</option><option value="instalacion">Instalación</option><option value="expansion">Expansión</option></select><span class="form-error" id="error-tipo"></span></div>
+        ${campo('tipoActividad', 'Tipo de actividad')}${campo('areaSolicitada', 'Área solicitada (m²)', 'number', 'min="1"')}${campo('inversionEstimada', 'Inversión proyectada (CRC)', 'number', 'min="1"')}${campo('empleosNuevos', 'Empleos proyectados', 'number', 'min="1"')}${campo('exportacionesProyectadas', 'Exportaciones proyectadas (%)', 'number', 'min="0" max="100"')}${campo('reportesOportunosComprometidos', 'Reportes a tiempo comprometidos (%)', 'number', 'min="0" max="100" value="100"')}
+        <div class="form-group form-group--full"><label class="form-label" for="descripcion">Descripción *</label><textarea class="form-textarea" id="descripcion" rows="3" required></textarea><span class="form-error" id="error-descripcion"></span></div>
+      </div></div><div style="display:flex;gap:var(--space-3);justify-content:flex-end"><a class="btn btn-outline" href="#/solicitudes">Cancelar</a><button class="btn btn-primary btn-lg" id="btnSubmit">Enviar y evaluar con IA</button></div></form></div>`;
+  } catch (error) { return `<div class="empty-state"><h2>No fue posible cargar el formulario</h2><p>Revise la conexión e intente nuevamente.</p><button class="btn btn-primary" onclick="location.reload()">Reintentar</button></div>`; }
 }
 
-export async function init() {
+export function init() {
   const form = document.getElementById('formSolicitud');
   if (!form) return;
-
-  let enviando = false;
-
-  form.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    if (enviando) return;
-
-    // Recopilar datos
-    const datos = {
-      empresaId: parseInt(document.getElementById('empresaId').value) || null,
-      tipo: document.getElementById('tipo').value,
-      descripcion: document.getElementById('descripcion').value,
-      tipoActividad: document.getElementById('tipoActividad').value,
-      areaSolicitada: parseFloat(document.getElementById('areaSolicitada').value) || null,
-      inversionEstimada: parseFloat(document.getElementById('inversionEstimada').value) || null,
-      empleosNuevos: parseInt(document.getElementById('empleosNuevos').value) || null
-    };
-
-    // Validar
-    const errores = validarSolicitud(datos);
-    limpiarErrores();
-
-    if (errores) {
-      mostrarErrores(errores);
-      toast.warning('Campos incompletos', 'Por favor corrija los errores marcados.');
-      return;
-    }
-
-    // Enviar
-    enviando = true;
-    const btnSubmit = document.getElementById('btnSubmit');
-    btnSubmit.disabled = true;
-    btnSubmit.innerHTML = '<div class="spinner spinner-sm" style="border-top-color: white;"></div> Enviando...';
-
-    try {
-      const nuevaSolicitud = {
-        ...datos,
-        empresaId: datos.empresaId,
-        estado: 'pendiente',
-        fechaSolicitud: new Date().toISOString().split('T')[0],
-        clasificacionIa: null,
-        detalles: {
-          areaSolicitada: datos.areaSolicitada,
-          tipoActividad: datos.tipoActividad,
-          inversionEstimada: datos.inversionEstimada,
-          empleosNuevos: datos.empleosNuevos
-        },
-        observaciones: ''
-      };
-
-      // Limpiar campos que no van en el nivel raíz
-      delete nuevaSolicitud.tipoActividad;
-      delete nuevaSolicitud.areaSolicitada;
-      delete nuevaSolicitud.inversionEstimada;
-      delete nuevaSolicitud.empleosNuevos;
-
-      await http.post('solicitudes', nuevaSolicitud);
-
-      toast.success('Solicitud creada', 'La solicitud ha sido registrada exitosamente. Puede clasificarla con IA desde la lista de solicitudes.');
-
-      // Navegar a solicitudes
-      window.location.hash = '#/solicitudes';
-
-    } catch (error) {
-      toast.error('Error al enviar', error.message || 'No se pudo crear la solicitud.');
-      enviando = false;
-      btnSubmit.disabled = false;
-      btnSubmit.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Enviar Solicitud';
-    }
+  const empresa = document.getElementById('empresaId'); const cedula = document.getElementById('cedulaJuridica'); const zona = document.getElementById('zonaFrancaId'); const sector = document.getElementById('sector');
+  const actualizarCedula = () => { cedula.value = empresa.selectedOptions[0]?.dataset.cedula || ''; };
+  actualizarCedula(); empresa.addEventListener('change', actualizarCedula);
+  zona.addEventListener('change', async () => { try { const seleccionada = (await http.getById('zonasFrancas', zona.value)); sector.disabled = false; sector.innerHTML = `<option value="">Seleccione un sector</option>${seleccionada.sectoresPermitidos.map((nombre) => `<option value="${nombre}">${nombre}</option>`).join('')}`; } catch { toast.error('Error', 'No se pudieron cargar los sectores de la zona.'); } });
+  form.addEventListener('submit', async (event) => {
+    event.preventDefault(); document.querySelectorAll('.form-error').forEach((el) => { el.textContent = ''; });
+    const ids = ['empresaId', 'zonaFrancaId', 'sector', 'tipo', 'tipoActividad', 'areaSolicitada', 'inversionEstimada', 'empleosNuevos', 'exportacionesProyectadas', 'reportesOportunosComprometidos', 'descripcion'];
+    const vacios = ids.filter((id) => !document.getElementById(id).value.trim());
+    if (vacios.length || document.getElementById('descripcion').value.trim().length < 20) { vacios.forEach((id) => { document.getElementById(`error-${id}`).textContent = 'Este campo es requerido.'; }); if (document.getElementById('descripcion').value.trim().length < 20) document.getElementById('error-descripcion').textContent = 'La descripción debe tener al menos 20 caracteres.'; toast.warning('Campos incompletos', 'Complete los campos requeridos antes de evaluar.'); return; }
+    const seleccionada = empresa.selectedOptions[0];
+    const detalles = { tipoActividad: document.getElementById('tipoActividad').value.trim(), areaSolicitada: Number(document.getElementById('areaSolicitada').value), inversionEstimada: Number(document.getElementById('inversionEstimada').value), empleosNuevos: Number(document.getElementById('empleosNuevos').value) };
+    const nueva = { empresaId: Number(empresa.value), cedulaJuridica: seleccionada.dataset.cedula, zonaFrancaId: Number(zona.value), sector: sector.value, tipo: document.getElementById('tipo').value, descripcion: document.getElementById('descripcion').value.trim(), fechaSolicitud: new Date().toISOString().slice(0, 10), estado: 'pendiente', clasificacionIa: null, compromisos: { ...detalles, exportacionesProyectadas: Number(document.getElementById('exportacionesProyectadas').value), reportesOportunosComprometidos: Number(document.getElementById('reportesOportunosComprometidos').value) }, detalles, observaciones: '' };
+    const boton = document.getElementById('btnSubmit'); boton.disabled = true; boton.innerHTML = '<span class="spinner spinner-sm"></span> Guardando y evaluando...';
+    try { const creada = await http.post('solicitudes', nueva); const ia = await clasificarSolicitud(creada.id); toast.success('Solicitud evaluada', `Puntaje IA: ${ia.puntajeAfinidad}/100. Quedó en revisión de analista.`); window.location.hash = '#/solicitudes'; } catch (error) { console.error(error); toast.error('No se pudo completar la evaluación', 'La solicitud quedó pendiente y no cambió de estado. Puede reintentarlo desde el listado.'); boton.disabled = false; boton.textContent = 'Enviar y evaluar con IA'; }
   });
-
-  destroyFn = () => {
-    enviando = false;
-  };
-}
-
-function limpiarErrores() {
-  document.querySelectorAll('.form-error').forEach(el => el.textContent = '');
-  document.querySelectorAll('.form-input, .form-select, .form-textarea').forEach(el => {
-    el.style.borderColor = '';
-  });
-}
-
-function mostrarErrores(errores) {
-  for (const [campo, mensaje] of Object.entries(errores)) {
-    const errorEl = document.getElementById(`error-${campo}`);
-    const inputEl = document.getElementById(campo);
-    if (errorEl) errorEl.textContent = mensaje;
-    if (inputEl) inputEl.style.borderColor = 'var(--error)';
-  }
-}
-
-export function destroy() {
-  if (destroyFn) destroyFn();
 }

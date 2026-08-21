@@ -43,6 +43,7 @@ export async function init() {
       ? Math.round(reportes.reduce((sum, r) => sum + r.porcentajeCumplimiento, 0) / reportes.length)
       : 0;
     const empresasActivas = empresas.filter(e => e.estado === 'Activa').length;
+    const conteoEstados = ['pendiente', 'en_revision', 'aprobada', 'rechazada'].map((estado) => `${estado.replace('_', ' ')}: ${solicitudes.filter((solicitud) => solicitud.estado === estado).length}`).join(' · ');
 
     // Solicitudes recientes (últimas 5)
     const recientes = [...solicitudes].sort((a, b) =>
@@ -62,8 +63,9 @@ export async function init() {
       <div class="dashboard-grid">
         <div class="stat-card stat-card--primary">
           <div class="stat-card__icon"><i class="fa-solid fa-file-circle-plus"></i></div>
-          <div class="stat-card__value">${solicitudesPendientes}</div>
-          <div class="stat-card__label">${t('pending_applications')}</div>
+          <div class="stat-card__value">${solicitudes.length}</div>
+          <div class="stat-card__label">Total de solicitudes</div>
+          <small>${conteoEstados}</small>
         </div>
         <div class="stat-card stat-card--accent">
           <div class="stat-card__icon"><i class="fa-solid fa-building"></i></div>

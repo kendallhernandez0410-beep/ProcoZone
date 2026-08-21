@@ -11,7 +11,7 @@ import { mostrarCookieConsent } from './components/cookie-consent.js';
 import { applyTheme } from '../utils/theme.js';
 import { getLanguage, t } from '../utils/translations.js';
 
-const rutasPublicas = ['/landing', '/login'];
+const rutasPublicas = ['/landing', '/login', '/solicitar-acceso'];
 const rutasConsulta = ['/solicitudes', '/nueva-solicitud', '/alertas'];
 
 function rutaActual() {

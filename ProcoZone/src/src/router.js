@@ -6,10 +6,12 @@
 const rutas = {
   '/landing': () => import('./pages/landing.js'),
   '/login': () => import('./pages/login.js'),
+  '/solicitar-acceso': () => import('./pages/solicitar-acceso.js'),
   '/': () => import('./src/src/pages/dashboard.js'),
   '/solicitudes': () => import('./src/src/src/pages/solicitudes.js'),
   '/nueva-solicitud': () => import('./pages/nueva-solicitud.js'),
   '/empresas': () => import('./src/pages/empresas.js'),
+  '/zonas-francas': () => import('./pages/zonas-francas.js'),
   '/cumplimiento': () => import('./src/pages/cumplimiento.js'),
   '/alertas': () => import('./src/pages/alertas.js')
 };
@@ -17,10 +19,12 @@ const rutas = {
 const titulos = {
   '/landing': 'Inicio',
   '/login': 'Acceso',
+  '/solicitar-acceso': 'Solicitar acceso',
   '/': 'Dashboard',
   '/solicitudes': 'Solicitudes',
   '/nueva-solicitud': 'Nueva Solicitud',
   '/empresas': 'Empresas',
+  '/zonas-francas': 'Zonas francas',
   '/cumplimiento': 'Reportes de Cumplimiento',
   '/alertas': 'Alertas'
 };

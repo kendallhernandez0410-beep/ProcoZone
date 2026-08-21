@@ -79,6 +79,14 @@ export function abrirModalSolicitud(solicitud, empresa) {
           ${ia ? renderClasificacionIA(ia) : renderSinClasificacion(solicitud.id)}
         </div>
 
+        ${solicitud.decisionAnalista ? `
+          <div style="margin-top: var(--space-4); padding: var(--space-4); border: 1px solid var(--border); border-radius: var(--radius-md);">
+            <h4 style="margin-bottom: var(--space-2);">Decisión final del analista</h4>
+            <p style="margin-bottom: 4px;"><strong>${solicitud.decisionAnalista.decision}</strong> por ${solicitud.decisionAnalista.analista}</p>
+            <p style="margin: 0; color: var(--text-muted);">${solicitud.decisionAnalista.justificacion || 'Sin justificación adicional.'}</p>
+          </div>
+        ` : ''}
+
         ${solicitud.observaciones ? `
           <div style="margin-top: var(--space-5); padding: var(--space-4); background: var(--bg-secondary); border-radius: var(--radius-md); border: 1px solid var(--border);">
             <h4 style="font-size: var(--text-xs); color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: var(--space-2);">Observaciones</h4>

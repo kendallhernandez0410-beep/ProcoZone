@@ -287,10 +287,21 @@
       "zonaFrancaId": 1,
       "sector": "AnÃ¡lisis de Datos",
       "tipo": "expansion",
-      "estado": "pendiente",
+      "estado": "en_revision",
       "fechaSolicitud": "2026-11-20",
       "descripcion": "Ampliación del área de trabajo para incorporar equipo de procesamiento de datos en tiempo real.",
-      "clasificacionIa": null,
+      "clasificacionIa": {
+        "puntajeAfinidad": 60,
+        "recomendacion": "Revisar",
+        "nivelRiesgo": "Medio",
+        "factores": [
+          "Sector no permitido en la zona franca: 0/40",
+          "Inversión proyectada: 30/30",
+          "Empleos proyectados: 30/30"
+        ],
+        "justificacion": "Sector no permitido en la zona franca: 0/40. Inversión proyectada: 30/30. Empleos proyectados: 30/30",
+        "fechaClasificacion": "2026-08-21T16:15:03.995Z"
+      },
       "detalles": {
         "areaSolicitada": 200,
         "tipoActividad": "Procesamiento de datos",

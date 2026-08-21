@@ -20,6 +20,7 @@ export function render() {
               <label for="loginPassword">${t('password')}</label>
               <div class="input-wrap"><i class="fa-solid fa-lock"></i><input id="loginPassword" type="password" placeholder="Ingresa tu contraseña" autocomplete="current-password" required><button type="button" class="password-toggle" aria-label="Mostrar contraseña"><i class="fa-regular fa-eye"></i></button></div>
               <div class="login-options"><label class="checkbox-label"><input type="checkbox"> <span>Recordarme</span></label><button type="button" class="login-link" id="forgotPassword">¿Olvidaste tu contraseña?</button></div>
+              <a class="access-request-link" href="#/solicitar-acceso"><i class="fa-solid fa-building-circle-check"></i> ¿No sabes tu usuario? Solicitar acceso</a>
               <p class="login-error" id="loginError" role="alert"></p>
               <button class="btn btn-primary btn-lg login-submit" type="submit">Ingresar al sistema <i class="fa-solid fa-arrow-right"></i></button>
             </form>
@@ -49,6 +50,12 @@ export function init() {
   const recoveryPanel = document.getElementById('recoveryPanel');
   const recoveryForm = document.getElementById('recoveryForm');
   const recoveryMessage = document.getElementById('recoveryMessage');
+  const usuarioPrecargado = sessionStorage.getItem('procozone-prefilled-username');
+  if (usuarioPrecargado) {
+    document.getElementById('loginEmail').value = usuarioPrecargado;
+    sessionStorage.removeItem('procozone-prefilled-username');
+    password.focus();
+  }
   toggle?.addEventListener('click', () => {
     const visible = password.type === 'text';
     password.type = visible ? 'password' : 'text';

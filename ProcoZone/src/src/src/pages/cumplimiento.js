@@ -1,120 +1,20 @@
-/* ============================================
-   ProcoZone — Página de Cumplimiento
-   Reportes con indicadores detallados
-   ============================================ */
 import { http } from '../../services/http-client.js';
-import { renderLoading, renderError } from '../components/estado-carga.js';
-import { renderIndicador } from '../src/components/indicador-cumplimiento.js';
-import { formatearFecha, colorCumplimiento, colorDesdeString, obtenerIniciales } from '../../utils/formateador.js';
-import { UMBRALES_CUMPLIMIENTO } from '../../utils/constantes.js';
-import { t } from '../../utils/translations.js';
+import { guardarReporteCumplimiento } from '../../services/cumplimiento-service.js';
+import { toast } from '../../services/notificacion-service.js';
 
-let destroyFn = null;
+const entrada = (id, texto, tipo = 'number', extra = '') => `<div class="form-group"><label class="form-label" for="${id}">${texto} *</label><input id="${id}" class="form-input" type="${tipo}" min="0" ${extra} required></div>`;
 
-export async function render() {
-  return `
-    <div class="page-enter" id="cumplimientoPage">
-      ${renderLoading('Cargando reportes de cumplimiento...')}
-    </div>
-  `;
-}
+export function render() { return `<div id="cumplimientoPage" class="page-enter"><div class="loading-overlay"><span class="spinner"></span>Cargando reportería...</div></div>`; }
 
 export async function init() {
   const container = document.getElementById('cumplimientoPage');
-  if (!container) return;
-
-  try {
-    // Cargar en paralelo: reportes y empresas
-    const [reportes, empresas] = await Promise.all([
-      http.get('reportesCumplimiento'),
-      http.get('empresas')
-    ]);
-
-    container.innerHTML = `
-      <div style="margin-bottom: var(--space-6);">
-        <h1 style="font-size: var(--text-2xl); margin-bottom: var(--space-2);">${t('compliance_reports')}</h1>
-        <p style="color: var(--text-muted); font-size: var(--text-sm);">${t('compliance_description')}</p>
-      </div>
-
-      <div class="cumplimiento-grid">
-        ${reportes.map(reporte => {
-          const empresa = empresas.find(e => e.id === reporte.empresaId);
-          if (!empresa) return '';
-          const color = colorCumplimiento(reporte.porcentajeCumplimiento);
-          const bgAvatar = colorDesdeString(empresa.nombre);
-          const indicadores = reporte.indicadores || {};
-
-          return `
-            <div class="cumplimiento-card">
-              <div class="cumplimiento-card__header">
-                <div>
-                  <div style="display: flex; align-items: center; gap: var(--space-2); margin-bottom: 2px;">
-                    <div style="width: 24px; height: 24px; border-radius: var(--radius-sm); background: ${bgAvatar}22; color: ${bgAvatar}; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; font-family: var(--font-heading);">${obtenerIniciales(empresa.nombre)}</div>
-                    <span class="cumplimiento-card__empresa">${empresa.nombre}</span>
-                  </div>
-                  <span class="cumplimiento-card__periodo">${reporte.periodo} — ${formatearFecha(reporte.fechaReporte)}</span>
-                </div>
-              </div>
-
-              <div class="cumplimiento-card__puntaje">
-                <span class="puntaje-grande puntaje-grande--${color}">${reporte.porcentajeCumplimiento}</span>
-                <span class="puntaje-sufijo">%</span>
-                <span style="margin-left: var(--space-2); font-size: var(--text-xs); color: var(--text-muted);">de cumplimiento</span>
-              </div>
-
-              <div class="indicadores-list">
-                ${indicadores.exportaciones ? renderIndicador(
-                  'Exportaciones',
-                  indicadores.exportaciones.requerido,
-                  indicadores.exportaciones.actual,
-                  true
-                ) : ''}
-                ${indicadores.empleoNacional ? renderIndicador(
-                  'Empleo Nacional',
-                  indicadores.empleoNacional.requerido,
-                  indicadores.empleoNacional.actual,
-                  true
-                ) : ''}
-                ${indicadores.inversion ? renderIndicador(
-                  'Inversión Mínima',
-                  indicadores.inversion.requerido,
-                  indicadores.inversion.actual,
-                  false,
-                  'CRC'
-                ) : ''}
-                ${indicadores.reportesOportunos ? renderIndicador(
-                  'Reportes Oportunos',
-                  indicadores.reportesOportunos.requerido,
-                  indicadores.reportesOportunos.actual,
-                  true
-                ) : ''}
-              </div>
-
-              ${reporte.alertasGeneradas && reporte.alertasGeneradas.length > 0 ? `
-                <div class="cumplimiento-card__alertas">
-                  ${reporte.alertasGeneradas.map(alerta => `
-                    <div class="alerta-mini ${alerta.toLowerCase().includes('crític') ? 'alerta-mini--critica' : 'alerta-mini--warning'}">
-                      <i class="fa-solid ${alerta.toLowerCase().includes('crític') ? 'fa-circle-exclamation' : 'fa-triangle-exclamation'}"></i>
-                      <span>${alerta}</span>
-                    </div>
-                  `).join('')}
-                </div>
-              ` : ''}
-            </div>
-          `;
-        }).join('')}
-      </div>
-    `;
-
-  } catch (error) {
-    container.innerHTML = renderError(
-      error.message || 'Error al cargar los reportes.',
-      () => init()
-    );
-    container.querySelector('button')?.addEventListener('click', () => init());
+  async function cargar() {
+    try {
+      const [empresas, solicitudes, reportes] = await Promise.all([http.get('empresas'), http.get('solicitudes'), http.get('reportesCumplimiento')]);
+      const aprobadas = solicitudes.filter((solicitud) => solicitud.estado === 'aprobada');
+      container.innerHTML = `<div class="section-header"><div><h1>Reporte de cumplimiento</h1><p>Los valores se comparan contra los compromisos de la solicitud aprobada.</p></div></div><div class="card" style="margin-bottom:var(--space-6)"><form id="reporteForm" class="form-grid"><div class="form-group"><label class="form-label">Empresa con solicitud aprobada *</label><select id="reporteEmpresa" class="form-select" required><option value="">Seleccione una empresa</option>${aprobadas.map((solicitud) => { const empresa = empresas.find((item) => item.id === solicitud.empresaId); return empresa ? `<option value="${empresa.id}" data-solicitud="${solicitud.id}">${empresa.nombre}</option>` : ''; }).join('')}</select></div><div class="form-group"><label class="form-label">Periodo *</label><input id="periodo" class="form-input" placeholder="2026-Q1" required></div>${entrada('empleosReales', 'Empleos reales')}${entrada('inversionEjecutada', 'Inversión ejecutada (CRC)')}${entrada('exportaciones', 'Exportaciones (%)', 'number', 'max="100"')}${entrada('reportesOportunos', 'Reportes a tiempo (%)', 'number', 'max="100"')}<div class="form-group form-group--full"><button class="btn btn-primary" id="guardarReporte">Guardar y evaluar reporte</button></div></form></div><h2>Resumen consolidado por empresa</h2><div class="cumplimiento-grid">${reportes.map((reporte) => { const empresa = empresas.find((item) => item.id === reporte.empresaId); const indicadores = Object.entries(reporte.indicadores || {}).map(([nombre, indicador]) => `<li>${nombre}: <strong>${indicador.estado === 'cumple' ? 'Cumple' : 'No cumple'}</strong> (${indicador.actual}/${indicador.requerido})</li>`).join(''); return `<article class="card"><h3>${empresa?.nombre || 'Empresa'}</h3><p><strong>${reporte.porcentajeCumplimiento}%</strong> — ${reporte.estadoGeneral === 'en_regla' ? 'En regla' : 'Con incumplimientos'}</p><ul>${indicadores}</ul></article>`; }).join('') || '<p>No hay reportes registrados.</p>'}</div>`;
+      document.getElementById('reporteForm').addEventListener('submit', async (event) => { event.preventDefault(); const seleccion = document.getElementById('reporteEmpresa').selectedOptions[0]; const solicitud = solicitudes.find((item) => item.id === Number(seleccion.dataset.solicitud)); const empresa = empresas.find((item) => item.id === Number(seleccion.value)); const boton = document.getElementById('guardarReporte'); boton.disabled = true; boton.innerHTML = '<span class="spinner spinner-sm"></span> Evaluando...'; try { const resultado = await guardarReporteCumplimiento({ periodo: document.getElementById('periodo').value.trim(), empleosReales: document.getElementById('empleosReales').value, inversionEjecutada: document.getElementById('inversionEjecutada').value, exportaciones: document.getElementById('exportaciones').value, reportesOportunos: document.getElementById('reportesOportunos').value }, empresa, solicitud); toast.success(resultado.reporte.estadoGeneral === 'en_regla' ? 'Empresa en regla' : 'Reporte con alertas', resultado.alertasCreadas ? `${resultado.alertasCreadas} alerta(s) creada(s).` : 'No se generaron alertas.'); await cargar(); } catch (error) { console.error(error); toast.error('No se pudo guardar el reporte', error.message || 'Intente nuevamente.'); boton.disabled = false; boton.textContent = 'Guardar y evaluar reporte'; } });
+    } catch (error) { console.error(error); container.innerHTML = `<div class="empty-state"><h2>No fue posible cargar la reportería</h2><button id="retryReportes" class="btn btn-primary">Reintentar</button></div>`; document.getElementById('retryReportes').addEventListener('click', cargar); }
   }
-}
-
-export function destroy() {
-  if (destroyFn) destroyFn();
+  await cargar();
 }

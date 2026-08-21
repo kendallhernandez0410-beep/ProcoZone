@@ -15,7 +15,7 @@ export function esAnalista() {
 }
 
 export function esConsulta() {
-  return tieneRol('Consulta');
+  return tieneRol('Consulta') || tieneRol('Empresa');
 }
 
 export function cerrarSesion() {

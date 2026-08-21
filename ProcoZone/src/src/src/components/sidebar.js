@@ -21,7 +21,7 @@ export function renderSidebar(rutaActual) {
     : esConsulta()
       ? [{ ruta: '/solicitudes', icono: 'fa-file-circle-plus', texto: 'Mis Solicitudes' }, { ruta: '/nueva-solicitud', icono: 'fa-plus-circle', texto: 'Nueva Solicitud' }, { ruta: '/alertas', icono: 'fa-bell', texto: 'Mis Alertas' }]
       : navItems;
-  if (esAnalista()) items.splice(2, 0, { ruta: '/empresas', icono: 'fa-building', texto: 'Empresas' });
+  if (esAnalista()) items.splice(2, 0, { ruta: '/empresas', icono: 'fa-building', texto: 'Empresas' }, { ruta: '/zonas-francas', icono: 'fa-map-location-dot', texto: 'Zonas francas' });
   const navHTML = items.map(item => {
     const isActive = rutaActual === item.ruta;
     return `
