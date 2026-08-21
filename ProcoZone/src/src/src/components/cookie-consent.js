@@ -1,6 +1,7 @@
 /* ============================================
    ProcoZone — Aviso de cookies (estilo PROCOMER)
    ============================================ */
+import { t } from '../../utils/translations.js';
 
 const CLAVE_COOKIES = 'procozone-cookies';
 
@@ -14,15 +15,15 @@ export function mostrarCookieConsent() {
   if (decision || document.getElementById('cookieConsent')) return;
 
   document.body.insertAdjacentHTML('beforeend', `
-    <section class="cookie-consent" id="cookieConsent" role="dialog" aria-live="polite" aria-label="Aviso de cookies">
+    <section class="cookie-consent" id="cookieConsent" role="dialog" aria-live="polite" aria-label="${t('cookie_notice')}">
       <div class="cookie-consent__icon"><i class="fa-solid fa-cookie-bite"></i></div>
       <div class="cookie-consent__body">
-        <strong>Este sitio utiliza cookies</strong>
-        <p>Podemos utilizar cookies para el análisis de los datos de nuestros visitantes, para mejorar nuestro sitio web, mostrar contenido personalizado y brindarle una excelente experiencia en el sitio web.</p>
+        <strong>${t('cookie_title')}</strong>
+        <p>${t('cookie_text')}</p>
       </div>
       <div class="cookie-consent__actions">
-        <button type="button" class="btn btn-primary btn-sm" id="cookieAceptar">Aceptar</button>
-        <button type="button" class="btn btn-outline btn-sm" id="cookieRechazar">Rechazar</button>
+        <button type="button" class="btn btn-primary btn-sm" id="cookieAceptar">${t('accept')}</button>
+        <button type="button" class="btn btn-outline btn-sm" id="cookieRechazar">${t('reject')}</button>
       </div>
     </section>
   `);

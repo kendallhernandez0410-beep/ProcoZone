@@ -136,7 +136,7 @@
 .language-switch__option {
   position: relative;
   z-index: 1;
-  width: 24px;
+  width: 26px;
   color: var(--text-muted);
   font-size: 10px;
   font-weight: 700;
@@ -153,6 +153,10 @@
 
 .language-switch__slider {
   position: absolute;
+  left: 2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   width: 24px;
   height: 24px;
   border-radius: var(--radius-full);
@@ -160,8 +164,29 @@
   transition: transform var(--transition-fast);
 }
 
+.language-switch__slider i {
+  font-size: 11px;
+  color: #fff;
+}
+
+/* La manita recorre el switch de lado a lado al pasar el cursor */
+.language-switch__control:hover .language-switch__slider i {
+  animation: hand-sweep 0.9s ease-in-out infinite;
+}
+
+@keyframes hand-sweep {
+  0%, 100% { transform: translateX(-7px) rotate(-10deg); }
+  50% { transform: translateX(7px) rotate(10deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .language-switch__control:hover .language-switch__slider i {
+    animation: none;
+  }
+}
+
 .language-switch input:checked ~ .language-switch__slider {
-  transform: translateX(24px);
+  transform: translateX(26px);
 }
 
 .language-switch input:focus-visible ~ .language-switch__slider {

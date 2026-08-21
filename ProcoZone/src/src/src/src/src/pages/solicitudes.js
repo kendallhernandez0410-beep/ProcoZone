@@ -1,6 +1,7 @@
 /* ============================================
    ProcoZone — Página de Solicitudes
    Lista con filtros, búsqueda y clasificación IA
+   Vista de tabla para administrador
    ============================================ */
 import { http } from '../../../../services/http-client.js';
 import { renderLoading, renderError, renderSkeletonCards } from '../../../components/estado-carga.js';
@@ -8,8 +9,9 @@ import { renderTarjetaSolicitud } from '../../../components/tarjeta-solicitud.js
 import { abrirModalSolicitud, cerrarModal, mostrarIaLoadingEnModal, actualizarIaEnModal } from '../../../components/modal-solicitud.js';
 import { clasificarSolicitud, clasificarSolicitudesPendientes } from '../../../services/ia-service.js';
 import { toast } from '../../../../services/notificacion-service.js';
-import { esAnalista } from '../../../../utils/auth.js';
-import { esConsulta, obtenerSesion } from '../../../../utils/auth.js';
+import { esAnalista, esAdmin, esEmpresa, obtenerSesion } from '../../../../utils/auth.js';
+import { estadoSolicitudBadge, tipoSolicitudTexto, recomendacionIaTexto } from '../../../../utils/constantes.js';
+import { formatearFecha } from '../../../../utils/formateador.js';
 import { t } from '../../../../utils/translations.js';
 
 let filtroActual = 'todos';
@@ -20,7 +22,7 @@ let destroyFn = null;
 export async function render() {
   return `
     <div class="page-enter" id="solicitudesPage">
-      ${renderLoading('Cargando solicitudes...')}
+      ${renderLoading(t('loading_applications'))}
     </div>
   `;
 }
@@ -43,18 +45,56 @@ export async function init() {
         http.get('solicitudes'),
         http.get('zonasFrancas')
       ]);
-      if (esConsulta()) {
+      if (esEmpresa()) {
         solicitudes = solicitudes.filter(solicitud => solicitud.empresaId === obtenerSesion()?.empresaId);
       }
 
       renderSolicitudes();
     } catch (error) {
       container.innerHTML = renderError(
-        error.message || 'Error al cargar las solicitudes.',
+        error.message || t('load_error'),
         () => cargarSolicitudes()
       );
       container.querySelector('button')?.addEventListener('click', () => cargarSolicitudes());
     }
+  }
+
+  function renderTablaSolicitudes(filtradas) {
+    return `
+      <div class="table-container">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>${t('th_company')}</th>
+              <th>${t('th_type')}</th>
+              <th>${t('modal_request_date')}</th>
+              <th>${t('th_ai_decision')}</th>
+              <th>${t('th_score')}</th>
+              <th>${t('th_final_status')}</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${filtradas.map(sol => {
+              const empresa = empresas.find(e => e.id === sol.empresaId);
+              const estado = estadoSolicitudBadge(sol.estado);
+              const ia = sol.clasificacionIa;
+              return `
+                <tr class="solicitud-row" data-solicitud-id="${sol.id}">
+                  <td><strong>#${sol.id}</strong></td>
+                  <td style="font-weight: 500;">${empresa?.nombre || t('company_not_found')}</td>
+                  <td>${tipoSolicitudTexto(sol.tipo)}</td>
+                  <td><span class="fecha-chip"><i class="fa-regular fa-calendar"></i> ${formatearFecha(sol.fechaSolicitud)}</span></td>
+                  <td>${ia ? recomendacionIaTexto(ia.recomendacion) : `<span style="color: var(--text-muted);">${t('unclassified')}</span>`}</td>
+                  <td>${ia ? `${ia.puntajeAfinidad}/100` : '—'}</td>
+                  <td><span class="badge ${estado.clase}">${estado.texto}</span></td>
+                </tr>
+              `;
+            }).join('')}
+          </tbody>
+        </table>
+      </div>
+    `;
   }
 
   function renderSolicitudes() {
@@ -69,39 +109,40 @@ export async function init() {
     container.innerHTML = `
       <div class="solicitudes-header">
         <h1>${t('applications')}</h1>
-        ${esAnalista() ? `<div style="display:flex;gap:var(--space-2)"><button class="btn btn-outline" id="btnClasificarPendientes">Evaluar pendientes</button><a href="#/nueva-solicitud" class="btn btn-primary">
-          <i class="fa-solid fa-plus"></i> Nueva Solicitud
-        </a></div>` : ''}
+        ${esEmpresa() ? `<a href="#/nueva-solicitud" class="btn btn-primary">
+          <i class="fa-solid fa-plus"></i> ${t('new_application_btn')}
+        </a>` : esAnalista() ? `<button class="btn btn-outline" id="btnClasificarPendientes">${t('evaluate_pending')}</button>` : ''}
       </div>
 
       <div class="solicitudes-filtros">
         <button class="filtro-btn ${filtroActual === 'todos' ? 'active' : ''}" data-filtro="todos">
-          Todos (${solicitudes.length})
+          ${t('all')} (${solicitudes.length})
         </button>
         <button class="filtro-btn ${filtroActual === 'pendiente' ? 'active' : ''}" data-filtro="pendiente">
-          Pendientes (${contar('pendiente')})
+          ${t('pending')} (${contar('pendiente')})
         </button>
         <button class="filtro-btn ${filtroActual === 'en_revision' ? 'active' : ''}" data-filtro="en_revision">
-          En Revisión (${contar('en_revision')})
+          ${t('in_review')} (${contar('en_revision')})
         </button>
         <button class="filtro-btn ${filtroActual === 'aprobada' ? 'active' : ''}" data-filtro="aprobada">
-          Aprobadas (${contar('aprobada')})
+          ${t('approved')} (${contar('aprobada')})
         </button>
         <button class="filtro-btn ${filtroActual === 'rechazada' ? 'active' : ''}" data-filtro="rechazada">
-          Rechazadas (${contar('rechazada')})
+          ${t('rejected')} (${contar('rechazada')})
         </button>
-        <select class="form-select" id="filtroZona" style="width:auto"><option value="todos">Todas las zonas</option>${zonas.map((zona) => `<option value="${zona.id}" ${Number(filtroZona) === zona.id ? 'selected' : ''}>${zona.nombre}</option>`).join('')}</select>
-        <input class="form-input" id="filtroFecha" type="date" value="${filtroFecha}" style="width:auto">
+        <select class="form-select" id="filtroZona" style="width:auto"><option value="todos">${t('all_zones')}</option>${zonas.map((zona) => `<option value="${zona.id}" ${Number(filtroZona) === zona.id ? 'selected' : ''}>${zona.nombre}</option>`).join('')}</select>
+        <input class="form-input filtro-fecha" id="filtroFecha" type="date" value="${filtroFecha}" style="width:auto">
       </div>
 
-      ${filtradas.length > 0 ? `
+      ${filtradas.length > 0 ? (
+        esAdmin() ? renderTablaSolicitudes(filtradas) : `
         <div class="solicitudes-grid">
           ${filtradas.map(sol => {
             const empresa = empresas.find(e => e.id === sol.empresaId);
             return renderTarjetaSolicitud(sol, empresa);
           }).join('')}
         </div>
-      ` : `
+      `) : `
         <div class="empty-state">
           <i class="fa-solid fa-inbox"></i>
           <h3>${t('no_requests')}</h3>
@@ -111,6 +152,13 @@ export async function init() {
     `;
 
     bindEvents();
+  }
+
+  function abrirDetalle(solicitudId) {
+    const sol = solicitudes.find(s => s.id === solicitudId);
+    const emp = empresas.find(e => e.id === sol?.empresaId);
+    if (sol) abrirModalSolicitud(sol, emp);
+    bindModalEvents(sol);
   }
 
   function bindEvents() {
@@ -123,22 +171,20 @@ export async function init() {
     });
     document.getElementById('filtroZona')?.addEventListener('change', (event) => { filtroZona = event.target.value; renderSolicitudes(); });
     document.getElementById('filtroFecha')?.addEventListener('change', (event) => { filtroFecha = event.target.value; renderSolicitudes(); });
-    document.getElementById('btnClasificarPendientes')?.addEventListener('click', async () => { try { const resultados = await clasificarSolicitudesPendientes(); toast.success('Evaluación completada', `${resultados.length} solicitudes pendientes procesadas en paralelo.`); await cargarSolicitudes(); } catch (error) { console.error(error); toast.error('No fue posible evaluar pendientes', error.message); } });
+    document.getElementById('btnClasificarPendientes')?.addEventListener('click', async () => { try { const resultados = await clasificarSolicitudesPendientes(); toast.success(t('evaluation_completed'), `${resultados.length} ${t('evaluated_parallel')}`); await cargarSolicitudes(); } catch (error) { console.error(error); toast.error(t('error_title'), error.message); } });
 
     // Click en tarjeta → abrir modal
     container.querySelectorAll('.solicitud-card').forEach(card => {
       card.addEventListener('click', (e) => {
         // No abrir modal si se hizo click en "Clasificar"
         if (e.target.closest('.btn-clasificar')) return;
-
-        const id = parseInt(card.dataset.solicitudId);
-        const sol = solicitudes.find(s => s.id === id);
-        const emp = empresas.find(e => e.id === sol?.empresaId);
-        if (sol) abrirModalSolicitud(sol, emp);
-
-        // Bind eventos del modal
-        bindModalEvents(sol);
+        abrirDetalle(parseInt(card.dataset.solicitudId));
       });
+    });
+
+    // Click en fila de tabla (vista admin) → abrir modal
+    container.querySelectorAll('.solicitud-row').forEach(row => {
+      row.addEventListener('click', () => abrirDetalle(parseInt(row.dataset.solicitudId)));
     });
 
     // Botón clasificar directamente desde la tarjeta
@@ -174,10 +220,10 @@ export async function init() {
       // Re-bind eventos del modal actualizado
       bindModalEvents(solicitudes[idx]);
 
-      toast.success('Clasificación completada', `Puntaje de afinidad: ${clasificacion.puntajeAfinidad}/100`);
+      toast.success(t('classification_completed'), `${t('affinity_score')}: ${clasificacion.puntajeAfinidad}/100`);
 
     } catch (error) {
-      toast.error('Error en clasificación', error.message);
+      toast.error(t('classification_error'), error.message);
       cerrarModal();
     }
   }
@@ -191,28 +237,28 @@ export async function init() {
     // Aprobar solicitud
     document.getElementById('btnAprobar')?.addEventListener('click', async () => {
       try {
-        const decisionAnalista = { decision: 'aprobada', fecha: new Date().toISOString(), analista: obtenerSesion()?.nombre || 'Analista', justificacion: window.prompt('Justificación de la decisión (opcional):') || '' };
+        const decisionAnalista = { decision: 'aprobada', fecha: new Date().toISOString(), analista: obtenerSesion()?.nombre || 'Analista', justificacion: window.prompt(t('decision_justification')) || '' };
         await http.patch('solicitudes', solicitud.id, { estado: 'aprobada', decisionAnalista });
         solicitud.estado = 'aprobada';
         cerrarModal();
-        toast.success('Solicitud aprobada', `La solicitud #${solicitud.id} ha sido aprobada.`);
+        toast.success(t('application_approved_title'), `#${solicitud.id} ${t('application_approved_msg')}`);
         renderSolicitudes();
       } catch (error) {
-        toast.error('Error', 'No se pudo actualizar la solicitud.');
+        toast.error(t('error_title'), t('error_update_application'));
       }
     });
 
     // Rechazar solicitud
     document.getElementById('btnRechazar')?.addEventListener('click', async () => {
       try {
-        const decisionAnalista = { decision: 'rechazada', fecha: new Date().toISOString(), analista: obtenerSesion()?.nombre || 'Analista', justificacion: window.prompt('Justificación de la decisión (opcional):') || '' };
+        const decisionAnalista = { decision: 'rechazada', fecha: new Date().toISOString(), analista: obtenerSesion()?.nombre || 'Analista', justificacion: window.prompt(t('decision_justification')) || '' };
         await http.patch('solicitudes', solicitud.id, { estado: 'rechazada', decisionAnalista });
         solicitud.estado = 'rechazada';
         cerrarModal();
-        toast.warning('Solicitud rechazada', `La solicitud #${solicitud.id} ha sido rechazada.`);
+        toast.warning(t('application_rejected_title'), `#${solicitud.id} ${t('application_rejected_msg')}`);
         renderSolicitudes();
       } catch (error) {
-        toast.error('Error', 'No se pudo actualizar la solicitud.');
+        toast.error(t('error_title'), t('error_update_application'));
       }
     });
   }

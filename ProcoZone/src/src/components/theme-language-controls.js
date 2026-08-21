@@ -11,7 +11,7 @@ export function renderThemeLanguageControls() {
       <span class="language-switch__control">
         <span class="language-switch__option">ES</span>
         <input id="languageToggle" type="checkbox" role="switch" aria-label="${t('language')}" ${currentLanguage === 'en' ? 'checked' : ''} />
-        <span class="language-switch__slider"></span>
+        <span class="language-switch__slider"><i class="fa-solid fa-hand-pointer"></i></span>
         <span class="language-switch__option">EN</span>
       </span>
     </label>

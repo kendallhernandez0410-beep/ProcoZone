@@ -1,4 +1,5 @@
 import { http } from '../../services/http-client.js';
+import { t } from '../../utils/translations.js';
 
 function simularProcesamiento(minMs = 650, maxMs = 1200) {
   return new Promise((resolve) => setTimeout(resolve, minMs + Math.random() * (maxMs - minMs)));
@@ -7,9 +8,9 @@ function simularProcesamiento(minMs = 650, maxMs = 1200) {
 export function evaluarSolicitud(solicitud, empresa, zonaFranca) {
   const detalles = solicitud.detalles || {};
   const requeridos = [solicitud.empresaId, solicitud.zonaFrancaId, solicitud.sector, detalles.inversionEstimada, detalles.empleosNuevos, detalles.tipoActividad, detalles.areaSolicitada, solicitud.descripcion];
-  if (requeridos.some((valor) => valor === undefined || valor === null || valor === '')) throw new Error('La solicitud debe completar todos los campos requeridos antes de evaluarse con IA.');
-  if (empresa.estado === 'Suspendida') throw new Error('Una empresa suspendida no puede ser evaluada ni enviar solicitudes.');
-  if (!zonaFranca) throw new Error('No se encontró la zona franca seleccionada.');
+  if (requeridos.some((valor) => valor === undefined || valor === null || valor === '')) throw new Error(t('ia_error_incomplete'));
+  if (empresa.estado === 'Suspendida') throw new Error(t('ia_error_suspended'));
+  if (!zonaFranca) throw new Error(t('ia_error_zone_not_found'));
 
   const sectorPermitido = zonaFranca.sectoresPermitidos.some((sector) => sector.toLowerCase() === solicitud.sector.toLowerCase());
   const puntajeSector = sectorPermitido ? 40 : 0;
@@ -35,7 +36,7 @@ export async function clasificarSolicitud(solicitudId) {
     return clasificacion;
   } catch (error) {
     console.error('Error en el servicio de IA:', error);
-    throw new Error('No se pudo completar la clasificación con IA. Intente nuevamente.');
+    throw new Error(t('ia_error_classification'));
   }
 }
 

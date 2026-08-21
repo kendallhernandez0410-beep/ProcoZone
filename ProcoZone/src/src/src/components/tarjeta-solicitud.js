@@ -1,13 +1,14 @@
 /* ============================================
    ProcoZone — Componente Tarjeta de Solicitud
    ============================================ */
-import { ESTADO_BADGE, TIPO_TEXTO } from '../../utils/constantes.js';
+import { estadoSolicitudBadge, tipoSolicitudTexto } from '../../utils/constantes.js';
 import { formatearFecha, truncarTexto, colorAfinidad } from '../../utils/formateador.js';
 import { esAnalista } from '../../utils/auth.js';
+import { t } from '../../utils/translations.js';
 
 export function renderTarjetaSolicitud(solicitud, empresa) {
-  const estado = ESTADO_BADGE[solicitud.estado] || ESTADO_BADGE.pendiente;
-  const tipoTexto = TIPO_TEXTO[solicitud.tipo] || solicitud.tipo;
+  const estado = estadoSolicitudBadge(solicitud.estado);
+  const tipoTexto = tipoSolicitudTexto(solicitud.tipo) || solicitud.tipo;
   const ia = solicitud.clasificacionIa;
 
   let iaHTML;
@@ -17,7 +18,7 @@ export function renderTarjetaSolicitud(solicitud, empresa) {
       <div class="solicitud-card__ia">
         <div class="ia-badge">
           <i class="fa-solid fa-microchip"></i>
-          <span>Clasificación IA</span>
+          <span>${t('ai_classification')}</span>
         </div>
         <span class="ia-puntaje ia-puntaje--${colorClase}">${ia.puntajeAfinidad}</span>
       </div>
@@ -27,11 +28,11 @@ export function renderTarjetaSolicitud(solicitud, empresa) {
       <div class="solicitud-card__ia">
         <div class="sin-clasificacion">
           <i class="fa-solid fa-clock"></i>
-          <span>Sin clasificación IA</span>
+          <span>${t('no_ai_classification')}</span>
         </div>
         ${esAnalista() ? `<button class="btn btn-sm btn-accent btn-clasificar" data-id="${solicitud.id}">
-          <i class="fa-solid fa-wand-magic-sparkles"></i> Clasificar
-        </button>` : '<span class="sin-clasificacion__readonly">Pendiente de análisis</span>'}
+          <i class="fa-solid fa-wand-magic-sparkles"></i> ${t('classify')}
+        </button>` : `<span class="sin-clasificacion__readonly">${t('pending_analysis')}</span>`}
       </div>
     `;
   }
@@ -40,7 +41,7 @@ export function renderTarjetaSolicitud(solicitud, empresa) {
     <div class="solicitud-card" data-solicitud-id="${solicitud.id}">
       <div class="solicitud-card__top">
         <div>
-          <div class="solicitud-card__empresa">${empresa?.nombre || 'Empresa no encontrada'}</div>
+          <div class="solicitud-card__empresa">${empresa?.nombre || t('company_not_found')}</div>
           <div class="solicitud-card__tipo">${tipoTexto} — #${solicitud.id}</div>
         </div>
         <span class="badge ${estado.clase}">${estado.texto}</span>

@@ -287,10 +287,21 @@
       "zonaFrancaId": 1,
       "sector": "AnÃ¡lisis de Datos",
       "tipo": "expansion",
-      "estado": "pendiente",
+      "estado": "en_revision",
       "fechaSolicitud": "2026-11-20",
       "descripcion": "Ampliación del área de trabajo para incorporar equipo de procesamiento de datos en tiempo real.",
-      "clasificacionIa": null,
+      "clasificacionIa": {
+        "puntajeAfinidad": 60,
+        "recomendacion": "Revisar",
+        "nivelRiesgo": "Medio",
+        "factores": [
+          "Sector no permitido en la zona franca: 0/40",
+          "Inversión proyectada: 30/30",
+          "Empleos proyectados: 30/30"
+        ],
+        "justificacion": "Sector no permitido en la zona franca: 0/40. Inversión proyectada: 30/30. Empleos proyectados: 30/30",
+        "fechaClasificacion": "2026-08-21T19:38:23.243Z"
+      },
       "detalles": {
         "areaSolicitada": 200,
         "tipoActividad": "Procesamiento de datos",
@@ -429,6 +440,37 @@
         "CRÍTICO: Todas las métricas por debajo del mínimo",
         "Empresa suspendida pending revisión del régimen"
       ]
+    },
+    {
+      "empresaId": 1,
+      "solicitudId": 1,
+      "periodo": "dsajdajdadjdaksakdaj",
+      "fechaReporte": "2026-08-21",
+      "indicadores": {
+        "empleos": {
+          "requerido": 25,
+          "actual": 13,
+          "estado": "incumple"
+        },
+        "inversion": {
+          "requerido": 1800000,
+          "actual": 8,
+          "estado": "incumple"
+        },
+        "exportaciones": {
+          "requerido": 75,
+          "actual": 0,
+          "estado": "incumple"
+        },
+        "reportesOportunos": {
+          "requerido": 100,
+          "actual": 0,
+          "estado": "incumple"
+        }
+      },
+      "porcentajeCumplimiento": 0,
+      "estadoGeneral": "incumple",
+      "id": 5
     }
   ],
   "alertas": [
@@ -439,7 +481,7 @@
       "titulo": "Suspensión inminente del régimen",
       "descripcion": "AeroComposites Intl. acumula 3 trimestres consecutivos con cumplimiento menor al 50%. Se recomienda iniciar proceso de suspensión.",
       "fechaCreacion": "2026-10-12",
-      "estado": "abierta",
+      "estado": "en_proceso",
       "reporteId": 4
     },
     {
@@ -449,7 +491,7 @@
       "titulo": "Empleo nacional por debajo del mínimo",
       "descripcion": "BioPharm Costa Rica presenta 76% de empleo nacional contra el 90% requerido. Requiere plan de corrección.",
       "fechaCreacion": "2026-10-08",
-      "estado": "abierta",
+      "estado": "en_proceso",
       "reporteId": 2
     },
     {
@@ -459,7 +501,7 @@
       "titulo": "Empresa en estado de revisión",
       "descripcion": "GreenPack Industries se encuentra en proceso de revisión desde junio 2024. Pendiente documentación adicional.",
       "fechaCreacion": "2026-09-15",
-      "estado": "en_proceso",
+      "estado": "cerrada",
       "reporteId": null
     },
     {
@@ -471,31 +513,85 @@
       "fechaCreacion": "2026-10-05",
       "estado": "cerrada",
       "reporteId": 1
+    },
+    {
+      "empresaId": 1,
+      "reporteId": 5,
+      "tipo": "critica",
+      "titulo": "Incumplimiento: Empleos",
+      "descripcion": "Tecnova Solutions CR S.A.: Empleos reportado 13; requerido 25.",
+      "fechaCreacion": "2026-08-21",
+      "estado": "abierta",
+      "metrica": "empleos",
+      "valorReportado": 13,
+      "valorRequerido": 25,
+      "id": 5
+    },
+    {
+      "empresaId": 1,
+      "reporteId": 5,
+      "tipo": "critica",
+      "titulo": "Incumplimiento: Inversión ejecutada",
+      "descripcion": "Tecnova Solutions CR S.A.: Inversión ejecutada reportado 8; requerido 1800000.",
+      "fechaCreacion": "2026-08-21",
+      "estado": "abierta",
+      "metrica": "inversion",
+      "valorReportado": 8,
+      "valorRequerido": 1800000,
+      "id": 6
+    },
+    {
+      "empresaId": 1,
+      "reporteId": 5,
+      "tipo": "critica",
+      "titulo": "Incumplimiento: Exportaciones",
+      "descripcion": "Tecnova Solutions CR S.A.: Exportaciones reportado 0; requerido 75.",
+      "fechaCreacion": "2026-08-21",
+      "estado": "abierta",
+      "metrica": "exportaciones",
+      "valorReportado": 0,
+      "valorRequerido": 75,
+      "id": 7
+    },
+    {
+      "empresaId": 1,
+      "reporteId": 5,
+      "tipo": "critica",
+      "titulo": "Incumplimiento: Reportes a tiempo",
+      "descripcion": "Tecnova Solutions CR S.A.: Reportes a tiempo reportado 0; requerido 100.",
+      "fechaCreacion": "2026-08-21",
+      "estado": "abierta",
+      "metrica": "reportesOportunos",
+      "valorReportado": 0,
+      "valorRequerido": 100,
+      "id": 8
     }
   ],
   "usuarios": [
     {
       "id": 1,
-      "usuario": "admin",
-      "contrasena": "admin",
-      "nombre": "Ana Rodríguez",
-      "rol": "Analista"
+      "usuario": "empresa",
+      "contrasena": "empresa123",
+      "nombre": "María González",
+      "rol": "Empresa",
+      "descripcionRol": "Empresa Solicitante / Instalada (Cliente externo)",
+      "empresaId": 1
     },
     {
       "id": 2,
-      "usuario": "usuario",
-      "contrasena": "usuario",
-      "nombre": "Usuario Consulta",
-      "rol": "Consulta",
-      "empresaId": 1
+      "usuario": "analista",
+      "contrasena": "analista123",
+      "nombre": "Luis Fernández",
+      "rol": "Analista",
+      "descripcionRol": "Analista de la Zona Franca / Operaciones (Usuario interno)"
     },
     {
       "id": 3,
-      "usuario": "tecnova",
-      "contrasena": "tecnova123",
-      "nombre": "Tecnova Solutions CR S.A.",
-      "rol": "Empresa",
-      "empresaId": 1
+      "usuario": "admin",
+      "contrasena": "admin123",
+      "nombre": "Ana Rodríguez",
+      "rol": "Administrador",
+      "descripcionRol": "Administrador / Gerente de la Zona Franca (Gestión y Control)"
     }
   ],
   "zonasFrancas": [

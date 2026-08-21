@@ -5,7 +5,7 @@
 import { http } from '../../services/http-client.js';
 import { renderLoading, renderError, renderSkeletonRows } from '../components/estado-carga.js';
 import { formatearFecha, formatearNumero, formatearMoneda, colorCumplimiento, colorDesdeString, obtenerIniciales } from '../../utils/formateador.js';
-import { EMPRESA_ESTADO_BADGE, ESTADOS_EMPRESA } from '../../utils/constantes.js';
+import { EMPRESA_ESTADO_BADGE, empresaEstadoTexto } from '../../utils/constantes.js';
 import { toast } from '../../services/notificacion-service.js';
 import { t } from '../../utils/translations.js';
 
@@ -14,7 +14,7 @@ let destroyFn = null;
 export async function render() {
   return `
     <div class="page-enter" id="empresasPage">
-      ${renderLoading('Cargando empresas...')}
+      ${renderLoading(t('loading_companies'))}
     </div>
   `;
 }
@@ -60,12 +60,12 @@ export async function init() {
           <table class="table">
             <thead>
               <tr>
-                <th>Empresa</th>
-                <th>Zona Franca</th>
-                <th>Categoría</th>
-                <th>Estado</th>
-                <th>Empleados</th>
-                <th>Cumplimiento</th>
+                <th>${t('th_company')}</th>
+                <th>${t('th_free_zone')}</th>
+                <th>${t('th_category')}</th>
+                <th>${t('th_status')}</th>
+                <th>${t('th_employees')}</th>
+                <th>${t('th_compliance')}</th>
               </tr>
             </thead>
             <tbody>
@@ -85,7 +85,7 @@ export async function init() {
                     </td>
                     <td>${emp.zonaFranca}</td>
                     <td>${emp.categoria}</td>
-                    <td><span class="badge ${EMPRESA_ESTADO_BADGE[emp.estado]}">${emp.estado}</span></td>
+                    <td><span class="badge ${EMPRESA_ESTADO_BADGE[emp.estado]}">${empresaEstadoTexto(emp.estado)}</span></td>
                     <td>${formatearNumero(emp.empleados)}</td>
                     <td>
                       <div class="empresa-cumplimiento">
@@ -148,39 +148,39 @@ export async function init() {
             <div class="empresa-avatar" style="background: ${bgAvatar}22; color: ${bgAvatar}; width: 42px; height: 42px; font-size: var(--text-base);">${obtenerIniciales(emp.nombre)}</div>
             <h3>${emp.nombre}</h3>
           </div>
-          <button class="modal-close" id="modalClose" aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button>
+          <button class="modal-close" id="modalClose" aria-label="${t('close')}"><i class="fa-solid fa-xmark"></i></button>
         </div>
         <div class="modal-body">
           <div style="display: flex; gap: var(--space-3); margin-bottom: var(--space-5);">
-            <span class="badge ${EMPRESA_ESTADO_BADGE[emp.estado]}">${emp.estado}</span>
+            <span class="badge ${EMPRESA_ESTADO_BADGE[emp.estado]}">${empresaEstadoTexto(emp.estado)}</span>
             <span class="badge badge-neutral">${emp.categoria}</span>
           </div>
 
           <div class="empresa-detalle">
             <div class="empresa-detalle__info">
               <div class="detalle-grid">
-                <div class="detalle-item"><span class="detalle-item__label">Cédula Jurídica</span><span class="detalle-item__value">${emp.cedulaJuridica}</span></div>
-                <div class="detalle-item"><span class="detalle-item__label">Zona Franca</span><span class="detalle-item__value">${emp.zonaFranca}</span></div>
-                <div class="detalle-item"><span class="detalle-item__label">Fecha de Registro</span><span class="detalle-item__value">${formatearFecha(emp.fechaRegistro)}</span></div>
-                <div class="detalle-item"><span class="detalle-item__label">Contacto</span><span class="detalle-item__value">${emp.contactoNombre}</span></div>
-                <div class="detalle-item"><span class="detalle-item__label">Email</span><span class="detalle-item__value">${emp.contactoEmail}</span></div>
-                <div class="detalle-item"><span class="detalle-item__label">Teléfono</span><span class="detalle-item__value">${emp.contactoTelefono}</span></div>
+                <div class="detalle-item"><span class="detalle-item__label">${t('lbl_legal_id')}</span><span class="detalle-item__value">${emp.cedulaJuridica}</span></div>
+                <div class="detalle-item"><span class="detalle-item__label">${t('lbl_free_zone')}</span><span class="detalle-item__value">${emp.zonaFranca}</span></div>
+                <div class="detalle-item"><span class="detalle-item__label">${t('lbl_registration_date')}</span><span class="detalle-item__value">${formatearFecha(emp.fechaRegistro)}</span></div>
+                <div class="detalle-item"><span class="detalle-item__label">${t('lbl_contact')}</span><span class="detalle-item__value">${emp.contactoNombre}</span></div>
+                <div class="detalle-item"><span class="detalle-item__label">${t('lbl_email')}</span><span class="detalle-item__value">${emp.contactoEmail}</span></div>
+                <div class="detalle-item"><span class="detalle-item__label">${t('lbl_phone')}</span><span class="detalle-item__value">${emp.contactoTelefono}</span></div>
               </div>
             </div>
             <div class="empresa-detalle__metricas">
               <div class="metrica-card">
                 <div class="metrica-card__valor" style="color: var(--${color});">${emp.porcentajeCumplimiento}%</div>
-                <div class="metrica-card__label">Cumplimiento</div>
+                <div class="metrica-card__label">${t('lbl_compliance')}</div>
               </div>
               <div class="metrica-card">
                 <div class="metrica-card__valor">${formatearNumero(emp.empleados)}</div>
-                <div class="metrica-card__label">Empleados</div>
+                <div class="metrica-card__label">${t('lbl_employees')}</div>
               </div>
             </div>
           </div>
         </div>
         <div class="modal-footer">
-          <button class="btn btn-outline" id="modalCloseBtn">Cerrar</button>
+          <button class="btn btn-outline" id="modalCloseBtn">${t('close')}</button>
         </div>
       </div>
     `;

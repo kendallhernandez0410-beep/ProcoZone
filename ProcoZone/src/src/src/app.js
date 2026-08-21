@@ -5,14 +5,35 @@
 import { renderSidebar, iniciarSidebar } from './components/sidebar.js';
 import { renderHeader, iniciarBusqueda, iniciarAlertasDropdown } from '../components/header.js';
 import { navegar } from '../router.js';
-import { esAnalista, esConsulta, obtenerSesion } from '../utils/auth.js';
+import { esEmpresa, esInterno, estaAutenticado } from '../utils/auth.js';
 import { iniciarChatbot } from './components/chatbot.js';
 import { mostrarCookieConsent } from './components/cookie-consent.js';
 import { applyTheme } from '../utils/theme.js';
 import { getLanguage, t } from '../utils/translations.js';
 
 const rutasPublicas = ['/landing', '/login', '/solicitar-acceso'];
-const rutasConsulta = ['/solicitudes', '/nueva-solicitud', '/alertas'];
+// Rol 1 — Empresa Solicitante / Instalada: registra solicitudes, envía reportes y consulta estado
+const rutasEmpresa = ['/solicitudes', '/nueva-solicitud', '/cumplimiento', '/alertas'];
+
+/**
+ * Devuelve la ruta corregida según el rol de la sesión activa:
+ * - Empresa: solo sus rutas (solicitudes, reportes y alertas)
+ * - Analista/Administrador: todo el panel interno excepto nueva solicitud
+ */
+function normalizarRutaPorRol(ruta) {
+  if (esEmpresa()) {
+    if (!rutasEmpresa.includes(ruta)) {
+      window.location.hash = '#/solicitudes';
+      return '/solicitudes';
+    }
+    return ruta;
+  }
+  if (esInterno() && ruta === '/nueva-solicitud') {
+    window.location.hash = '#/';
+    return '/';
+  }
+  return ruta;
+}
 
 function rutaActual() {
   return window.location.hash.slice(1) || '/landing';
@@ -26,15 +47,8 @@ function montarAplicacion() {
   const lang = getLanguage();
   document.documentElement.lang = lang;
 
-  let ruta = rutaActual();
-  if (esConsulta() && !rutasConsulta.includes(ruta)) {
-    window.location.hash = '#/solicitudes';
-    ruta = '/solicitudes';
-  } else if (esAnalista() && ruta === '/nueva-solicitud') {
-    window.location.hash = '#/';
-    ruta = '/';
-  }
-  if (!rutasPublicas.includes(ruta) && sessionStorage.getItem('procozone-authenticated') !== 'true') {
+  let ruta = normalizarRutaPorRol(rutaActual());
+  if (!rutasPublicas.includes(ruta) && !estaAutenticado()) {
     window.location.hash = '#/login';
     ruta = '/login';
   }
@@ -59,7 +73,7 @@ function montarAplicacion() {
   iniciarSidebar();
   iniciarBusqueda();
   iniciarAlertasDropdown();
-  if (esConsulta()) iniciarChatbot();
+  if (esEmpresa()) iniciarChatbot();
 
   // Actualizar título dinámicamente desde el router
   const headerTitle = document.getElementById('headerTitle');
@@ -77,14 +91,7 @@ export function iniciarApp() {
   window.addEventListener('app:language-updated', () => montarAplicacion());
   window.addEventListener('app:theme-updated', () => montarAplicacion());
   window.addEventListener('hashchange', () => {
-    let ruta = rutaActual();
-    if (esConsulta() && !rutasConsulta.includes(ruta)) {
-      window.location.hash = '#/solicitudes';
-      ruta = '/solicitudes';
-    } else if (esAnalista() && ruta === '/nueva-solicitud') {
-      window.location.hash = '#/';
-      ruta = '/';
-    }
+    let ruta = normalizarRutaPorRol(rutaActual());
     const esPublica = rutasPublicas.includes(ruta);
     const hayShell = document.querySelector('.app-layout');
     if (esPublica !== !hayShell) montarAplicacion();

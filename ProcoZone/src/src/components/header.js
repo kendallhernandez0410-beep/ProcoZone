@@ -1,4 +1,4 @@
-import { esAnalista, esConsulta, obtenerSesion } from '../utils/auth.js';
+import { esEmpresa, esInterno, obtenerSesion } from '../utils/auth.js';
 import { http } from '../services/http-client.js';
 
 /* ============================================
@@ -21,7 +21,7 @@ export function renderHeader(titulo, subtitulo = '') {
       <div class="header__right">
         <div class="header__search">
           <i class="fa-solid fa-magnifying-glass"></i>
-          <input type="search" placeholder="Buscar por título..." class="header__search-input" id="globalSearch" autocomplete="off" />
+          <input type="search" placeholder="${t('search_placeholder')}" class="header__search-input" id="globalSearch" autocomplete="off" />
           <div class="search-results" id="searchResults" hidden></div>
         </div>
         <div class="header__alertas">
@@ -35,9 +35,9 @@ export function renderHeader(titulo, subtitulo = '') {
               <span id="alertasDropdownSub"></span>
             </div>
             <div class="alertas-dropdown__list" id="alertasDropdownList">
-              <div class="alertas-dropdown__empty"><i class="fa-solid fa-spinner fa-spin"></i> Cargando notificaciones...</div>
+              <div class="alertas-dropdown__empty"><i class="fa-solid fa-spinner fa-spin"></i> ${t('loading_default')}</div>
             </div>
-            <a class="alertas-dropdown__footer" href="#/alertas">Ver todas las alertas <i class="fa-solid fa-arrow-right"></i></a>
+            <a class="alertas-dropdown__footer" href="#/alertas">${t('view_all_alerts')} <i class="fa-solid fa-arrow-right"></i></a>
           </div>
         </div>
       </div>
@@ -45,13 +45,15 @@ export function renderHeader(titulo, subtitulo = '') {
   `;
 }
 
-const paginas = [
-  { titulo: 'Dashboard', ruta: '/' },
-  { titulo: 'Solicitudes', ruta: '/solicitudes' },
-  { titulo: 'Nueva Solicitud', ruta: '/nueva-solicitud' },
-  { titulo: 'Empresas', ruta: '/empresas' },
-  { titulo: 'Reportes de Cumplimiento', ruta: '/cumplimiento' },
-  { titulo: 'Alertas', ruta: '/alertas' }
+const paginas = () => [
+  { titulo: t('dashboard'), ruta: '/' },
+  { titulo: t('applications'), ruta: '/solicitudes' },
+  { titulo: t('new_application'), ruta: '/nueva-solicitud' },
+  { titulo: t('companies'), ruta: '/empresas' },
+  { titulo: t('audit_trail'), ruta: '/auditoria' },
+  { titulo: t('regime_settings'), ruta: '/zonas-francas' },
+  { titulo: t('compliance_reports_menu'), ruta: '/cumplimiento' },
+  { titulo: t('alerts'), ruta: '/alertas' }
 ];
 
 export function iniciarBusqueda() {
@@ -60,13 +62,13 @@ export function iniciarBusqueda() {
   if (!input || !results) return;
   const pintar = () => {
     const termino = input.value.trim().toLowerCase();
-    const paginasDisponibles = esAnalista()
-      ? paginas
-      : paginas.filter(pagina => ['/solicitudes', '/nueva-solicitud', '/alertas'].includes(pagina.ruta));
+    const paginasDisponibles = esEmpresa()
+      ? paginas().filter(pagina => ['/solicitudes', '/nueva-solicitud', '/cumplimiento', '/alertas'].includes(pagina.ruta))
+      : paginas();
     const coincidencias = paginasDisponibles.filter(pagina => pagina.titulo.toLowerCase().includes(termino));
     results.innerHTML = coincidencias.length
       ? coincidencias.map(pagina => `<a href="#${pagina.ruta}"><i class="fa-solid fa-arrow-up-right-from-square"></i>${pagina.titulo}</a>`).join('')
-      : '<span>No se encontraron títulos.</span>';
+      : `<span>${t('no_results')}</span>`;
     results.hidden = !termino;
   };
   input.addEventListener('input', pintar);
@@ -87,24 +89,24 @@ function mensajePorEstado(estado, empresaNombre, solicitud) {
       return {
         icono: 'fa-circle-check',
         clase: 'alerta-item--aprobada',
-        titulo: 'Solicitud aprobada',
-        mensaje: `${empresaNombre}: validando los datos, cumple con los requerimientos solicitados, por lo tanto su solicitud fue aprobada.`
+        titulo: t('notif_approved_title'),
+        mensaje: `${empresaNombre}: ${t('notif_approved_msg')}`
       };
     case 'rechazada': {
-      const pendiente = solicitud?.observaciones ? ` Documento pendiente: ${solicitud.observaciones}` : '';
+      const pendiente = solicitud?.observaciones ? ` ${t('pending_document')} ${solicitud.observaciones}` : '';
       return {
         icono: 'fa-circle-xmark',
         clase: 'alerta-item--rechazada',
-        titulo: 'Solicitud rechazada',
-        mensaje: `${empresaNombre}: validando los datos, su empresa no cumple con todos los requerimientos, por lo tanto su solicitud fue rechazada.${pendiente}`
+        titulo: t('notif_rejected_title'),
+        mensaje: `${empresaNombre}: ${t('notif_rejected_msg')}${pendiente}`
       };
     }
     default:
       return {
         icono: 'fa-clock',
         clase: 'alerta-item--pendiente',
-        titulo: estado === 'en_revision' ? 'Solicitud en revisión' : 'Solicitud pendiente',
-        mensaje: `${empresaNombre}: estamos validando su documentación; en cuanto esté aprobada, su aprobación será enviada al correo y de igual forma la podrá visualizar en la página.`
+        titulo: estado === 'en_revision' ? t('notif_review_title') : t('notif_pending_title'),
+        mensaje: `${empresaNombre}: ${t('notif_review_msg')}`
       };
   }
 }
@@ -126,7 +128,7 @@ export function iniciarAlertasDropdown() {
       badge.textContent = items.length;
       badge.hidden = items.length === 0;
     }
-    if (sub) sub.textContent = `${items.length} notificación${items.length === 1 ? '' : 'es'}`;
+    if (sub) sub.textContent = `${items.length}`;
     list.innerHTML = items.length
       ? items.map(item => `
         <article class="alerta-item ${item.clase}">
@@ -140,7 +142,7 @@ export function iniciarAlertasDropdown() {
       : `
         <div class="alertas-dropdown__empty">
           <i class="fa-regular fa-bell-slash"></i>
-          No tiene notificaciones por el momento.
+          ${t('notifications_empty')}
         </div>
       `;
   }
@@ -152,10 +154,10 @@ export function iniciarAlertasDropdown() {
         http.get('solicitudes')
       ]);
       let base = solicitudes;
-      if (esConsulta()) {
+      if (esEmpresa()) {
         const empresaId = obtenerSesion()?.empresaId;
         base = solicitudes.filter(s => s.empresaId === empresaId);
-      } else if (!esAnalista()) {
+      } else if (!esInterno()) {
         pintar([]);
         return;
       }
@@ -171,7 +173,7 @@ export function iniciarAlertasDropdown() {
       list.innerHTML = `
         <div class="alertas-dropdown__empty">
           <i class="fa-solid fa-circle-exclamation"></i>
-          No se pudieron cargar las notificaciones.
+          ${t('notifications_load_error')}
         </div>
       `;
     }

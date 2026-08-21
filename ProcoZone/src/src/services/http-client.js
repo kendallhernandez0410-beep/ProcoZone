@@ -21,7 +21,9 @@ class HttpClient {
    * @returns {Promise<any>} Datos parseados de la respuesta
    */
   async request(endpoint, opciones = {}) {
-    const url = `${this.baseUrl}${endpoint}`;
+    // Normalizar la unión base/recurso para evitar rutas como "/apiempresas/1"
+    const ruta = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
+    const url = `${this.baseUrl}${ruta}`;
     const config = {
       headers: {
         'Content-Type': 'application/json',

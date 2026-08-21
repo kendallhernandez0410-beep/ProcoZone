@@ -2,6 +2,7 @@
    ProcoZone — Router SPA basado en hashes
    Carga páginas dinámicamente con async/await
    ============================================ */
+import { t } from './utils/translations.js';
 
 const rutas = {
   '/landing': () => import('./pages/landing.js'),
@@ -11,23 +12,25 @@ const rutas = {
   '/solicitudes': () => import('./src/src/src/pages/solicitudes.js'),
   '/nueva-solicitud': () => import('./pages/nueva-solicitud.js'),
   '/empresas': () => import('./src/pages/empresas.js'),
+  '/auditoria': () => import('./src/pages/auditoria.js'),
   '/zonas-francas': () => import('./pages/zonas-francas.js'),
   '/cumplimiento': () => import('./src/pages/cumplimiento.js'),
   '/alertas': () => import('./src/pages/alertas.js')
 };
 
-const titulos = {
-  '/landing': 'Inicio',
-  '/login': 'Acceso',
-  '/solicitar-acceso': 'Solicitar acceso',
-  '/': 'Dashboard',
-  '/solicitudes': 'Solicitudes',
-  '/nueva-solicitud': 'Nueva Solicitud',
-  '/empresas': 'Empresas',
-  '/zonas-francas': 'Zonas francas',
-  '/cumplimiento': 'Reportes de Cumplimiento',
-  '/alertas': 'Alertas'
-};
+const titulos = () => ({
+  '/landing': t('back_to_landing'),
+  '/login': t('login'),
+  '/solicitar-acceso': t('access_title'),
+  '/': t('dashboard'),
+  '/solicitudes': t('applications'),
+  '/nueva-solicitud': t('new_application'),
+  '/empresas': t('companies'),
+  '/auditoria': t('audit_trail'),
+  '/zonas-francas': t('zones_title'),
+  '/cumplimiento': t('compliance_reports_menu'),
+  '/alertas': t('alerts')
+});
 
 let moduloActual = null;
 
@@ -53,9 +56,9 @@ export async function navegar(ruta) {
     contentEl.innerHTML = `
       <div class="page-enter" style="text-align: center; padding: var(--space-16) 0;">
         <i class="fa-solid fa-compass" style="font-size: 4rem; color: var(--text-muted); opacity: 0.3; margin-bottom: var(--space-6);"></i>
-        <h2 style="font-size: var(--text-2xl); margin-bottom: var(--space-2);">Página no encontrada</h2>
-        <p style="color: var(--text-muted); margin-bottom: var(--space-6);">La ruta <code style="background: var(--bg-tertiary); padding: 2px 8px; border-radius: 4px;">${ruta}</code> no existe.</p>
-        <a href="#/" class="btn btn-primary"><i class="fa-solid fa-house"></i> Volver al Dashboard</a>
+        <h2 style="font-size: var(--text-2xl); margin-bottom: var(--space-2);">${t('page_not_found')}</h2>
+        <p style="color: var(--text-muted); margin-bottom: var(--space-6);">${t('page_not_found_msg')} <code style="background: var(--bg-tertiary); padding: 2px 8px; border-radius: 4px;">${ruta}</code> ${t('does_not_exist')}</p>
+        <a href="#/" class="btn btn-primary"><i class="fa-solid fa-house"></i> ${t('back_to_dashboard')}</a>
       </div>
     `;
     return;
@@ -63,7 +66,7 @@ export async function navegar(ruta) {
 
   // Actualizar header
   const headerTitle = document.getElementById('headerTitle');
-  if (headerTitle) headerTitle.textContent = titulos[ruta] || 'ProcoZone';
+  if (headerTitle) headerTitle.textContent = titulos()[ruta] || 'ProcoZone';
 
   // Actualizar sidebar activo
   document.querySelectorAll('.sidebar-link').forEach(link => {
@@ -88,9 +91,9 @@ export async function navegar(ruta) {
     contentEl.innerHTML = `
       <div class="page-enter" style="text-align: center; padding: var(--space-16) 0;">
         <i class="fa-solid fa-circle-exclamation" style="font-size: 4rem; color: var(--error); opacity: 0.5; margin-bottom: var(--space-6);"></i>
-        <h2 style="font-size: var(--text-2xl); margin-bottom: var(--space-2);">Error al cargar</h2>
+        <h2 style="font-size: var(--text-2xl); margin-bottom: var(--space-2);">${t('load_error')}</h2>
         <p style="color: var(--text-muted); margin-bottom: var(--space-6);">${error.message}</p>
-        <button class="btn btn-primary" onclick="location.reload()"><i class="fa-solid fa-rotate-right"></i> Reintentar</button>
+        <button class="btn btn-primary" onclick="location.reload()"><i class="fa-solid fa-rotate-right"></i> ${t('retry')}</button>
       </div>
     `;
   }

@@ -5,7 +5,7 @@
 import { http } from '../../../services/http-client.js';
 import { renderLoading, renderError } from '../../components/estado-carga.js';
 import { formatearMoneda, formatearFecha, tiempoRelativo, colorCumplimiento, colorDesdeString, obtenerIniciales } from '../../../utils/formateador.js';
-import { ESTADO_BADGE, TIPO_TEXTO, UMBRALES_CUMPLIMIENTO, ALERTA_BADGE, ALERTA_TEXTO } from '../../../utils/constantes.js';
+import { UMBRALES_CUMPLIMIENTO, ALERTA_BADGE, estadoSolicitudBadge, estadoSolicitudTexto, tipoSolicitudTexto, alertaTipoTexto } from '../../../utils/constantes.js';
 import { renderIndicador } from '../components/indicador-cumplimiento.js';
 import { t } from '../../../utils/translations.js';
 
@@ -43,7 +43,7 @@ export async function init() {
       ? Math.round(reportes.reduce((sum, r) => sum + r.porcentajeCumplimiento, 0) / reportes.length)
       : 0;
     const empresasActivas = empresas.filter(e => e.estado === 'Activa').length;
-    const conteoEstados = ['pendiente', 'en_revision', 'aprobada', 'rechazada'].map((estado) => `${estado.replace('_', ' ')}: ${solicitudes.filter((solicitud) => solicitud.estado === estado).length}`).join(' · ');
+    const conteoEstados = ['pendiente', 'en_revision', 'aprobada', 'rechazada'].map((estado) => `${estadoSolicitudTexto(estado)}: ${solicitudes.filter((solicitud) => solicitud.estado === estado).length}`).join(' · ');
 
     // Solicitudes recientes (últimas 5)
     const recientes = [...solicitudes].sort((a, b) =>
@@ -64,7 +64,7 @@ export async function init() {
         <div class="stat-card stat-card--primary">
           <div class="stat-card__icon"><i class="fa-solid fa-file-circle-plus"></i></div>
           <div class="stat-card__value">${solicitudes.length}</div>
-          <div class="stat-card__label">Total de solicitudes</div>
+          <div class="stat-card__label">${t('total_applications')}</div>
           <small>${conteoEstados}</small>
         </div>
         <div class="stat-card stat-card--accent">
@@ -94,7 +94,7 @@ export async function init() {
           </div>
           ${recientes.length > 0 ? recientes.map(sol => {
             const empresa = empresas.find(e => e.id === sol.empresaId);
-            const estado = ESTADO_BADGE[sol.estado];
+            const estado = estadoSolicitudBadge(sol.estado);
             return `
               <div class="activity-item" style="cursor: pointer;" data-sol-id="${sol.id}">
                 <div class="activity-dot" style="background: ${
@@ -104,14 +104,14 @@ export async function init() {
                 };"></div>
                 <div style="flex: 1;">
                   <div class="activity-text">
-                    <strong>${empresa?.nombre || '—'}</strong> — ${TIPO_TEXTO[sol.tipo]} #${sol.id}
+                    <strong>${empresa?.nombre || '—'}</strong> — ${tipoSolicitudTexto(sol.tipo)} #${sol.id}
                   </div>
                   <div class="activity-time">${tiempoRelativo(sol.fechaSolicitud)}</div>
                 </div>
                 <span class="badge ${estado.clase}" style="font-size: 10px;">${estado.texto}</span>
               </div>
             `;
-          }).join('') : '<p style="color: var(--text-muted); font-size: var(--text-sm); padding: var(--space-4);">No hay solicitudes recientes.</p>'}
+          }).join('') : `<p style="color: var(--text-muted); font-size: var(--text-sm); padding: var(--space-4);">${t('no_recent_applications')}</p>`}
         </div>
 
         <!-- Empresas en riesgo -->
@@ -136,7 +136,7 @@ export async function init() {
                 <span style="font-family: var(--font-heading); font-weight: 600; font-size: var(--text-sm); color: var(--${color}); min-width: 40px; text-align: right;">${emp.porcentajeCumplimiento}%</span>
               </div>
             `;
-          }).join('') : '<p style="color: var(--text-muted); font-size: var(--text-sm); padding: var(--space-4);">No hay empresas en riesgo actualmente.</p>'}
+          }).join('') : `<p style="color: var(--text-muted); font-size: var(--text-sm); padding: var(--space-4);">${t('no_risk_companies')}</p>`}
         </div>
       </div>
 
@@ -160,7 +160,7 @@ export async function init() {
                 </div>
                 <div class="activity-time">${tiempoRelativo(alerta.fechaCreacion)}</div>
               </div>
-              <span class="badge ${ALERTA_BADGE[alerta.tipo]}" style="font-size: 10px;">${ALERTA_TEXTO[alerta.tipo]}</span>
+              <span class="badge ${ALERTA_BADGE[alerta.tipo]}" style="font-size: 10px;">${alertaTipoTexto(alerta.tipo)}</span>
             </div>
           `;
         }).join('')}
@@ -174,7 +174,7 @@ export async function init() {
 
   } catch (error) {
     container.innerHTML = renderError(
-      error.message || 'No se pudieron cargar los datos del dashboard.',
+      error.message || t('dashboard_load_error'),
       () => init()
     );
     // Bind retry
