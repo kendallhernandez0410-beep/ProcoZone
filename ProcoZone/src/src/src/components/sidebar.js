@@ -75,7 +75,7 @@ export function renderSidebar(rutaActual) {
         </div>
         <div class="sidebar__brand-text">
           <span class="sidebar__title">ProcoZone</span>
-          <span class="sidebar__subtitle">PROCOMER</span>
+          <span class="sidebar__subtitle">ZoFranca CR</span>
         </div>
       </div>
 

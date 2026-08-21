@@ -117,11 +117,11 @@ export function colorAfinidad(puntaje) {
  * Genera un color consistente para un string (para avatares)
  */
 export function colorDesdeString(str) {
-  if (!str) return '#0EA5A0';
+  if (!str) return '#007E48';
   let hash = 0;
   for (let i = 0; i < str.length; i++) {
     hash = str.charCodeAt(i) + ((hash << 5) - hash);
   }
-  const colores = ['#0EA5A0', '#E8A838', '#10B981', '#EC4899', '#8B5CF6', '#F59E0B', '#38BDF8', '#EF4444'];
+  const colores = ['#007E48', '#0B6CD4', '#10B981', '#EC4899', '#8B5CF6', '#F59E0B', '#38BDF8', '#EF4444'];
   return colores[Math.abs(hash) % colores.length];
 }

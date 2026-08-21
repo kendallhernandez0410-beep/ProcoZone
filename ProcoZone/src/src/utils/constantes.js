@@ -196,7 +196,7 @@ export const ZONAS_FRANCAS = [
 
 // Colores para avatares de empresas
 export const AVATAR_COLORS = [
-  '#0EA5A0', '#E8A838', '#10B981', '#EF4444',
+  '#007E48', '#0B6CD4', '#10B981', '#EF4444',
   '#8B5CF6', '#EC4899', '#F59E0B', '#38BDF8'
 ];
 

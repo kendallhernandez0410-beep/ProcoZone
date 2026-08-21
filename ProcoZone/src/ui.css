@@ -175,7 +175,8 @@ input[type="date"].form-input {
 }
 
 .btn-danger:hover {
-  background: #991B1B;
+  background: var(--error);
+  filter: brightness(0.88);
   color: #fff;
 }
 
@@ -185,7 +186,7 @@ input[type="date"].form-input {
 }
 
 .btn-success:hover {
-  background: #059669;
+  background: var(--primary-hover);
   color: #fff;
 }
 
@@ -197,8 +198,8 @@ input[type="date"].form-input {
 /* ---------- Modo oscuro elegante ---------- */
 html[data-theme='dark'] body {
   background:
-    radial-gradient(1100px 500px at 85% -10%, rgba(45, 212, 191, 0.07), transparent 60%),
-    radial-gradient(900px 420px at -10% 0%, rgba(154, 208, 255, 0.06), transparent 55%),
+    radial-gradient(1100px 500px at 85% -10%, rgba(63, 181, 121, 0.07), transparent 60%),
+    radial-gradient(900px 420px at -10% 0%, rgba(111, 177, 242, 0.06), transparent 55%),
     var(--bg);
 }
 
@@ -230,15 +231,15 @@ html[data-theme='dark'] .visual-panel {
 
 html[data-theme='dark'] .landing-page {
   background:
-    radial-gradient(1000px 480px at 90% -10%, rgba(45, 212, 191, 0.08), transparent 60%),
-    radial-gradient(800px 400px at -5% 10%, rgba(154, 208, 255, 0.06), transparent 55%),
+    radial-gradient(1000px 480px at 90% -10%, rgba(63, 181, 121, 0.08), transparent 60%),
+    radial-gradient(800px 400px at -5% 10%, rgba(111, 177, 242, 0.06), transparent 55%),
     var(--bg);
   color: var(--text);
 }
 
 html[data-theme='dark'] .access-page {
   background:
-    radial-gradient(900px 450px at 50% -10%, rgba(45, 212, 191, 0.08), transparent 60%),
+    radial-gradient(900px 450px at 50% -10%, rgba(63, 181, 121, 0.08), transparent 60%),
     var(--bg);
   color: var(--text);
 }
