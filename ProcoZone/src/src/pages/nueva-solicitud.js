@@ -1,6 +1,7 @@
 import { http } from '../services/http-client.js';
 import { toast } from '../services/notificacion-service.js';
 import { clasificarSolicitud } from '../src/services/ia-service.js';
+import { refrescarAlertas } from '../components/header.js';
 import { obtenerSesion } from '../utils/auth.js';
 import { t, tf } from '../utils/translations.js';
 import { ACTIVIDADES_ECONOMICAS } from '../utils/constantes.js';
@@ -23,7 +24,7 @@ export async function render() {
         <div class="form-group"><label class="form-label" for="tipo">${t('request_type_label')}</label><select class="form-select" id="tipo" required><option value="">${t('select_type')}</option><option value="instalacion">${t('type_installation')}</option><option value="expansion">${t('type_expansion')}</option></select><span class="form-error" id="error-tipo"></span></div>
         <div class="form-group"><label class="form-label" for="tipoActividad">${t('activity_type')} *</label><select class="form-select" id="tipoActividad" required><option value="">${t('select_activity')}</option>${ACTIVIDADES_ECONOMICAS.map((actividad) => `<option value="${actividad}">${actividad}</option>`).join('')}</select><span class="form-error" id="error-tipoActividad"></span></div>${campo('areaSolicitada', t('requested_area'), 'number', 'min="1"')}${campo('inversionEstimada', t('projected_investment'), 'number', 'min="1"')}${campo('empleosNuevos', t('new_jobs'), 'number', 'min="1"')}${campo('exportacionesProyectadas', t('projected_exports'), 'number', 'min="0" max="100"')}${campo('reportesOportunosComprometidos', t('committed_timely_reports'), 'number', 'min="0" max="100" value="100"')}
         <div class="form-group form-group--full"><label class="form-label" for="descripcion">${t('description_label')}</label><textarea class="form-textarea" id="descripcion" rows="3" required></textarea><span class="form-error" id="error-descripcion"></span></div>
-      </div></div><div style="display:flex;gap:var(--space-3);justify-content:flex-end"><a class="btn btn-outline" href="#/solicitudes">${t('cancel')}</a><button class="btn btn-primary btn-lg" id="btnSubmit">${t('send_evaluate_ai')}</button></div></form></div>`;
+      </div></div><div style="display:flex;gap:var(--space-3);justify-content:flex-end;margin-bottom:var(--space-12)"><a class="btn btn-outline" href="#/solicitudes">${t('cancel')}</a><button class="btn btn-primary btn-lg" id="btnSubmit">${t('send_evaluate_ai')}</button></div></form></div>`;
   } catch (error) {
     return `<div class="empty-state"><h2>${t('form_load_error')}</h2><p>${t('check_connection')}</p><button class="btn btn-primary" onclick="location.reload()">${t('retry')}</button></div>`;
   }
@@ -75,6 +76,8 @@ export function init() {
         fechaCreacion: nueva.fechaSolicitud,
         estado: 'abierta'
       });
+      // Actualizar la campanita sin recargar la página
+      refrescarAlertas();
       // La IA evalúa y decide automáticamente (aprobada / rechazada / pendiente por documento)
       const ia = await clasificarSolicitud(creada.id);
       toast.success(t('toast_submitted_title'), `${t('affinity_score')}: ${ia.puntajeAfinidad}/100. ${t('toast_submitted_msg')}`);

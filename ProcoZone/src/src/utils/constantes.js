@@ -7,16 +7,28 @@ import { t } from './translations.js';
 
 // Estados de solicitudes
 export const ESTADOS_SOLICITUD = {
+  BORRADOR: 'borrador',
   PENDIENTE: 'pendiente',
   EN_REVISION: 'en_revision',
+  OBSERVADA: 'observada',
   APROBADA: 'aprobada',
   RECHAZADA: 'rechazada'
 };
 
+// Agrupación de estados para la vista de empresa:
+// "En proceso" = trámites activos o que requieren acción · "Historial" = resueltos
+export const ESTADOS_EN_PROCESO = ['borrador', 'pendiente', 'en_revision', 'observada'];
+export const ESTADOS_HISTORIAL = ['aprobada', 'rechazada'];
+
+export const esEstadoEnProceso = (estado) => ESTADOS_EN_PROCESO.includes(estado);
+export const esEstadoHistorial = (estado) => ESTADOS_HISTORIAL.includes(estado);
+
 // Clase de badge por estado (el texto se obtiene con estadoSolicitudTexto)
 export const ESTADO_BADGE = {
+  borrador: { clase: 'badge-neutral' },
   pendiente: { clase: 'badge-accent' },
   en_revision: { clase: 'badge-info' },
+  observada: { clase: 'badge-warning' },
   aprobada: { clase: 'badge-success' },
   rechazada: { clase: 'badge-error' }
 };
@@ -24,8 +36,10 @@ export const ESTADO_BADGE = {
 /** Texto traducido del estado de una solicitud */
 export function estadoSolicitudTexto(estado) {
   const mapas = {
+    borrador: 'state_draft',
     pendiente: 'state_pending',
     en_revision: 'state_under_review',
+    observada: 'state_observed',
     aprobada: 'state_approved',
     rechazada: 'state_rejected'
   };

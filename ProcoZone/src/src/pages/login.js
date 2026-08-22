@@ -1,6 +1,7 @@
 import { http } from '../services/http-client.js';
 import { t } from '../utils/translations.js';
 import { guardarSesion, obtenerUsuarioRecordado, recordarUsuario } from '../utils/auth.js';
+import { abrirModalSolicitudAcceso } from '../components/modal-solicitud-acceso.js';
 
 export function render() {
   const usuarioRecordado = obtenerUsuarioRecordado();
@@ -9,8 +10,14 @@ export function render() {
       <a class="login-back" href="#/landing"><i class="fa-solid fa-arrow-left"></i> ${t('back_to_landing')}</a>
       <div class="login-layout">
         <section class="login-aside">
+          <div class="login-aside__bg" aria-hidden="true"></div>
+          <div class="login-aside__overlay" aria-hidden="true"></div>
           <a class="brand-lockup brand-lockup--light" href="#/landing"><span class="brand-mark"><i class="fa-solid fa-cubes"></i></span><span><strong>ProcoZone</strong><small>PROCOMER</small></span></a>
-          <div><p class="eyebrow eyebrow--light"><span></span> ${t('workspace_eyebrow')}</p><h1>${t('login_aside_title')}</h1><p>${t('login_aside_text')}</p></div>
+          <div class="login-aside__panel">
+            <p class="eyebrow eyebrow--light"><span></span> ${t('workspace_eyebrow')}</p>
+            <h1>${t('login_aside_title')}</h1>
+            <p>${t('login_aside_text')}</p>
+          </div>
           <div class="login-aside__meta"><span><i class="fa-solid fa-lock"></i> ${t('secure_access')}</span><span><i class="fa-solid fa-clock"></i> ${t('available_247')}</span></div>
         </section>
         <section class="login-card-wrap">
@@ -22,9 +29,11 @@ export function render() {
               <label for="loginPassword">${t('password')}</label>
               <div class="input-wrap"><i class="fa-solid fa-lock"></i><input id="loginPassword" type="password" placeholder="${t('password')}" autocomplete="current-password" required><button type="button" class="password-toggle" aria-label="${t('show_password')}"><i class="fa-regular fa-eye"></i></button></div>
               <div class="login-options"><label class="checkbox-label"><input type="checkbox" id="rememberUser" ${usuarioRecordado ? 'checked' : ''}> <span>${t('remember_user')}</span></label><button type="button" class="login-link" id="forgotPassword">${t('forgot_password')}</button></div>
-              <a class="access-request-link" href="#/solicitar-acceso"><i class="fa-solid fa-building-circle-check"></i> ${t('no_username_access')}</a>
               <p class="login-error" id="loginError" role="alert"></p>
-              <button class="btn btn-primary btn-lg login-submit" type="submit">${t('sign_in_system')} <i class="fa-solid fa-arrow-right"></i></button>
+              <button class="btn btn-primary btn-lg login-submit" id="loginSubmit" type="submit">${t('sign_in_system')} <i class="fa-solid fa-arrow-right"></i></button>
+              <div class="login-alt">
+                <button type="button" class="access-request-link" id="btnSolicitarAcceso"><i class="fa-solid fa-building-circle-check"></i> ${t('no_username_access')}</button>
+              </div>
             </form>
             <div class="demo-credentials">
               <div class="demo-credentials__title"><i class="fa-solid fa-key"></i> ${t('demo_credentials')}</div>
@@ -68,6 +77,7 @@ export function init() {
     recoveryPanel.hidden = !recoveryPanel.hidden;
     if (!recoveryPanel.hidden) document.getElementById('recoveryUser')?.focus();
   });
+  document.getElementById('btnSolicitarAcceso')?.addEventListener('click', abrirModalSolicitudAcceso);
   document.querySelectorAll('.credential-card').forEach((card) => {
     card.addEventListener('click', () => {
       document.getElementById('loginEmail').value = card.dataset.usuario;
@@ -85,14 +95,23 @@ export function init() {
       error.textContent = t('enter_credentials');
       return;
     }
+    const submitBtn = document.getElementById('loginSubmit');
+    const restaurarBoton = () => {
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = `${t('sign_in_system')} <i class="fa-solid fa-arrow-right"></i>`;
+    };
     const usuario = document.getElementById('loginEmail').value.trim();
     const contrasena = document.getElementById('loginPassword').value;
     const recordar = document.getElementById('rememberUser')?.checked ?? false;
+    error.textContent = '';
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = `<span class="spinner spinner-sm" aria-hidden="true"></span> ${t('signing_in')}`;
     try {
       const resultados = await http.get('usuarios', { usuario, contrasena });
       const cuenta = resultados[0];
       if (!cuenta) {
         error.textContent = t('wrong_credentials');
+        restaurarBoton();
         return;
       }
       guardarSesion({
@@ -106,6 +125,7 @@ export function init() {
       window.location.hash = '#/';
     } catch (requestError) {
       error.textContent = requestError.message || t('connection_error_login');
+      restaurarBoton();
     }
   });
 }

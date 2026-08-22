@@ -3,6 +3,7 @@
    Carga páginas dinámicamente con async/await
    ============================================ */
 import { t } from './utils/translations.js';
+import { esEmpresa } from './utils/auth.js';
 
 const rutas = {
   '/landing': () => import('./pages/landing.js'),
@@ -67,6 +68,13 @@ export async function navegar(ruta) {
   // Actualizar header
   const headerTitle = document.getElementById('headerTitle');
   if (headerTitle) headerTitle.textContent = titulos()[ruta] || 'ProcoZone';
+
+  // CTA "Nueva Solicitud": visible para la empresa en todas sus pantallas,
+  // salvo en el propio formulario de creación (evita duplicar la acción)
+  const btnNuevaSolicitud = document.getElementById('headerNuevaSolicitud');
+  if (btnNuevaSolicitud) {
+    btnNuevaSolicitud.hidden = !(esEmpresa() && ruta !== '/nueva-solicitud');
+  }
 
   // Actualizar sidebar activo
   document.querySelectorAll('.sidebar-link').forEach(link => {

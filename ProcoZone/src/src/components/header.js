@@ -20,6 +20,10 @@ export function renderHeader(titulo, subtitulo = '') {
         </div>
       </div>
       <div class="header__right">
+        ${esEmpresa() ? `
+        <a href="#/nueva-solicitud" class="btn btn-primary header__cta" id="headerNuevaSolicitud" hidden>
+          <i class="fa-solid fa-plus"></i> <span class="header__cta-text">${t('new_application_btn')}</span>
+        </a>` : ''}
         <div class="header__search">
           <i class="fa-solid fa-magnifying-glass"></i>
           <input type="search" placeholder="${t('search_placeholder')}" class="header__search-input" id="globalSearch" autocomplete="off" />
@@ -33,7 +37,7 @@ export function renderHeader(titulo, subtitulo = '') {
           <div class="alertas-dropdown" id="alertasDropdown" hidden>
             <div class="alertas-dropdown__header">
               <strong><i class="fa-solid fa-bell"></i> ${t('alerts')}</strong>
-              <span id="alertasDropdownSub"></span>
+              <button type="button" class="alertas-dropdown__markall" id="alertasMarkAll">${t('mark_all_read')}</button>
             </div>
             <div class="alertas-dropdown__list" id="alertasDropdownList">
               <div class="alertas-dropdown__empty"><i class="fa-solid fa-spinner fa-spin"></i> ${t('loading_default')}</div>
@@ -82,35 +86,41 @@ export function iniciarBusqueda() {
 }
 
 /* ============================================
-   Dropdown de notificaciones (icono de alertas)
+   Dropdown de notificaciones (campanita)
+   Conectado al recurso /alertas del backend.
+   Badge rojo = alertas no leídas (no cerradas
+   y sin marca de lectura local).
    ============================================ */
 
-function mensajePorEstado(estado, empresaNombre, solicitud) {
-  switch (estado) {
-    case 'aprobada':
-      return {
-        icono: 'fa-circle-check',
-        clase: 'alerta-item--aprobada',
-        titulo: t('notif_approved_title'),
-        mensaje: `${empresaNombre}: ${t('notif_approved_msg')}`
-      };
-    case 'rechazada': {
-      const pendiente = solicitud?.observaciones ? ` ${t('pending_document')} ${solicitud.observaciones}` : '';
-      return {
-        icono: 'fa-circle-xmark',
-        clase: 'alerta-item--rechazada',
-        titulo: t('notif_rejected_title'),
-        mensaje: `${empresaNombre}: ${t('notif_rejected_msg')}${pendiente}`
-      };
-    }
-    default:
-      return {
-        icono: 'fa-clock',
-        clase: 'alerta-item--pendiente',
-        titulo: estado === 'en_revision' ? t('notif_review_title') : t('notif_pending_title'),
-        mensaje: `${empresaNombre}: ${t('notif_review_msg')}`
-      };
+const CLAVE_LEIDAS = 'procozone-alertas-leidas';
+const MAX_ITEMS_DROPDOWN = 8;
+
+/** Icono y tono visual según el tipo de alerta del backend */
+const ESTILO_POR_TIPO = {
+  critica: { icono: 'fa-circle-exclamation', clase: 'alerta-item--rechazada' },
+  warning: { icono: 'fa-triangle-exclamation', clase: 'alerta-item--pendiente' },
+  info: { icono: 'fa-circle-check', clase: 'alerta-item--aprobada' }
+};
+
+function leerLeidas() {
+  try {
+    return new Set(JSON.parse(localStorage.getItem(CLAVE_LEIDAS) || '[]'));
+  } catch {
+    return new Set();
   }
+}
+
+function guardarLeidas(conjunto) {
+  try {
+    localStorage.setItem(CLAVE_LEIDAS, JSON.stringify([...conjunto]));
+  } catch { /* almacenamiento no disponible */ }
+}
+
+let recargarNotificaciones = null;
+
+/** Refresca badge/listado desde fuera (p.ej. tras cambiar un estado de solicitud) */
+export function refrescarAlertas() {
+  recargarNotificaciones?.();
 }
 
 let cerrarDropdownHandler = null;
@@ -120,57 +130,58 @@ export function iniciarAlertasDropdown() {
   const panel = document.getElementById('alertasDropdown');
   const list = document.getElementById('alertasDropdownList');
   const badge = document.getElementById('alertasCount');
-  const sub = document.getElementById('alertasDropdownSub');
+  const markAll = document.getElementById('alertasMarkAll');
   if (!btn || !panel || !list) return;
-
-  function pintar(items) {
-    if (badge) {
-      badge.textContent = items.length;
-      badge.hidden = items.length === 0;
-    }
-    if (sub) sub.textContent = `${items.length}`;
-    list.innerHTML = items.length
-      ? items.map((item, indice) => `
-        <article class="alerta-item ${item.clase} alerta-item--link" data-alerta-idx="${indice}" role="button" tabindex="0" title="${t('view_full_info')}">
-          <i class="fa-solid ${item.icono}"></i>
-          <div>
-            <strong>${item.titulo}</strong>
-            <p>${item.mensaje}</p>
-          </div>
-          <i class="fa-solid fa-chevron-right alerta-item__go" aria-hidden="true"></i>
-        </article>
-      `).join('')
-      : `
-        <div class="alertas-dropdown__empty">
-          <i class="fa-regular fa-bell-slash"></i>
-          ${t('notifications_empty')}
-        </div>
-      `;
-  }
 
   async function cargar() {
     try {
-      const [empresas, solicitudes] = await Promise.all([
-        http.get('empresas'),
-        http.get('solicitudes')
-      ]);
-      let base = solicitudes;
-      if (esEmpresa()) {
-        const empresaId = obtenerSesion()?.empresaId;
-        base = solicitudes.filter(s => s.empresaId === empresaId);
-      } else if (!esInterno()) {
-        pintar([]);
-        return;
+      const alertas = await http.get('alertas');
+      const propias = esEmpresa()
+        ? alertas.filter(alerta => alerta.empresaId === obtenerSesion()?.empresaId)
+        : alertas;
+
+      const ordenadas = [...propias]
+        .sort((a, b) => (b.fechaCreacion || '').localeCompare(a.fechaCreacion || ''));
+
+      // No leídas = no cerradas y sin marca local de lectura
+      const leidas = leerLeidas();
+      const pendientesLeer = ordenadas
+        .filter(alerta => alerta.estado !== 'cerrada' && !leidas.has(String(alerta.id)))
+        .map(alerta => String(alerta.id));
+
+      if (badge) {
+        badge.textContent = pendientesLeer.length > 99 ? '99+' : String(pendientesLeer.length);
+        badge.hidden = pendientesLeer.length === 0;
       }
-      const items = [...base]
-        .sort((a, b) => (b.fechaSolicitud || '').localeCompare(a.fechaSolicitud || ''))
-        .slice(0, 8)
-        .map(solicitud => {
-          const empresa = empresas.find(e => e.id === solicitud.empresaId);
-          return mensajePorEstado(solicitud.estado, empresa?.nombre || 'Empresa', solicitud);
-        });
-      pintar(items);
-    } catch (error) {
+      if (markAll) {
+        markAll.hidden = pendientesLeer.length === 0;
+        markAll.dataset.ids = JSON.stringify(pendientesLeer);
+      }
+
+      const visibles = ordenadas.slice(0, MAX_ITEMS_DROPDOWN);
+      list.innerHTML = visibles.length
+        ? visibles.map((alerta, indice) => {
+          const estilo = ESTILO_POR_TIPO[alerta.tipo] || ESTILO_POR_TIPO.info;
+          const noLeida = alerta.estado !== 'cerrada' && !leidas.has(String(alerta.id));
+          return `
+          <article class="alerta-item ${estilo.clase} alerta-item--link ${noLeida ? 'alerta-item--unread' : ''}" data-alerta-id="${alerta.id}" data-alerta-idx="${indice}" role="button" tabindex="0" title="${t('view_full_info')}">
+            <i class="fa-solid ${estilo.icono}"></i>
+            <div>
+              <strong>${alerta.titulo}</strong>
+              <p>${alerta.descripcion || ''}</p>
+            </div>
+            ${noLeida ? '<span class="alerta-item__dot" aria-hidden="true"></span>' : ''}
+            <i class="fa-solid fa-chevron-right alerta-item__go" aria-hidden="true"></i>
+          </article>
+        `;
+        }).join('')
+        : `
+          <div class="alertas-dropdown__empty">
+            <i class="fa-regular fa-bell-slash"></i>
+            ${t('notifications_empty')}
+          </div>
+        `;
+    } catch {
       list.innerHTML = `
         <div class="alertas-dropdown__empty">
           <i class="fa-solid fa-circle-exclamation"></i>
@@ -179,6 +190,8 @@ export function iniciarAlertasDropdown() {
       `;
     }
   }
+
+  recargarNotificaciones = cargar;
 
   btn.addEventListener('click', event => {
     event.stopPropagation();
@@ -189,12 +202,29 @@ export function iniciarAlertasDropdown() {
     if (!abierto) cargar();
   });
 
-  /* Clic en una notificación → información completa y detallada */
+  /* Marcar todas como leídas */
+  markAll?.addEventListener('click', event => {
+    event.stopPropagation();
+    try {
+      const ids = JSON.parse(markAll.dataset.ids || '[]');
+      const leidas = leerLeidas();
+      ids.forEach(id => leidas.add(id));
+      guardarLeidas(leidas);
+    } catch { /* dataset inválido */ }
+    cargar();
+  });
+
+  /* Clic en una notificación → marca como leída y abre el detalle completo */
   list.addEventListener('click', event => {
-    if (!event.target.closest('[data-alerta-idx]')) return;
+    const item = event.target.closest('[data-alerta-id]');
+    if (!item) return;
+    const leidas = leerLeidas();
+    leidas.add(String(item.dataset.alertaId));
+    guardarLeidas(leidas);
     panel.hidden = true;
     btn.setAttribute('aria-expanded', 'false');
-    window.location.hash = esEmpresa() ? '#/alertas' : '#/solicitudes';
+    refrescarAlertas();
+    window.location.hash = '#/alertas';
   });
 
   panel.addEventListener('click', event => event.stopPropagation());
@@ -207,4 +237,6 @@ export function iniciarAlertasDropdown() {
     }
   };
   document.addEventListener('click', cerrarDropdownHandler);
+
+  cargar();
 }

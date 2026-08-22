@@ -663,6 +663,18 @@
       "id": 10
     }
   ],
+  "solicitudesAcceso": [
+    {
+      "id": 1,
+      "nombre": "Juan Pérez",
+      "email": "juan.perez@empresa.cr",
+      "cedulaJuridica": "3-101-123456",
+      "empresa": "Tecnova Solutions CR S.A.",
+      "motivo": "Solicitud de credenciales iniciales",
+      "estado": "pendiente",
+      "fechaSolicitud": "2026-08-22"
+    }
+  ],
   "usuarios": [
     {
       "id": 1,
