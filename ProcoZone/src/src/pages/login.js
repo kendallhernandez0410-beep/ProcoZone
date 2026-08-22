@@ -9,20 +9,30 @@ export function render() {
     <div class="public-page login-page">
       <a class="login-back" href="#/landing"><i class="fa-solid fa-arrow-left"></i> ${t('back_to_landing')}</a>
       <div class="login-layout">
-        <section class="login-aside">
-          <div class="login-aside__bg" aria-hidden="true"></div>
-          <div class="login-aside__overlay" aria-hidden="true"></div>
-          <a class="brand-lockup brand-lockup--light" href="#/landing"><span class="brand-mark"><i class="fa-solid fa-cubes"></i></span><span><strong>ProcoZone</strong><small>PROCOMER</small></span></a>
-          <div class="login-aside__panel">
-            <p class="eyebrow eyebrow--light"><span></span> ${t('workspace_eyebrow')}</p>
-            <h1>${t('login_aside_title')}</h1>
+        <section class="login-aside login-left-panel">
+          <div class="brand-overlay-card">
+            <span class="badge">${t('workspace_eyebrow')}</span>
+            <h2>${t('login_aside_title')}</h2>
             <p>${t('login_aside_text')}</p>
           </div>
-          <div class="login-aside__meta"><span><i class="fa-solid fa-lock"></i> ${t('secure_access')}</span><span><i class="fa-solid fa-clock"></i> ${t('available_247')}</span></div>
         </section>
-        <section class="login-card-wrap">
+        <section class="login-card-wrap login-right-panel">
           <div class="login-card">
-            <div class="login-card__heading"><p class="eyebrow">${t('access_platform')}</p><h2>${t('login_title')}</h2><p>${t('login_subtitle')}</p></div>
+            <div class="brand-header">
+              <div class="logo-box" aria-hidden="true">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                  <path d="M12 2 L21 7 V17 L12 22 L3 17 V7 Z" stroke="#ffffff" stroke-width="1.8" stroke-linejoin="round"/>
+                  <path d="M3 7 L12 12 L21 7 M12 12 V22" stroke="#ffffff" stroke-width="1.8" stroke-linejoin="round"/>
+                </svg>
+              </div>
+              <div class="brand-text">
+                <span class="brand-title">ProcoZone</span>
+                <span class="brand-sub">PROCOMER</span>
+              </div>
+            </div>
+            <span class="section-subtitle">${t('access_platform')}</span>
+            <h1>${t('login_title')}</h1>
+            <p class="section-desc">${t('login_subtitle')}</p>
             <form id="loginForm" class="login-form">
               <label for="loginEmail">${t('username')}</label>
               <div class="input-wrap"><i class="fa-regular fa-user"></i><input id="loginEmail" type="text" placeholder="empresa, analista o admin" autocomplete="username" value="${usuarioRecordado}" required></div>
