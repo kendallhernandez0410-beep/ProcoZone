@@ -442,5 +442,35 @@
   "chatbot_low_confidence": "Mi especialidad son los trámites de zonas francas: solicitudes, documentos, inversión, empleos y estados de trámite. ¿Quizás quisiste preguntar por:",
   "chatbot_low_confidence_suggestions": "¿Cómo creo una solicitud?|¿Qué documentos necesito?|¿Cómo consulto el estado de mi solicitud?",
   "chatbot_welcome": "¡Hola! Soy el asistente virtual de ProcoZone. Selecciona una pregunta o escríbeme tu consulta.",
-  "chatbot_welcome_suggestions": "¿Cómo lleno el formulario?|Requerimientos|Reportes de cumplimiento|Estado de mi solicitud"
+  "chatbot_welcome_suggestions": "¿Cómo lleno el formulario?|Requerimientos|Reportes de cumplimiento|Estado de mi solicitud",
+  "reported": "reportado",
+  "alert_title_suspension": "Suspensión inminente del régimen",
+  "alert_desc_suspension": "AeroComposites Intl. acumula 3 trimestres consecutivos con cumplimiento menor al 50%. Se recomienda iniciar proceso de suspensión.",
+  "alert_title_jobs_below": "Empleo nacional por debajo del mínimo",
+  "alert_desc_jobs_below": "BioPharm Costa Rica presenta 76% de empleo nacional contra el 90% requerido. Requiere plan de corrección.",
+  "alert_title_under_review": "Empresa en estado de revisión",
+  "alert_desc_under_review": "GreenPack Industries se encuentra en proceso de revisión desde junio 2024. Pendiente documentación adicional.",
+  "alert_title_late_reports": "Reportes presentados fuera de plazo",
+  "alert_desc_late_reports": "Tecnova Solutions ha presentado 2 de 12 reportes trimestrales fuera del plazo establecido.",
+  "description_server_line": "Instalación de nueva línea de servidores y centro de datos en el módulo C-3 para expansión de servicios cloud.",
+  "description_lab_expansion": "Expansión del laboratorio de investigación para desarrollo de nuevos compuestos farmacéuticos.",
+  "description_recycled_plastics": "Instalación de planta de procesamiento de plásticos reciclados en módulo A-1.",
+  "description_circuit_assembly": "Nueva línea de ensamblaje de circuitos impresos para exportación a mercado estadounidense.",
+  "description_data_processing": "Ampliación del área de trabajo para incorporar equipo de procesamiento de datos en tiempo real."
+  ,"catalog_tech_services": "Servicios Tecnológicos"
+  ,"catalog_software_development": "Desarrollo de Software"
+  ,"catalog_shared_services": "Servicios Compartidos"
+  ,"catalog_medical_devices": "Dispositivos Médicos"
+  ,"catalog_pharma": "Industria Farmacéutica"
+  ,"catalog_biotech": "Biotecnología"
+  ,"catalog_electronics": "Manufactura Electrónica"
+  ,"catalog_processed_food": "Alimentos Procesados"
+  ,"catalog_logistics_distribution": "Logística y Distribución"
+  ,"catalog_contact_center": "Centro de Contacto"
+  ,"catalog_design_engineering": "Diseño e Ingeniería"
+  ,"catalog_renewable_energy": "Energías Renovables"
+  ,"catalog_biodegradable_packaging": "Empaques Biodegradables"
+  ,"catalog_data_analysis": "Análisis de Datos"
+  ,"catalog_composite_materials": "Materiales Compuestos"
+  ,"catalog_advanced_logistics": "Logística Avanzada"
 }

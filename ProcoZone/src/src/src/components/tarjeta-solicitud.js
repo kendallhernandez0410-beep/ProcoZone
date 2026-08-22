@@ -1,7 +1,7 @@
 /* ============================================
    ProcoZone — Componente Tarjeta de Solicitud
    ============================================ */
-import { estadoSolicitudBadge, tipoSolicitudTexto } from '../../utils/constantes.js';
+import { estadoSolicitudBadge, tipoSolicitudTexto, solicitudDescripcionTexto } from '../../utils/constantes.js';
 import { formatearFecha, truncarTexto, colorAfinidad } from '../../utils/formateador.js';
 import { esAnalista } from '../../utils/auth.js';
 import { t } from '../../utils/translations.js';
@@ -47,7 +47,7 @@ export function renderTarjetaSolicitud(solicitud, empresa) {
         <span class="badge ${estado.clase}">${estado.texto}</span>
       </div>
 
-      <p class="solicitud-card__desc">${truncarTexto(solicitud.descripcion, 120)}</p>
+      <p class="solicitud-card__desc">${truncarTexto(solicitudDescripcionTexto(solicitud.descripcion), 120)}</p>
 
       <div class="solicitud-card__meta">
         <span><i class="fa-regular fa-calendar"></i> ${formatearFecha(solicitud.fechaSolicitud)}</span>

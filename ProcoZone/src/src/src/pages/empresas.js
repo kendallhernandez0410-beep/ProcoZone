@@ -5,7 +5,7 @@
 import { http } from '../../services/http-client.js';
 import { renderLoading, renderError, renderSkeletonRows } from '../components/estado-carga.js';
 import { formatearFecha, formatearNumero, formatearMoneda, colorCumplimiento, colorDesdeString, obtenerIniciales } from '../../utils/formateador.js';
-import { EMPRESA_ESTADO_BADGE, empresaEstadoTexto } from '../../utils/constantes.js';
+import { EMPRESA_ESTADO_BADGE, empresaEstadoTexto, textoCatalogo } from '../../utils/constantes.js';
 import { toast } from '../../services/notificacion-service.js';
 import { t } from '../../utils/translations.js';
 
@@ -84,7 +84,7 @@ export async function init() {
                       </div>
                     </td>
                     <td>${emp.zonaFranca}</td>
-                    <td>${emp.categoria}</td>
+                    <td>${textoCatalogo(emp.categoria)}</td>
                     <td><span class="badge ${EMPRESA_ESTADO_BADGE[emp.estado]}">${empresaEstadoTexto(emp.estado)}</span></td>
                     <td>${formatearNumero(emp.empleados)}</td>
                     <td>
@@ -153,7 +153,7 @@ export async function init() {
         <div class="modal-body">
           <div style="display: flex; gap: var(--space-3); margin-bottom: var(--space-5);">
             <span class="badge ${EMPRESA_ESTADO_BADGE[emp.estado]}">${empresaEstadoTexto(emp.estado)}</span>
-            <span class="badge badge-neutral">${emp.categoria}</span>
+            <span class="badge badge-neutral">${textoCatalogo(emp.categoria)}</span>
           </div>
 
           <div class="empresa-detalle">

@@ -442,5 +442,35 @@
   "chatbot_low_confidence": "My specialty is free zone procedures: applications, documents, investment, jobs, and statuses. Perhaps you wanted to ask about:",
   "chatbot_low_confidence_suggestions": "How do I create an application?|What documents do I need?|How do I check my application status?",
   "chatbot_welcome": "Hello! I am the ProcoZone virtual assistant for your installation application. Pick a question or type your query.",
-  "chatbot_welcome_suggestions": "How do I fill in the form?|What documents do I need?|How do I check my application status?"
+  "chatbot_welcome_suggestions": "How do I fill in the form?|What documents do I need?|How do I check my application status?",
+  "reported": "reported",
+  "alert_title_suspension": "Imminent regime suspension",
+  "alert_desc_suspension": "AeroComposites Intl. has accumulated 3 consecutive quarters with compliance below 50%. Starting a suspension process is recommended.",
+  "alert_title_jobs_below": "National employment below minimum",
+  "alert_desc_jobs_below": "BioPharm Costa Rica reports 76% national employment against the required 90%. A correction plan is required.",
+  "alert_title_under_review": "Company under review",
+  "alert_desc_under_review": "GreenPack Industries has been under review since June 2024. Additional documentation is pending.",
+  "alert_title_late_reports": "Reports submitted late",
+  "alert_desc_late_reports": "Tecnova Solutions submitted 2 of 12 quarterly reports after the established deadline.",
+  "description_server_line": "Installation of a new server line and data center in module C-3 for cloud services expansion.",
+  "description_lab_expansion": "Expansion of the research laboratory to develop new pharmaceutical compounds.",
+  "description_recycled_plastics": "Installation of a recycled plastics processing plant in module A-1.",
+  "description_circuit_assembly": "New printed circuit assembly line for export to the US market.",
+  "description_data_processing": "Expansion of the work area to add real-time data processing equipment."
+  ,"catalog_tech_services": "Technology Services"
+  ,"catalog_software_development": "Software Development"
+  ,"catalog_shared_services": "Shared Services"
+  ,"catalog_medical_devices": "Medical Devices"
+  ,"catalog_pharma": "Pharmaceutical Industry"
+  ,"catalog_biotech": "Biotechnology"
+  ,"catalog_electronics": "Electronics Manufacturing"
+  ,"catalog_processed_food": "Processed Foods"
+  ,"catalog_logistics_distribution": "Logistics and Distribution"
+  ,"catalog_contact_center": "Contact Center"
+  ,"catalog_design_engineering": "Design and Engineering"
+  ,"catalog_renewable_energy": "Renewable Energy"
+  ,"catalog_biodegradable_packaging": "Biodegradable Packaging"
+  ,"catalog_data_analysis": "Data Analysis"
+  ,"catalog_composite_materials": "Composite Materials"
+  ,"catalog_advanced_logistics": "Advanced Logistics"
 }

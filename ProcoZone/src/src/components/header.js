@@ -170,7 +170,7 @@ export function iniciarAlertasDropdown() {
         .slice(0, 8)
         .map(solicitud => {
           const empresa = empresas.find(e => e.id === solicitud.empresaId);
-          return mensajePorEstado(solicitud.estado, empresa?.nombre || 'Empresa', solicitud);
+          return mensajePorEstado(solicitud.estado, empresa?.nombre || t('th_company'), solicitud);
         });
       pintar(items);
     } catch (error) {

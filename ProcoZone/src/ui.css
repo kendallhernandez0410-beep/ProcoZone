@@ -267,6 +267,8 @@ html[data-theme='dark'] .activity-item {
   gap: 10px;
 }
 
+.public-controls { position: absolute; top: var(--space-6); right: var(--space-8); z-index: 3; }
+
 .pill-switch {
   position: relative;
   display: inline-flex;
@@ -363,6 +365,7 @@ html[data-theme='dark'] .activity-item {
 
 @media (max-width: 768px) {
   .header__controls { gap: 8px; }
+  .public-controls { top: var(--space-4); right: var(--space-4); }
 }
 
 /* ============================================

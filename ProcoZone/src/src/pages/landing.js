@@ -1,5 +1,6 @@
 import { t } from '../utils/translations.js';
 import { renderHeroBanner, iniciarHeroBanner, destruirHeroBanner } from '../components/herobanner.js';
+import { renderHeaderControls } from '../components/theme-language-controls.js';
 import procomerLogo from '../../assets/logos/procomer.svg';
 
 export function render() {
@@ -10,6 +11,7 @@ export function render() {
           <span class="brand-mark"><i class="fa-solid fa-cubes"></i></span>
           <span><strong>ProcoZone</strong><small>ZoFranca CR</small></span>
         </a>
+        ${renderHeaderControls()}
         <a class="btn btn-outline" href="#/login"><i class="fa-solid fa-arrow-right-to-bracket"></i> ${t('login')}</a>
       </nav>
 

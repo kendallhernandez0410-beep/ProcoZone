@@ -1,11 +1,13 @@
 import { http } from '../services/http-client.js';
 import { t } from '../utils/translations.js';
 import { guardarSesion, obtenerUsuarioRecordado, recordarUsuario } from '../utils/auth.js';
+import { renderHeaderControls } from '../components/theme-language-controls.js';
 
 export function render() {
   const usuarioRecordado = obtenerUsuarioRecordado();
   return `
     <div class="public-page login-page">
+      <div class="public-controls">${renderHeaderControls()}</div>
       <a class="login-back" href="#/landing"><i class="fa-solid fa-arrow-left"></i> ${t('back_to_landing')}</a>
       <div class="login-layout">
         <section class="login-aside">
