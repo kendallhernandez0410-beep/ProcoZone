@@ -348,6 +348,44 @@
       },
       "observaciones": "",
       "id": 6
+    },
+    {
+      "empresaId": 2,
+      "cedulaJuridica": "3-102-789012",
+      "zonaFrancaId": 1,
+      "sector": "Servicios Tecnológicos",
+      "tipo": "instalacion",
+      "descripcion": "Somos una empresa lider",
+      "fechaSolicitud": "2026-08-22",
+      "estado": "pendiente",
+      "clasificacionIa": {
+        "puntajeAfinidad": 70,
+        "recomendacion": "Revisar",
+        "nivelRiesgo": "Medio",
+        "factores": [
+          "Sector permitido en la zona franca: 40/40",
+          "Inversión proyectada: 0/30",
+          "Empleos proyectados: 30/30"
+        ],
+        "justificacion": "Sector permitido en la zona franca: 40/40. Inversión proyectada: 0/30. Empleos proyectados: 30/30",
+        "fechaClasificacion": "2026-08-22T18:43:38.058Z"
+      },
+      "compromisos": {
+        "tipoActividad": "Desarrollo de Software",
+        "areaSolicitada": 7,
+        "inversionEstimada": 10,
+        "empleosNuevos": 81,
+        "exportacionesProyectadas": 17,
+        "reportesOportunosComprometidos": 100
+      },
+      "detalles": {
+        "tipoActividad": "Desarrollo de Software",
+        "areaSolicitada": 7,
+        "inversionEstimada": 10,
+        "empleosNuevos": 81
+      },
+      "observaciones": "Documento pendiente: complete la documentación requerida y vuelva a enviarla.",
+      "id": 7
     }
   ],
   "reportesCumplimiento": [
@@ -603,6 +641,26 @@
       "valorReportado": 0,
       "valorRequerido": 100,
       "id": 8
+    },
+    {
+      "empresaId": 2,
+      "solicitudId": 7,
+      "tipo": "info",
+      "titulo": "Nueva solicitud en revisión",
+      "descripcion": "BioPharm Costa Rica Ltda. envió una solicitud #7. Entró en revisión y la IA la evaluará.",
+      "fechaCreacion": "2026-08-22",
+      "estado": "abierta",
+      "id": 9
+    },
+    {
+      "empresaId": 2,
+      "solicitudId": 7,
+      "tipo": "warning",
+      "titulo": "Documento pendiente",
+      "descripcion": "BioPharm Costa Rica Ltda.: El expediente requiere documentación adicional (70/100). La solicitud quedó pendiente hasta completar los requisitos.",
+      "fechaCreacion": "2026-08-22",
+      "estado": "abierta",
+      "id": 10
     }
   ],
   "usuarios": [
