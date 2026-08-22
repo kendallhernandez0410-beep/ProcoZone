@@ -55,6 +55,7 @@ function montarAplicacion() {
     ruta = '/login';
   }
   if (rutasPublicas.includes(ruta)) {
+    detenerChatbot();
     app.innerHTML = '<main id="public-content"></main>';
     mostrarCookieConsent();
     navegar(ruta);

@@ -394,7 +394,10 @@ export function iniciarChatbot() {
       quitarEscribiendo();
       // 1) Diccionario de palabras clave (respuestas guiadas del formulario)
       // 2) Fallback: motor local de similitud (bigramas + sinónimos)
-      const respuesta = responderPorPalabraClave(limpia) ?? responder(limpia);
+      const textoPorPalabraClave = responderPorPalabraClave(limpia);
+      const respuesta = textoPorPalabraClave
+        ? { texto: textoPorPalabraClave, sugerencias: [] }
+        : responder(limpia);
       agregarMensaje(formatearRespuesta(respuesta.texto), 'bot');
       agregarChips(respuesta.sugerencias);
     }, 500 + Math.random() * 700);
