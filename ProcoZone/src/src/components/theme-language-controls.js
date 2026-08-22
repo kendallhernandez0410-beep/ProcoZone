@@ -84,7 +84,6 @@ export function iniciarControlesGlobales() {
       window.dispatchEvent(new CustomEvent('app:theme-updated'));
     } else {
       setLanguage(getLanguage() === 'en' ? 'es' : 'en');
-      window.dispatchEvent(new CustomEvent('app:language-updated'));
     }
     sincronizarControles();
   });

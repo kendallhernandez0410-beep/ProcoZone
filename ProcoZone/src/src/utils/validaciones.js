@@ -1,3 +1,5 @@
+import { t } from './translations.js';
+
 /* ============================================
    ProcoZone — Validaciones de formularios
    ============================================ */
@@ -7,7 +9,7 @@
  */
 export function requerido(valor, nombreCampo) {
   if (!valor || (typeof valor === 'string' && valor.trim() === '')) {
-    return `El campo ${nombreCampo} es requerido.`;
+    return t('validation_required_field').replace('{n}', nombreCampo);
   }
   return null;
 }
@@ -17,7 +19,7 @@ export function requerido(valor, nombreCampo) {
  */
 export function numeroPositivo(valor, nombreCampo) {
   if (valor == null || valor === '' || isNaN(Number(valor)) || Number(valor) <= 0) {
-    return `${nombreCampo} debe ser un número positivo.`;
+    return t('validation_positive_number').replace('{n}', nombreCampo);
   }
   return null;
 }
@@ -28,7 +30,7 @@ export function numeroPositivo(valor, nombreCampo) {
 export function rango(valor, nombreCampo, min, max) {
   const num = Number(valor);
   if (isNaN(num) || num < min || num > max) {
-    return `${nombreCampo} debe estar entre ${min} y ${max}.`;
+    return t('validation_range').replace('{n}', nombreCampo).replace('{min}', min).replace('{max}', max);
   }
   return null;
 }
@@ -40,7 +42,7 @@ export function email(valor, nombreCampo = 'Email') {
   if (!valor) return null;
   const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   if (!regex.test(valor)) {
-    return `El formato de ${nombreCampo} no es válido.`;
+    return t('validation_email').replace('{n}', nombreCampo);
   }
   return null;
 }
@@ -49,10 +51,10 @@ export function email(valor, nombreCampo = 'Email') {
  * Valida una cédula jurídica costarricense (formato básico)
  */
 export function cedulaJuridica(valor) {
-  if (!valor) return 'La cédula jurídica es requerida.';
+  if (!valor) return t('validation_legal_id_required');
   const regex = /^\d-\d{3}-\d{6}$/;
   if (!regex.test(valor)) {
-    return 'Formato inválido. Use: X-XXX-XXXXXX';
+    return t('validation_legal_id_format');
   }
   return null;
 }
@@ -87,7 +89,7 @@ export function validarSolicitud(datos) {
     tipo: [() => requerido(datos.tipo, 'Tipo de solicitud')],
     descripcion: [
       () => requerido(datos.descripcion, 'Descripción'),
-      () => datos.descripcion.length < 20 ? 'La descripción debe tener al menos 20 caracteres.' : null
+      () => datos.descripcion.length < 20 ? t('desc_min_length') : null
     ],
     areaSolicitada: [
       () => requerido(datos.areaSolicitada, 'Área solicitada'),

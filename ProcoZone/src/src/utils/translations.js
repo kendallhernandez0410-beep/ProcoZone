@@ -20,6 +20,7 @@ export function setLanguage(language) {
   localStorage.setItem('procozone_language', next);
   document.documentElement.lang = next;
   window.dispatchEvent(new CustomEvent('languagechange'));
+  window.dispatchEvent(new CustomEvent('app:language-updated'));
 }
 
 export function t(key, fallback = '') {

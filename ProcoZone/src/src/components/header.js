@@ -11,7 +11,7 @@ export function renderHeader(titulo, subtitulo = '') {
   return `
     <header class="header">
       <div class="header__left">
-        <button class="header__menu-btn" id="menuToggle" aria-label="Menú">
+        <button class="header__menu-btn" id="menuToggle" aria-label="${t('menu')}" title="${t('menu')}">
           <i class="fa-solid fa-bars"></i>
         </button>
         <div>
@@ -76,9 +76,11 @@ export function iniciarBusqueda() {
   input.addEventListener('input', pintar);
   input.addEventListener('focus', pintar);
   results.addEventListener('click', () => { results.hidden = true; input.value = ''; });
-  document.addEventListener('click', event => {
+  if (cerrarBusquedaHandler) document.removeEventListener('click', cerrarBusquedaHandler);
+  cerrarBusquedaHandler = event => {
     if (!event.target.closest('.header__search')) results.hidden = true;
-  });
+  };
+  document.addEventListener('click', cerrarBusquedaHandler);
 }
 
 /* ============================================
@@ -114,6 +116,7 @@ function mensajePorEstado(estado, empresaNombre, solicitud) {
 }
 
 let cerrarDropdownHandler = null;
+let cerrarBusquedaHandler = null;
 
 export function iniciarAlertasDropdown() {
   const btn = document.getElementById('alertasBtn');

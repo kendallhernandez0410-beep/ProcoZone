@@ -8,6 +8,7 @@ import './styles/dashboard.css';
 import './styles/solicitudes.css';
 import './styles/empresas.css';
 import './styles/cumplimiento.css';
+import { t } from './src/utils/translations.js';
 
 // Iniciar la aplicación cuando el DOM esté listo
 document.addEventListener('DOMContentLoaded', () => {
@@ -18,9 +19,9 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('app').innerHTML = `
       <div style="display: flex; align-items: center; justify-content: center; height: 100vh; flex-direction: column; gap: 1rem; color: var(--error);">
         <i class="fa-solid fa-circle-exclamation" style="font-size: 3rem;"></i>
-        <h2>Error al iniciar la aplicación</h2>
+        <h2>${t('startup_error')}</h2>
         <p style="color: var(--text-muted);">${error.message}</p>
-        <button onclick="location.reload()" style="padding: 8px 20px; background: var(--primary); color: white; border: none; border-radius: 8px; cursor: pointer;">Reintentar</button>
+        <button onclick="location.reload()" style="padding: 8px 20px; background: var(--primary); color: white; border: none; border-radius: 8px; cursor: pointer;">${t('retry')}</button>
       </div>
     `;
   });

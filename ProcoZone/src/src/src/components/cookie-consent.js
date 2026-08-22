@@ -12,9 +12,19 @@ export function mostrarCookieConsent() {
   } catch {
     decision = null;
   }
-  if (decision || document.getElementById('cookieConsent')) return;
+  if (decision) return;
+  if (document.getElementById('cookieConsent')) {
+    document.getElementById('cookieConsent').outerHTML = renderConsentimiento();
+    enlazarAcciones();
+    return;
+  }
 
-  document.body.insertAdjacentHTML('beforeend', `
+  document.body.insertAdjacentHTML('beforeend', renderConsentimiento());
+  enlazarAcciones();
+}
+
+function renderConsentimiento() {
+  return `
     <section class="cookie-consent" id="cookieConsent" role="dialog" aria-live="polite" aria-label="${t('cookie_notice')}">
       <div class="cookie-consent__icon"><i class="fa-solid fa-cookie-bite"></i></div>
       <div class="cookie-consent__body">
@@ -26,8 +36,10 @@ export function mostrarCookieConsent() {
         <button type="button" class="btn btn-outline btn-sm" id="cookieRechazar">${t('reject')}</button>
       </div>
     </section>
-  `);
+  `;
+}
 
+function enlazarAcciones() {
   const cerrar = valor => {
     try {
       localStorage.setItem(CLAVE_COOKIES, valor);
@@ -40,3 +52,7 @@ export function mostrarCookieConsent() {
   document.getElementById('cookieAceptar')?.addEventListener('click', () => cerrar('aceptadas'));
   document.getElementById('cookieRechazar')?.addEventListener('click', () => cerrar('rechazadas'));
 }
+
+window.addEventListener('languagechange', () => {
+  if (!localStorage.getItem(CLAVE_COOKIES) && document.getElementById('cookieConsent')) mostrarCookieConsent();
+});
