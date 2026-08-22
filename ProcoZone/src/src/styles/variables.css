@@ -4,6 +4,8 @@
    ============================================ */
 
 :root {
+  color-scheme: light;
+
   /* Identidad PROCOMER — colores institucionales */
   --brand-green: #007E48;
   --brand-green-hover: #5A9C0B;
@@ -108,6 +110,8 @@
 }
 
 html[data-theme='dark'] {
+  color-scheme: dark;
+
   --bg: #0B1220;
   --bg-secondary: #111B2A;
   --bg-tertiary: #172537;

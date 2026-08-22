@@ -170,7 +170,13 @@ export async function init() {
       });
     });
     document.getElementById('filtroZona')?.addEventListener('change', (event) => { filtroZona = event.target.value; renderSolicitudes(); });
-    document.getElementById('filtroFecha')?.addEventListener('change', (event) => { filtroFecha = event.target.value; renderSolicitudes(); });
+    const filtroFechaInput = document.getElementById('filtroFecha');
+    filtroFechaInput?.addEventListener('change', (event) => { filtroFecha = event.target.value; renderSolicitudes(); });
+    // Desplegar el calendario nativo al hacer clic o enfocar el campo
+    const abrirCalendario = () => { try { filtroFechaInput.showPicker?.(); } catch { /* navegadores sin soporte */ } };
+    filtroFechaInput?.addEventListener('click', abrirCalendario);
+    filtroFechaInput?.addEventListener('focus', abrirCalendario);
+    filtroFechaInput?.addEventListener('keydown', (event) => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); abrirCalendario(); } });
     document.getElementById('btnClasificarPendientes')?.addEventListener('click', async () => { try { const resultados = await clasificarSolicitudesPendientes(); toast.success(t('evaluation_completed'), `${resultados.length} ${t('evaluated_parallel')}`); await cargarSolicitudes(); } catch (error) { console.error(error); toast.error(t('error_title'), error.message); } });
 
     // Click en tarjeta → abrir modal

@@ -255,3 +255,144 @@ html[data-theme='dark'] .activity-item {
   font-size: var(--text-sm);
   box-shadow: var(--shadow-lg);
 }
+
+/* ============================================
+   Switches tipo píldora (tema / idioma)
+   El cursor pointer aplica sobre TODO el control;
+   sin íconos decorativos dentro del knob.
+   ============================================ */
+.header__controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.pill-switch {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+  width: 64px;
+  height: 30px;
+  padding: 3px;
+  border: 0;
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.pill-switch:hover {
+  filter: brightness(1.07);
+}
+
+.pill-switch:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--bg), 0 0 0 4px var(--primary);
+}
+
+.pill-switch__knob {
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border-radius: var(--radius-full);
+  background: #ffffff;
+  font-family: var(--font-heading);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.03em;
+  line-height: 1;
+  transition: all 0.3s ease;
+}
+
+/* Idioma ES/EN — azul acento institucional.
+   Ambas etiquetas permanecen visibles; el pulgar
+   translúcido se desliza sobre la opción activa. */
+.pill-switch--lang {
+  justify-content: space-between;
+  width: 84px;
+  padding: 0 9px;
+  background: var(--brand-blue);
+}
+
+.pill-switch--lang .pill-switch__thumb {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 36px;
+  height: 24px;
+  border-radius: var(--radius-full);
+  background: rgba(255, 255, 255, 0.28);
+  transition: all 0.3s ease;
+}
+
+.pill-switch--lang[aria-checked='true'] .pill-switch__thumb {
+  transform: translateX(42px);
+}
+
+.pill-switch--lang .pill-switch__opt {
+  position: relative;
+  z-index: 1;
+  font-family: var(--font-heading);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  color: rgba(255, 255, 255, 0.6);
+  transition: all 0.3s ease;
+}
+
+.pill-switch--lang[aria-checked='false'] .pill-switch__opt--es,
+.pill-switch--lang[aria-checked='true'] .pill-switch__opt--en {
+  color: #ffffff;
+}
+
+/* Tema claro/oscuro — verde institucional ↔ gris oscuro */
+.pill-switch--theme {
+  background: var(--brand-green);
+  color: var(--brand-green);
+}
+
+.pill-switch--theme[aria-checked='true'] {
+  background: #1A1A1A;
+  color: #1A1A1A;
+}
+
+.pill-switch--theme[aria-checked='true'] .pill-switch__knob {
+  transform: translateX(34px);
+}
+
+@media (max-width: 768px) {
+  .header__controls { gap: 8px; }
+}
+
+/* ============================================
+   Accesos directos y notificaciones clicables
+   ============================================ */
+a.stat-card {
+  color: inherit;
+  text-decoration: none;
+  transition: all 0.3s ease;
+}
+
+a.stat-card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-md);
+}
+
+.alertas-dropdown__list .alerta-item--link {
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.alertas-dropdown__list .alerta-item--link:hover,
+.alertas-dropdown__list .alerta-item--link:focus-visible {
+  background: var(--bg-tertiary);
+  outline: none;
+}
+
+.alerta-item__go {
+  align-self: center;
+  margin-left: auto;
+  font-size: 10px;
+  opacity: 0.5;
+}

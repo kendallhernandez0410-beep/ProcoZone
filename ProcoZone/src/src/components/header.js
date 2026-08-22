@@ -5,6 +5,7 @@ import { http } from '../services/http-client.js';
    ProcoZone — Componente Header
    ============================================ */
 import { t } from '../utils/translations.js';
+import { renderHeaderControls } from './theme-language-controls.js';
 
 export function renderHeader(titulo, subtitulo = '') {
   return `
@@ -37,9 +38,10 @@ export function renderHeader(titulo, subtitulo = '') {
             <div class="alertas-dropdown__list" id="alertasDropdownList">
               <div class="alertas-dropdown__empty"><i class="fa-solid fa-spinner fa-spin"></i> ${t('loading_default')}</div>
             </div>
-            <a class="alertas-dropdown__footer" href="#/alertas">${t('view_all_alerts')} <i class="fa-solid fa-arrow-right"></i></a>
+            <a class="alertas-dropdown__footer" href="#/alertas">${t('view_full_info')} <i class="fa-solid fa-arrow-right"></i></a>
           </div>
         </div>
+        ${renderHeaderControls()}
       </div>
     </header>
   `;
@@ -63,7 +65,7 @@ export function iniciarBusqueda() {
   const pintar = () => {
     const termino = input.value.trim().toLowerCase();
     const paginasDisponibles = esEmpresa()
-      ? paginas().filter(pagina => ['/solicitudes', '/nueva-solicitud', '/cumplimiento', '/alertas'].includes(pagina.ruta))
+      ? paginas().filter(pagina => ['/solicitudes', '/nueva-solicitud', '/alertas'].includes(pagina.ruta))
       : paginas();
     const coincidencias = paginasDisponibles.filter(pagina => pagina.titulo.toLowerCase().includes(termino));
     results.innerHTML = coincidencias.length
@@ -121,8 +123,6 @@ export function iniciarAlertasDropdown() {
   const sub = document.getElementById('alertasDropdownSub');
   if (!btn || !panel || !list) return;
 
-  let cargado = false;
-
   function pintar(items) {
     if (badge) {
       badge.textContent = items.length;
@@ -130,13 +130,14 @@ export function iniciarAlertasDropdown() {
     }
     if (sub) sub.textContent = `${items.length}`;
     list.innerHTML = items.length
-      ? items.map(item => `
-        <article class="alerta-item ${item.clase}">
+      ? items.map((item, indice) => `
+        <article class="alerta-item ${item.clase} alerta-item--link" data-alerta-idx="${indice}" role="button" tabindex="0" title="${t('view_full_info')}">
           <i class="fa-solid ${item.icono}"></i>
           <div>
             <strong>${item.titulo}</strong>
             <p>${item.mensaje}</p>
           </div>
+          <i class="fa-solid fa-chevron-right alerta-item__go" aria-hidden="true"></i>
         </article>
       `).join('')
       : `
@@ -184,10 +185,16 @@ export function iniciarAlertasDropdown() {
     const abierto = !panel.hidden;
     panel.hidden = abierto;
     btn.setAttribute('aria-expanded', String(!abierto));
-    if (!abierto && !cargado) {
-      cargado = true;
-      cargar();
-    }
+    // Recargar siempre al desplegar para reflejar notificaciones nuevas
+    if (!abierto) cargar();
+  });
+
+  /* Clic en una notificación → información completa y detallada */
+  list.addEventListener('click', event => {
+    if (!event.target.closest('[data-alerta-idx]')) return;
+    panel.hidden = true;
+    btn.setAttribute('aria-expanded', 'false');
+    window.location.hash = esEmpresa() ? '#/alertas' : '#/solicitudes';
   });
 
   panel.addEventListener('click', event => event.stopPropagation());

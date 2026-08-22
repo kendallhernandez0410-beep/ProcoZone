@@ -310,6 +310,44 @@
       },
       "responsable": "Ana Rodríguez",
       "observaciones": ""
+    },
+    {
+      "empresaId": 11,
+      "cedulaJuridica": "3-111-556677",
+      "zonaFrancaId": 2,
+      "sector": "Biotecnología",
+      "tipo": "instalacion",
+      "descripcion": "Me gustaria formar parte",
+      "fechaSolicitud": "2026-08-22",
+      "estado": "en_revision",
+      "clasificacionIa": {
+        "puntajeAfinidad": 70,
+        "recomendacion": "Revisar",
+        "nivelRiesgo": "Medio",
+        "factores": [
+          "Sector permitido en la zona franca: 40/40",
+          "Inversión proyectada: 0/30",
+          "Empleos proyectados: 30/30"
+        ],
+        "justificacion": "Sector permitido en la zona franca: 40/40. Inversión proyectada: 0/30. Empleos proyectados: 30/30",
+        "fechaClasificacion": "2026-08-22T00:29:24.583Z"
+      },
+      "compromisos": {
+        "tipoActividad": "Manofactura",
+        "areaSolicitada": 7,
+        "inversionEstimada": 7,
+        "empleosNuevos": 85,
+        "exportacionesProyectadas": 20,
+        "reportesOportunosComprometidos": 100
+      },
+      "detalles": {
+        "tipoActividad": "Manofactura",
+        "areaSolicitada": 7,
+        "inversionEstimada": 7,
+        "empleosNuevos": 85
+      },
+      "observaciones": "",
+      "id": 6
     }
   ],
   "reportesCumplimiento": [

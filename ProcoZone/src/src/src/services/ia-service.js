@@ -1,5 +1,5 @@
 import { http } from '../../services/http-client.js';
-import { t } from '../../utils/translations.js';
+import { t, tf } from '../../utils/translations.js';
 
 function simularProcesamiento(minMs = 650, maxMs = 1200) {
   return new Promise((resolve) => setTimeout(resolve, minMs + Math.random() * (maxMs - minMs)));
@@ -32,7 +32,38 @@ export async function clasificarSolicitud(solicitudId) {
     const solicitud = await http.getById('solicitudes', solicitudId);
     const [empresa, zonas] = await Promise.all([http.getById('empresas', solicitud.empresaId), http.get('zonasFrancas')]);
     const clasificacion = evaluarSolicitud(solicitud, empresa, zonas.find((zona) => zona.id === solicitud.zonaFrancaId));
-    await http.patch('solicitudes', solicitudId, { clasificacionIa: clasificacion, estado: 'en_revision' });
+
+    /* Decisión automática según el cumplimiento del expediente:
+       Recomendada (≥75) → aprobada · Rechazada (<50) → rechazada
+       Revisar (50-74) → pendiente por documento/requisito faltante */
+    let estadoFinal = 'pendiente';
+    if (clasificacion.recomendacion === 'Recomendada') estadoFinal = 'aprobada';
+    else if (clasificacion.recomendacion === 'Rechazada') estadoFinal = 'rechazada';
+
+    const cambios = { clasificacionIa: clasificacion, estado: estadoFinal };
+    if (estadoFinal === 'pendiente') cambios.observaciones = t('doc_pending_note');
+    await http.patch('solicitudes', solicitudId, cambios);
+
+    // Notificación a la empresa con el resultado de la evaluación
+    const descripcion = estadoFinal === 'aprobada'
+      ? `${empresa.nombre}: ${tf('alert_auto_decision_ok', clasificacion.puntajeAfinidad)}`
+      : estadoFinal === 'rechazada'
+        ? `${empresa.nombre}: ${tf('alert_auto_decision_no', clasificacion.puntajeAfinidad)}`
+        : `${empresa.nombre}: ${tf('alert_doc_pending_desc', clasificacion.puntajeAfinidad)}`;
+    await http.post('alertas', {
+      empresaId: empresa.id,
+      solicitudId,
+      tipo: estadoFinal === 'aprobada' ? 'info' : estadoFinal === 'rechazada' ? 'critica' : 'warning',
+      titulo: estadoFinal === 'aprobada'
+        ? t('notif_approved_title')
+        : estadoFinal === 'rechazada'
+          ? t('notif_rejected_title')
+          : t('alert_doc_pending_title'),
+      descripcion,
+      fechaCreacion: new Date().toISOString().slice(0, 10),
+      estado: 'abierta'
+    });
+
     return clasificacion;
   } catch (error) {
     console.error('Error en el servicio de IA:', error);

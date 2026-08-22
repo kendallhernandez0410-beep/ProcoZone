@@ -6,14 +6,16 @@ import { renderSidebar, iniciarSidebar } from './components/sidebar.js';
 import { renderHeader, iniciarBusqueda, iniciarAlertasDropdown } from '../components/header.js';
 import { navegar } from '../router.js';
 import { esEmpresa, esInterno, estaAutenticado } from '../utils/auth.js';
-import { iniciarChatbot } from './components/chatbot.js';
+import { iniciarChatbot, detenerChatbot } from './components/chatbot.js';
 import { mostrarCookieConsent } from './components/cookie-consent.js';
 import { applyTheme } from '../utils/theme.js';
 import { getLanguage, t } from '../utils/translations.js';
+import { iniciarControlesGlobales } from '../components/theme-language-controls.js';
 
 const rutasPublicas = ['/landing', '/login', '/solicitar-acceso'];
-// Rol 1 — Empresa Solicitante / Instalada: registra solicitudes, envía reportes y consulta estado
-const rutasEmpresa = ['/solicitudes', '/nueva-solicitud', '/cumplimiento', '/alertas'];
+// Rol 1 — Empresa Solicitante / Instalada: registra solicitudes y consulta estado/alertas
+// (los reportes de cumplimiento son exclusivos del panel interno)
+const rutasEmpresa = ['/solicitudes', '/nueva-solicitud', '/alertas'];
 
 /**
  * Devuelve la ruta corregida según el rol de la sesión activa:
@@ -73,7 +75,8 @@ function montarAplicacion() {
   iniciarSidebar();
   iniciarBusqueda();
   iniciarAlertasDropdown();
-  if (esEmpresa()) iniciarChatbot();
+  // El asistente virtual acompaña a la empresa en toda su área
+  if (esEmpresa()) iniciarChatbot(); else detenerChatbot();
 
   // Actualizar título dinámicamente desde el router
   const headerTitle = document.getElementById('headerTitle');
@@ -87,6 +90,7 @@ function montarAplicacion() {
 }
 
 export function iniciarApp() {
+  iniciarControlesGlobales();
   montarAplicacion();
   window.addEventListener('app:language-updated', () => montarAplicacion());
   window.addEventListener('app:theme-updated', () => montarAplicacion());

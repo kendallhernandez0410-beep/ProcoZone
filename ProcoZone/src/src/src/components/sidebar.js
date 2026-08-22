@@ -3,7 +3,6 @@
    ============================================ */
 import { esEmpresa, esAnalista, esAdmin, obtenerSesion, cerrarSesion } from '../../utils/auth.js';
 import { t } from '../../utils/translations.js';
-import { renderThemeLanguageControls, bindThemeLanguageControls } from '../../components/theme-language-controls.js';
 
 const ETIQUETAS_ROL = () => ({
   Empresa: t('role_company'),
@@ -21,9 +20,7 @@ function menuPorRol() {
   if (esEmpresa()) {
     return [
       { ruta: '/solicitudes', icono: 'fa-file-circle-plus', texto: t('my_applications') },
-      { ruta: '/nueva-solicitud', icono: 'fa-plus-circle', texto: t('new_request_menu') },
-      { ruta: '/cumplimiento', icono: 'fa-chart-line', texto: t('compliance_reports_menu') },
-      { ruta: '/alertas', icono: 'fa-bell', texto: t('my_alerts') }
+      { ruta: '/nueva-solicitud', icono: 'fa-plus-circle', texto: t('new_request_menu') }
     ];
   }
   if (esAnalista()) {
@@ -31,8 +28,7 @@ function menuPorRol() {
       { ruta: '/', icono: 'fa-gauge-high', texto: t('dashboard') },
       { ruta: '/solicitudes', icono: 'fa-file-circle-plus', texto: t('applications') },
       { ruta: '/empresas', icono: 'fa-building', texto: t('companies') },
-      { ruta: '/cumplimiento', icono: 'fa-chart-line', texto: t('compliance') },
-      { ruta: '/alertas', icono: 'fa-bell', texto: t('alerts') }
+      { ruta: '/cumplimiento', icono: 'fa-chart-line', texto: t('compliance') }
     ];
   }
   if (esAdmin()) {
@@ -42,15 +38,13 @@ function menuPorRol() {
       { ruta: '/empresas', icono: 'fa-building', texto: t('companies') },
       { ruta: '/auditoria', icono: 'fa-clipboard-list-check', texto: t('audit_trail') },
       { ruta: '/zonas-francas', icono: 'fa-sliders', texto: t('regime_settings') },
-      { ruta: '/cumplimiento', icono: 'fa-chart-line', texto: t('compliance') },
-      { ruta: '/alertas', icono: 'fa-bell', texto: t('alerts') }
+      { ruta: '/cumplimiento', icono: 'fa-chart-line', texto: t('compliance') }
     ];
   }
   return [
     { ruta: '/', icono: 'fa-gauge-high', texto: t('dashboard') },
     { ruta: '/solicitudes', icono: 'fa-file-circle-plus', texto: t('applications') },
-    { ruta: '/cumplimiento', icono: 'fa-chart-line', texto: t('compliance') },
-    { ruta: '/alertas', icono: 'fa-bell', texto: t('alerts') }
+    { ruta: '/cumplimiento', icono: 'fa-chart-line', texto: t('compliance') }
   ];
 }
 
@@ -85,7 +79,6 @@ export function renderSidebar(rutaActual) {
       </nav>
 
       <div class="sidebar__footer">
-        ${renderThemeLanguageControls()}
         <div class="sidebar__user">
           <div class="sidebar__user-avatar">${sesion?.nombre?.split(' ').map(nombre => nombre[0]).slice(0, 2).join('') || 'UC'}</div>
           <div class="sidebar__user-info">
@@ -101,5 +94,4 @@ export function renderSidebar(rutaActual) {
 
 export function iniciarSidebar() {
   document.getElementById('logoutBtn')?.addEventListener('click', cerrarSesion);
-  bindThemeLanguageControls();
 }

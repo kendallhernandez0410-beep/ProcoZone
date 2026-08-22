@@ -1,5 +1,6 @@
-import { obtenerSesion } from '../../utils/auth.js';
+import { obtenerSesion, esEmpresa } from '../../utils/auth.js';
 import { t, getLanguage } from '../../utils/translations.js';
+import { responderPorPalabraClave } from '../../utils/chatbot-keywords-respuestas.js';
 
 /* ============================================
    ProcoZone — Chatbot con IA local simulada
@@ -331,6 +332,7 @@ function responder(pregunta) {
 
 /* ---------- Interfaz del chatbot ---------- */
 export function iniciarChatbot() {
+  if (!esEmpresa()) return;
   if (document.getElementById('chatbot')) return;
   const nombre = obtenerSesion()?.nombre || t('user');
   document.body.insertAdjacentHTML('beforeend', `
@@ -390,20 +392,23 @@ export function iniciarChatbot() {
     // Pequeña pausa para simular el "pensamiento" del modelo
     setTimeout(() => {
       quitarEscribiendo();
-      const respuesta = responder(limpia);
+      // 1) Diccionario de palabras clave (respuestas guiadas del formulario)
+      // 2) Fallback: motor local de similitud (bigramas + sinónimos)
+      const respuesta = responderPorPalabraClave(limpia) ?? responder(limpia);
       agregarMensaje(formatearRespuesta(respuesta.texto), 'bot');
       agregarChips(respuesta.sugerencias);
     }, 500 + Math.random() * 700);
   }
 
-  // Mensaje de bienvenida
+  // Mensaje de bienvenida (ES usa el saludo del diccionario de palabras clave)
   const bienvenida = getLanguage() === 'en'
-    ? 'Hello! I am the ProcoZone virtual assistant. I can help you with applications, documents, investment, jobs, and procedure statuses. Pick a question or type your query.'
-    : '¡Hola! Soy el asistente virtual de ProcoZone. Puedo ayudarte con solicitudes, documentos, inversión, empleos y estados de trámite. Selecciona una pregunta o escríbeme tu consulta.';
+    ? 'Hello! I am the ProcoZone virtual assistant for your installation application. Pick a question or type your query.'
+    : (responderPorPalabraClave('hola') ??
+      '¡Hola! Soy el asistente virtual de ProcoZone. Selecciona una pregunta o escríbeme tu consulta.');
   agregarMensaje(formatearRespuesta(bienvenida), 'bot');
   agregarChips(getLanguage() === 'en'
-    ? ['How do I create an application?', 'What documents do I need?', 'How do I check my application status?']
-    : ['¿Cómo creo una solicitud?', '¿Qué documentos necesito?', '¿Cómo consulto el estado de mi solicitud?']);
+    ? ['How do I fill in the form?', 'What documents do I need?', 'How do I check my application status?']
+    : ['¿Cómo lleno el formulario?', 'Requerimientos', 'Reportes de cumplimiento', 'Estado de mi solicitud']);
 
   document.getElementById('chatbotToggle').addEventListener('click', () => { panel.hidden = !panel.hidden; });
   document.getElementById('chatbotClose').addEventListener('click', event => {
@@ -415,4 +420,9 @@ export function iniciarChatbot() {
     event.preventDefault();
     procesarConsulta(input.value);
   });
+}
+
+/* Elimina el chatbot del DOM (se usa al salir de la página de nueva solicitud) */
+export function detenerChatbot() {
+  document.getElementById('chatbot')?.remove();
 }

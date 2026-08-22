@@ -2,7 +2,8 @@ import { http } from '../services/http-client.js';
 import { toast } from '../services/notificacion-service.js';
 import { clasificarSolicitud } from '../src/services/ia-service.js';
 import { obtenerSesion } from '../utils/auth.js';
-import { t } from '../utils/translations.js';
+import { t, tf } from '../utils/translations.js';
+import { ACTIVIDADES_ECONOMICAS } from '../utils/constantes.js';
 
 const campo = (id, etiqueta, tipo = 'text', extra = '') => `<div class="form-group"><label class="form-label" for="${id}">${etiqueta} *</label><input class="form-input" id="${id}" type="${tipo}" ${extra} required><span class="form-error" id="error-${id}"></span></div>`;
 
@@ -20,7 +21,7 @@ export async function render() {
       </div></div>
       <div class="form-section"><div class="form-section-title">${t('request_projection')}</div><div class="form-grid">
         <div class="form-group"><label class="form-label" for="tipo">${t('request_type_label')}</label><select class="form-select" id="tipo" required><option value="">${t('select_type')}</option><option value="instalacion">${t('type_installation')}</option><option value="expansion">${t('type_expansion')}</option></select><span class="form-error" id="error-tipo"></span></div>
-        ${campo('tipoActividad', t('activity_type'))}${campo('areaSolicitada', t('requested_area'), 'number', 'min="1"')}${campo('inversionEstimada', t('projected_investment'), 'number', 'min="1"')}${campo('empleosNuevos', t('new_jobs'), 'number', 'min="1"')}${campo('exportacionesProyectadas', t('projected_exports'), 'number', 'min="0" max="100"')}${campo('reportesOportunosComprometidos', t('committed_timely_reports'), 'number', 'min="0" max="100" value="100"')}
+        <div class="form-group"><label class="form-label" for="tipoActividad">${t('activity_type')} *</label><select class="form-select" id="tipoActividad" required><option value="">${t('select_activity')}</option>${ACTIVIDADES_ECONOMICAS.map((actividad) => `<option value="${actividad}">${actividad}</option>`).join('')}</select><span class="form-error" id="error-tipoActividad"></span></div>${campo('areaSolicitada', t('requested_area'), 'number', 'min="1"')}${campo('inversionEstimada', t('projected_investment'), 'number', 'min="1"')}${campo('empleosNuevos', t('new_jobs'), 'number', 'min="1"')}${campo('exportacionesProyectadas', t('projected_exports'), 'number', 'min="0" max="100"')}${campo('reportesOportunosComprometidos', t('committed_timely_reports'), 'number', 'min="0" max="100" value="100"')}
         <div class="form-group form-group--full"><label class="form-label" for="descripcion">${t('description_label')}</label><textarea class="form-textarea" id="descripcion" rows="3" required></textarea><span class="form-error" id="error-descripcion"></span></div>
       </div></div><div style="display:flex;gap:var(--space-3);justify-content:flex-end"><a class="btn btn-outline" href="#/solicitudes">${t('cancel')}</a><button class="btn btn-primary btn-lg" id="btnSubmit">${t('send_evaluate_ai')}</button></div></form></div>`;
   } catch (error) {
@@ -34,6 +35,11 @@ export function init() {
   const empresa = document.getElementById('empresaId'); const cedula = document.getElementById('cedulaJuridica'); const zona = document.getElementById('zonaFrancaId'); const sector = document.getElementById('sector');
   const actualizarCedula = () => { cedula.value = empresa.selectedOptions[0]?.dataset.cedula || ''; };
   actualizarCedula(); empresa.addEventListener('change', actualizarCedula);
+  // Intentar escribir/clic en la cédula sin empresa seleccionada → aviso abajo a la derecha
+  const avisarSeleccionEmpresa = () => {
+    if (!empresa.value) toast.warning(t('select_company_first_title'), t('select_company_first_msg'));
+  };
+  ['click', 'focus', 'keydown'].forEach((evento) => cedula.addEventListener(evento, avisarSeleccionEmpresa));
   zona.addEventListener('change', async () => {
     try {
       const seleccionada = (await http.getById('zonasFrancas', zona.value));
@@ -55,8 +61,24 @@ export function init() {
     if (!valido) { toast.warning(t('incomplete_fields_title'), t('incomplete_fields_msg')); return; }
     const seleccionada = empresa.selectedOptions[0];
     const detalles = { tipoActividad: valor('tipoActividad'), areaSolicitada: numero('areaSolicitada'), inversionEstimada: numero('inversionEstimada'), empleosNuevos: numero('empleosNuevos') };
-    const nueva = { empresaId: Number(empresa.value), cedulaJuridica: seleccionada.dataset.cedula, zonaFrancaId: Number(zona.value), sector: sector.value, tipo: document.getElementById('tipo').value, descripcion: valor('descripcion'), fechaSolicitud: new Date().toISOString().slice(0, 10), estado: 'pendiente', clasificacionIa: null, compromisos: { ...detalles, exportacionesProyectadas: numero('exportacionesProyectadas'), reportesOportunosComprometidos: numero('reportesOportunosComprometidos') }, detalles, observaciones: '' };
+    const nueva = { empresaId: Number(empresa.value), cedulaJuridica: seleccionada.dataset.cedula, zonaFrancaId: Number(zona.value), sector: sector.value, tipo: document.getElementById('tipo').value, descripcion: valor('descripcion'), fechaSolicitud: new Date().toISOString().slice(0, 10), estado: 'en_revision', clasificacionIa: null, compromisos: { ...detalles, exportacionesProyectadas: numero('exportacionesProyectadas'), reportesOportunosComprometidos: numero('reportesOportunosComprometidos') }, detalles, observaciones: '' };
     const boton = document.getElementById('btnSubmit'); boton.disabled = true; boton.innerHTML = `<span class="spinner spinner-sm"></span> ${t('saving_evaluating')}`;
-    try { const creada = await http.post('solicitudes', nueva); const ia = await clasificarSolicitud(creada.id); toast.success(t('application_evaluated'), `${t('affinity_score')}: ${ia.puntajeAfinidad}/100. ${t('application_evaluated_msg')}`); window.location.hash = '#/solicitudes'; } catch (error) { console.error(error); toast.error(t('evaluation_failed_title'), t('evaluation_failed_msg')); boton.disabled = false; boton.textContent = t('send_evaluate_ai'); }
+    try {
+      const creada = await http.post('solicitudes', nueva);
+      // Notificación al equipo de analistas: solicitud entró en revisión
+      await http.post('alertas', {
+        empresaId: nueva.empresaId,
+        solicitudId: creada.id,
+        tipo: 'info',
+        titulo: t('alert_new_request_title'),
+        descripcion: `${seleccionada.textContent.trim()} ${tf('alert_new_request_desc', creada.id)}`,
+        fechaCreacion: nueva.fechaSolicitud,
+        estado: 'abierta'
+      });
+      // La IA evalúa y decide automáticamente (aprobada / rechazada / pendiente por documento)
+      const ia = await clasificarSolicitud(creada.id);
+      toast.success(t('toast_submitted_title'), `${t('affinity_score')}: ${ia.puntajeAfinidad}/100. ${t('toast_submitted_msg')}`);
+      window.location.hash = '#/solicitudes';
+    } catch (error) { console.error(error); toast.error(t('evaluation_failed_title'), t('evaluation_failed_msg')); boton.disabled = false; boton.textContent = t('send_evaluate_ai'); }
   });
 }

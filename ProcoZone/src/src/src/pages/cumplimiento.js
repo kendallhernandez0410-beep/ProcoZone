@@ -27,6 +27,17 @@ function toastNoCompromisos() {
   }
 }
 
+/** Últimos 8 trimestres (más reciente primero) para el selector de período */
+function generarPeriodos() {
+  const ahora = new Date();
+  const periodos = [];
+  for (let i = 0; i < 8; i++) {
+    const fecha = new Date(ahora.getFullYear(), ahora.getMonth() - i * 3, 1);
+    periodos.push(`${fecha.getFullYear()}-Q${Math.floor(fecha.getMonth() / 3) + 1}`);
+  }
+  return periodos;
+}
+
 export function render() {
   return `<div id="cumplimientoPage" class="page-enter"><div class="loading-overlay"><span class="spinner"></span>${t('loading_reports')}</div></div>`;
 }
@@ -37,7 +48,7 @@ export async function init() {
     try {
       const [empresas, solicitudes, reportes] = await Promise.all([http.get('empresas'), http.get('solicitudes'), http.get('reportesCumplimiento')]);
       const aprobadas = solicitudes.filter((solicitud) => solicitud.estado === 'aprobada');
-      container.innerHTML = `<div class="section-header"><div><h1>${t('compliance_reports')}</h1><p>${t('report_intro')}</p></div></div><div class="card" style="margin-bottom:var(--space-6)"><form id="reporteForm" class="form-grid" novalidate><div class="form-group"><label class="form-label" for="reporteEmpresa">${t('approved_company')}</label><select id="reporteEmpresa" class="form-select" required><option value="">${t('select_company')}</option>${aprobadas.map((solicitud) => { const empresa = empresas.find((item) => item.id === solicitud.empresaId); return empresa ? `<option value="${empresa.id}" data-solicitud="${solicitud.id}">${empresa.nombre}</option>` : ''; }).join('')}</select></div><div class="form-group"><label class="form-label" for="periodo">${t('period')}</label><input id="periodo" class="form-input" placeholder="2026-Q1" required pattern="\\d{4}-Q[1-4]" title="2026-Q1"></div>${entrada('empleosReales', t('real_employees'))}${entrada('inversionEjecutada', t('executed_investment'))}${entrada('exportaciones', t('exports_pct'), 'number', 'max="100"')}${entrada('reportesOportunos', t('timely_reports_pct'), 'number', 'max="100"')}<div class="form-group form-group--full"><button class="btn btn-primary" id="guardarReporte">${t('save_report')}</button></div></form></div><h2>${t('consolidated_summary')}</h2><div class="cumplimiento-grid">${reportes.map((reporte) => { const empresa = empresas.find((item) => item.id === reporte.empresaId); const indicadores = Object.entries(reporte.indicadores || {}).map(([nombre, indicador]) => `<li>${t(nombreIndicador[nombre] ?? '') || nombre}: <strong>${indicadorEstadoTexto(indicador.estado)}</strong> (${indicador.actual}/${indicador.requerido})</li>`).join(''); return `<article class="card"><h3>${empresa?.nombre || t('th_company')}</h3><p><strong>${reporte.porcentajeCumplimiento}%</strong> — ${estadoGeneralTexto(reporte.estadoGeneral)}</p><ul>${indicadores}</ul></article>`; }).join('') || `<p>${t('no_reports')}</p>`}</div>`;
+      container.innerHTML = `<div class="section-header"><div><h1>${t('compliance_reports')}</h1><p>${t('report_intro')}</p></div></div><div class="card" style="margin-bottom:var(--space-6)"><form id="reporteForm" class="form-grid" novalidate><div class="form-group"><label class="form-label" for="reporteEmpresa">${t('approved_company')}</label><select id="reporteEmpresa" class="form-select" required><option value="">${t('select_company')}</option>${aprobadas.map((solicitud) => { const empresa = empresas.find((item) => item.id === solicitud.empresaId); return empresa ? `<option value="${empresa.id}" data-solicitud="${solicitud.id}">${empresa.nombre}</option>` : ''; }).join('')}</select></div><div class="form-group"><label class="form-label" for="periodo">${t('period')}</label><select id="periodo" class="form-select" required>${generarPeriodos().map((periodo, indice) => `<option value="${periodo}" ${indice === 0 ? 'selected' : ''}>${periodo}</option>`).join('')}</select></div>${entrada('empleosReales', t('real_employees'))}${entrada('inversionEjecutada', t('executed_investment'))}${entrada('exportaciones', t('exports_pct'), 'number', 'max="100"')}${entrada('reportesOportunos', t('timely_reports_pct'), 'number', 'max="100"')}<div class="form-group form-group--full"><button class="btn btn-primary" id="guardarReporte">${t('save_report')}</button></div></form></div><h2>${t('consolidated_summary')}</h2><div class="cumplimiento-grid">${reportes.map((reporte) => { const empresa = empresas.find((item) => item.id === reporte.empresaId); const indicadores = Object.entries(reporte.indicadores || {}).map(([nombre, indicador]) => `<li>${t(nombreIndicador[nombre] ?? '') || nombre}: <strong>${indicadorEstadoTexto(indicador.estado)}</strong> (${indicador.actual}/${indicador.requerido})</li>`).join(''); return `<article class="card"><h3>${empresa?.nombre || t('th_company')}</h3><p><strong>${reporte.porcentajeCumplimiento}%</strong> — ${estadoGeneralTexto(reporte.estadoGeneral)}</p><ul>${indicadores}</ul></article>`; }).join('') || `<p>${t('no_reports')}</p>`}</div>`;
 
       // Si la empresa seleccionada no autocompleta compromisos (sin solicitud aprobada), avisar con Toastify
       document.getElementById('reporteEmpresa').addEventListener('change', (event) => {

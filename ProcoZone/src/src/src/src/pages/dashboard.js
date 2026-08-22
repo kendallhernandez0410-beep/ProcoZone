@@ -59,29 +59,29 @@ export async function init() {
     const ultimosReportes = reportes.slice(0, 4);
 
     container.innerHTML = `
-      <!-- Tarjetas de estadísticas -->
+      <!-- Tarjetas de estadísticas (accesos directos a cada sección) -->
       <div class="dashboard-grid">
-        <div class="stat-card stat-card--primary">
+        <a class="stat-card stat-card--primary" href="#/solicitudes">
           <div class="stat-card__icon"><i class="fa-solid fa-file-circle-plus"></i></div>
           <div class="stat-card__value">${solicitudes.length}</div>
           <div class="stat-card__label">${t('total_applications')}</div>
           <small>${conteoEstados}</small>
-        </div>
-        <div class="stat-card stat-card--accent">
+        </a>
+        <a class="stat-card stat-card--accent" href="#/empresas">
           <div class="stat-card__icon"><i class="fa-solid fa-building"></i></div>
           <div class="stat-card__value">${empresasActivas}</div>
           <div class="stat-card__label">${t('active_companies')}</div>
-        </div>
-        <div class="stat-card stat-card--success">
+        </a>
+        <a class="stat-card stat-card--success" href="#/cumplimiento">
           <div class="stat-card__icon"><i class="fa-solid fa-chart-line"></i></div>
           <div class="stat-card__value">${avgCumplimiento}%</div>
           <div class="stat-card__label">${t('average_compliance')}</div>
-        </div>
-        <div class="stat-card stat-card--error">
+        </a>
+        <a class="stat-card stat-card--error" href="#/alertas">
           <div class="stat-card__icon"><i class="fa-solid fa-bell"></i></div>
           <div class="stat-card__value">${alertasAbiertas}</div>
           <div class="stat-card__label">${t('open_alerts')}</div>
-        </div>
+        </a>
       </div>
 
       <!-- Secciones inferiores -->

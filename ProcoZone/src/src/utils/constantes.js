@@ -169,6 +169,22 @@ export function factorIaTexto(factor) {
   return factor;
 }
 
+// Actividades económicas del formulario de solicitud
+export const ACTIVIDADES_ECONOMICAS = [
+  'Servicios Tecnológicos',
+  'Desarrollo de Software',
+  'Servicios Compartidos',
+  'Dispositivos Médicos',
+  'Industria Farmacéutica',
+  'Biotecnología',
+  'Manufactura Electrónica',
+  'Alimentos Procesados',
+  'Logística y Distribución',
+  'Centro de Contacto',
+  'Diseño e Ingeniería',
+  'Energías Renovables'
+];
+
 // Categorías de zona franca
 export const CATEGORIAS_ZF = [
   'Servicios Tecnológicos',
