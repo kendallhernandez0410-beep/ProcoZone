@@ -37,6 +37,8 @@ export function renderTarjetaSolicitud(solicitud, empresa) {
     `;
   }
 
+  const estadoIncompleto = solicitud.estado === 'pendiente' && solicitud.observaciones;
+
   return `
     <div class="solicitud-card" data-solicitud-id="${solicitud.id}">
       <div class="solicitud-card__top">
@@ -44,7 +46,13 @@ export function renderTarjetaSolicitud(solicitud, empresa) {
           <div class="solicitud-card__empresa">${empresa?.nombre || t('company_not_found')}</div>
           <div class="solicitud-card__tipo">${tipoTexto} — #${solicitud.id}</div>
         </div>
-        <span class="badge ${estado.clase}">${estado.texto}</span>
+        <div class="solicitud-card__estados">
+          <span class="badge ${estado.clase}">${estado.texto}</span>
+          ${estadoIncompleto ? `
+            <span class="badge badge-warning sol-badge-incompleto" title="${solicitud.observaciones}">
+              <i class="fa-solid fa-triangle-exclamation"></i> ${t('state_incomplete_badge')}
+            </span>` : ''}
+        </div>
       </div>
 
       <p class="solicitud-card__desc">${truncarTexto(solicitud.descripcion, 120)}</p>

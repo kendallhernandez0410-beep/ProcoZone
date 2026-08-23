@@ -8,6 +8,7 @@ import { formatearFecha, tiempoRelativo, colorDesdeString, obtenerIniciales } fr
 import { ALERTA_BADGE, alertaTipoTexto, alertaEstadoTexto } from '../../utils/constantes.js';
 import { toast } from '../../services/notificacion-service.js';
 import { esAnalista, esAdmin, esEmpresa, obtenerSesion } from '../../utils/auth.js';
+import { abrirModalDetalleAlerta } from '../../components/modal-alerta-detalle.js';
 import { t } from '../../utils/translations.js';
 
 let destroyFn = null;
@@ -91,6 +92,9 @@ export async function init() {
                 </div>
               </div>
               <div class="alerta-card__actions">
+                <button class="btn btn-sm btn-outline btn-ver-detalle" data-id="${alerta.id}">
+                  <i class="fa-regular fa-eye"></i> ${t('notif_view_detail')}
+                </button>
                 ${!esAnalista() && !esAdmin() ? `<span class="badge badge-info">${t('readonly_badge')}</span>` : `
                 ${alerta.estado === 'abierta' ? `
                   <button class="btn btn-sm btn-outline btn-atender" data-id="${alerta.id}">
@@ -123,6 +127,11 @@ export async function init() {
         filtroAlerta = btn.dataset.filtro;
         renderAlertas();
       });
+    });
+
+    // Bind ver detalle completo
+    container.querySelectorAll('.btn-ver-detalle').forEach(btn => {
+      btn.addEventListener('click', () => abrirModalDetalleAlerta(btn.dataset.id));
     });
 
     // Bind atender

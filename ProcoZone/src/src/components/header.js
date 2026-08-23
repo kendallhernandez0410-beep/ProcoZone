@@ -1,5 +1,7 @@
 import { esEmpresa, esInterno, obtenerSesion } from '../utils/auth.js';
 import { http } from '../services/http-client.js';
+import { abrirModalDetalleAlerta } from './modal-alerta-detalle.js';
+import { toast } from '../services/notificacion-service.js';
 
 /* ============================================
    ProcoZone — Componente Header
@@ -54,6 +56,7 @@ export function renderHeader(titulo, subtitulo = '') {
 const paginas = () => [
   { titulo: t('dashboard'), ruta: '/' },
   { titulo: t('applications'), ruta: '/solicitudes' },
+  { titulo: t('access_requests_menu'), ruta: '/solicitudes-acceso' },
   { titulo: t('new_application'), ruta: '/nueva-solicitud' },
   { titulo: t('companies'), ruta: '/empresas' },
   { titulo: t('audit_trail'), ruta: '/auditoria' },
@@ -117,6 +120,13 @@ function guardarLeidas(conjunto) {
 }
 
 let recargarNotificaciones = null;
+let pollingTimer = null;
+let idsConocidos = null;
+let recargarSiVisible = null;
+// Sondeo periódico: json-server no soporta WebSockets/SSE, así que el
+// contador y listado de la campanita se mantienen al día sin recargar
+// la página mediante polling corto + refresco al recuperar el foco.
+const INTERVALO_POLLING_MS = 10000;
 
 /** Refresca badge/listado desde fuera (p.ej. tras cambiar un estado de solicitud) */
 export function refrescarAlertas() {
@@ -139,6 +149,21 @@ export function iniciarAlertasDropdown() {
       const propias = esEmpresa()
         ? alertas.filter(alerta => alerta.empresaId === obtenerSesion()?.empresaId)
         : alertas;
+
+      // Detección de notificaciones nuevas en vivo (sin recargar):
+      // avisa con toast y hace pulsar la campanita
+      const idsActuales = new Set(propias.map(alerta => String(alerta.id)));
+      if (idsConocidos instanceof Set) {
+        const nuevas = propias.filter(alerta => !idsConocidos.has(String(alerta.id)));
+        if (nuevas.length) {
+          const ultima = nuevas.sort((a, b) => String(b.id).localeCompare(String(a.id)))[0];
+          toast.info(ultima.titulo || t('alerts'), ultima.descripcion || '');
+          btn.classList.remove('header__icon-btn--pulse');
+          void btn.offsetWidth;
+          btn.classList.add('header__icon-btn--pulse');
+        }
+      }
+      idsConocidos = idsActuales;
 
       const ordenadas = [...propias]
         .sort((a, b) => (b.fechaCreacion || '').localeCompare(a.fechaCreacion || ''));
@@ -193,6 +218,19 @@ export function iniciarAlertasDropdown() {
 
   recargarNotificaciones = cargar;
 
+  // Reiniciar el sondeo en cada montaje del layout (idioma/tema lo vuelven a llamar)
+  if (pollingTimer) clearInterval(pollingTimer);
+  pollingTimer = setInterval(cargar, INTERVALO_POLLING_MS);
+
+  // Refresco inmediato al volver a la pestaña/ventana del Analista
+  if (recargarSiVisible) {
+    document.removeEventListener('visibilitychange', recargarSiVisible);
+    window.removeEventListener('focus', recargarSiVisible);
+  }
+  recargarSiVisible = () => { if (!document.hidden) cargar(); };
+  document.addEventListener('visibilitychange', recargarSiVisible);
+  window.addEventListener('focus', recargarSiVisible);
+
   btn.addEventListener('click', event => {
     event.stopPropagation();
     const abierto = !panel.hidden;
@@ -214,7 +252,8 @@ export function iniciarAlertasDropdown() {
     cargar();
   });
 
-  /* Clic en una notificación → marca como leída y abre el detalle completo */
+  /* Clic en una notificación → marca como leída y abre
+     el mensaje completo y detallado en un modal */
   list.addEventListener('click', event => {
     const item = event.target.closest('[data-alerta-id]');
     if (!item) return;
@@ -224,7 +263,7 @@ export function iniciarAlertasDropdown() {
     panel.hidden = true;
     btn.setAttribute('aria-expanded', 'false');
     refrescarAlertas();
-    window.location.hash = '#/alertas';
+    abrirModalDetalleAlerta(item.dataset.alertaId);
   });
 
   panel.addEventListener('click', event => event.stopPropagation());

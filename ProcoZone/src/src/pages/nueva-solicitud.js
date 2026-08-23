@@ -78,8 +78,10 @@ export function init() {
       });
       // Actualizar la campanita sin recargar la página
       refrescarAlertas();
-      // La IA evalúa y decide automáticamente (aprobada / rechazada / pendiente por documento)
+      // La IA evalúa y decide automáticamente (en revisión / pendiente por documento)
       const ia = await clasificarSolicitud(creada.id);
+      // Refrescar la campanita con la alerta generada por la evaluación
+      refrescarAlertas();
       toast.success(t('toast_submitted_title'), `${t('affinity_score')}: ${ia.puntajeAfinidad}/100. ${t('toast_submitted_msg')}`);
       window.location.hash = '#/solicitudes';
     } catch (error) { console.error(error); toast.error(t('evaluation_failed_title'), t('evaluation_failed_msg')); boton.disabled = false; boton.textContent = t('send_evaluate_ai'); }

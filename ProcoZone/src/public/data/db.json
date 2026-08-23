@@ -386,6 +386,44 @@
       },
       "observaciones": "Documento pendiente: complete la documentación requerida y vuelva a enviarla.",
       "id": 7
+    },
+    {
+      "empresaId": 9,
+      "cedulaJuridica": "3-109-334455",
+      "zonaFrancaId": 1,
+      "sector": "Análisis de Datos",
+      "tipo": "instalacion",
+      "descripcion": "Empresa muy solida, cuenta con mucha experiencia y daremos empleado a muchas personas",
+      "fechaSolicitud": "2026-08-22",
+      "estado": "pendiente",
+      "clasificacionIa": {
+        "puntajeAfinidad": 70,
+        "recomendacion": "Revisar",
+        "nivelRiesgo": "Medio",
+        "factores": [
+          "Sector permitido en la zona franca: 40/40",
+          "Inversión proyectada: 0/30",
+          "Empleos proyectados: 30/30"
+        ],
+        "justificacion": "Sector permitido en la zona franca: 40/40. Inversión proyectada: 0/30. Empleos proyectados: 30/30",
+        "fechaClasificacion": "2026-08-22T20:35:07.445Z"
+      },
+      "compromisos": {
+        "tipoActividad": "Diseño e Ingeniería",
+        "areaSolicitada": 40,
+        "inversionEstimada": 40,
+        "empleosNuevos": 55,
+        "exportacionesProyectadas": 17,
+        "reportesOportunosComprometidos": 100
+      },
+      "detalles": {
+        "tipoActividad": "Diseño e Ingeniería",
+        "areaSolicitada": 40,
+        "inversionEstimada": 40,
+        "empleosNuevos": 55
+      },
+      "observaciones": "Documento pendiente: complete la documentación requerida y vuelva a enviarla.",
+      "id": 8
     }
   ],
   "reportesCumplimiento": [
@@ -661,6 +699,26 @@
       "fechaCreacion": "2026-08-22",
       "estado": "abierta",
       "id": 10
+    },
+    {
+      "empresaId": 9,
+      "solicitudId": 8,
+      "tipo": "info",
+      "titulo": "Nueva solicitud en revisión",
+      "descripcion": "EcoLogística del Valle S.A. envió una solicitud #8. Entró en revisión y la IA la evaluará.",
+      "fechaCreacion": "2026-08-22",
+      "estado": "abierta",
+      "id": 11
+    },
+    {
+      "empresaId": 9,
+      "solicitudId": 8,
+      "tipo": "warning",
+      "titulo": "Documento pendiente",
+      "descripcion": "EcoLogística del Valle S.A.: El expediente requiere documentación adicional (70/100). La solicitud quedó pendiente hasta completar los requisitos.",
+      "fechaCreacion": "2026-08-22",
+      "estado": "abierta",
+      "id": 12
     }
   ],
   "solicitudesAcceso": [
@@ -673,6 +731,16 @@
       "motivo": "Solicitud de credenciales iniciales",
       "estado": "pendiente",
       "fechaSolicitud": "2026-08-22"
+    },
+    {
+      "nombre": "Juan Perez",
+      "email": "juan.perez@tecnova.com",
+      "cedulaJuridica": "3-101-23456",
+      "empresa": "Tecnova Soluciones",
+      "motivo": "Primera vez solicitando acceso",
+      "estado": "pendiente",
+      "fechaSolicitud": "2026-08-23",
+      "id": 2
     }
   ],
   "usuarios": [

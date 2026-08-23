@@ -135,6 +135,30 @@ function validarFormulario(form) {
   };
 }
 
+/**
+ * Notificación dirigida al Analista (campanita del panel interno).
+ * Se persiste en "alertas" sin empresaId para que solo la vean
+ * los usuarios internos; el sondeo del header la muestra en vivo.
+ */
+function construirNotificacionAnalista(solicitud) {
+  return {
+    solicitudAccesoId: solicitud.id,
+    tipo: 'warning',
+    titulo: t('notif_access_new_title'),
+    descripcion: `${t('notif_access_new_prefix')} ${solicitud.empresa} (${t('access_legal_id_short')}: ${solicitud.cedulaJuridica}) ${t('notif_access_new_mid')} ${solicitud.motivo}.`,
+    fechaCreacion: new Date().toISOString().slice(0, 10),
+    estado: 'abierta',
+    detalle: {
+      solicitante: solicitud.nombre,
+      empresa: solicitud.empresa,
+      email: solicitud.email,
+      cedulaJuridica: solicitud.cedulaJuridica,
+      motivo: solicitud.motivo,
+      fechaSolicitud: solicitud.fechaSolicitud
+    }
+  };
+}
+
 async function enviarSolicitud(botonSubmit, textoOriginal) {
   const form = document.getElementById('formSolicitudAcceso');
   const datos = validarFormulario(form);
@@ -147,7 +171,9 @@ async function enviarSolicitud(botonSubmit, textoOriginal) {
 
   try {
     // json-server asigna el id numérico automáticamente al hacer POST
-    await http.post('solicitudesAcceso', datos);
+    const solicitud = await http.post('solicitudesAcceso', datos);
+    // Alerta en vivo para la campanita del Analista
+    await http.post('alertas', construirNotificacionAnalista(solicitud)).catch(() => { /* no bloquea el registro */ });
     document.getElementById('accesoModalBody').innerHTML = renderExito();
     document.getElementById('btnExitoVolverLogin')?.addEventListener('click', cerrarModalSolicitudAcceso);
     toast.success(t('access_success_title'), t('access_success_msg'));

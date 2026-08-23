@@ -33,32 +33,28 @@ export async function clasificarSolicitud(solicitudId) {
     const [empresa, zonas] = await Promise.all([http.getById('empresas', solicitud.empresaId), http.get('zonasFrancas')]);
     const clasificacion = evaluarSolicitud(solicitud, empresa, zonas.find((zona) => zona.id === solicitud.zonaFrancaId));
 
-    /* Decisión automática según el cumplimiento del expediente:
-       Recomendada (≥75) → aprobada · Rechazada (<50) → rechazada
-       Revisar (50-74) → pendiente por documento/requisito faltante */
-    let estadoFinal = 'pendiente';
-    if (clasificacion.recomendacion === 'Recomendada') estadoFinal = 'aprobada';
-    else if (clasificacion.recomendacion === 'Rechazada') estadoFinal = 'rechazada';
+    /* Flujo de estados según el cumplimiento del expediente:
+       - Faltan requerimientos (puntaje <50 o datos incompletos) → pendiente
+         con la nota "Incompleto / Faltan requerimientos" para que la
+         empresa corrija y vuelva a enviar.
+       - Cumple los requisitos iniciales → en_revision (auditoría del analista).
+       La aprobación/rechazo final es decisión exclusiva del analista. */
+    const cumpleRequisitosIniciales = clasificacion.recomendacion !== 'Rechazada';
+    const estadoFinal = cumpleRequisitosIniciales ? 'en_revision' : 'pendiente';
 
     const cambios = { clasificacionIa: clasificacion, estado: estadoFinal };
-    if (estadoFinal === 'pendiente') cambios.observaciones = t('doc_pending_note');
+    if (!cumpleRequisitosIniciales) cambios.observaciones = t('doc_pending_note');
     await http.patch('solicitudes', solicitudId, cambios);
 
     // Notificación a la empresa con el resultado de la evaluación
-    const descripcion = estadoFinal === 'aprobada'
-      ? `${empresa.nombre}: ${tf('alert_auto_decision_ok', clasificacion.puntajeAfinidad)}`
-      : estadoFinal === 'rechazada'
-        ? `${empresa.nombre}: ${tf('alert_auto_decision_no', clasificacion.puntajeAfinidad)}`
-        : `${empresa.nombre}: ${tf('alert_doc_pending_desc', clasificacion.puntajeAfinidad)}`;
+    const descripcion = cumpleRequisitosIniciales
+      ? `${empresa.nombre}: ${tf('notif_review_msg', clasificacion.puntajeAfinidad)}`
+      : `${empresa.nombre}: ${tf('alert_doc_pending_desc', clasificacion.puntajeAfinidad)}`;
     await http.post('alertas', {
       empresaId: empresa.id,
       solicitudId,
-      tipo: estadoFinal === 'aprobada' ? 'info' : estadoFinal === 'rechazada' ? 'critica' : 'warning',
-      titulo: estadoFinal === 'aprobada'
-        ? t('notif_approved_title')
-        : estadoFinal === 'rechazada'
-          ? t('notif_rejected_title')
-          : t('alert_doc_pending_title'),
+      tipo: cumpleRequisitosIniciales ? 'info' : 'warning',
+      titulo: cumpleRequisitosIniciales ? t('notif_review_title') : t('alert_doc_pending_title'),
       descripcion,
       fechaCreacion: new Date().toISOString().slice(0, 10),
       estado: 'abierta'

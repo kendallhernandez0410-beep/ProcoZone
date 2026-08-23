@@ -27,6 +27,7 @@ function menuPorRol() {
     return [
       { ruta: '/', icono: 'fa-gauge-high', texto: t('dashboard') },
       { ruta: '/solicitudes', icono: 'fa-file-circle-plus', texto: t('applications') },
+      { ruta: '/solicitudes-acceso', icono: 'fa-user-plus', texto: t('access_requests_menu') },
       { ruta: '/empresas', icono: 'fa-building', texto: t('companies') },
       { ruta: '/cumplimiento', icono: 'fa-chart-line', texto: t('compliance') }
     ];
@@ -35,6 +36,7 @@ function menuPorRol() {
     return [
       { ruta: '/', icono: 'fa-chart-pie', texto: t('process_metrics') },
       { ruta: '/solicitudes', icono: 'fa-file-circle-check', texto: t('applications') },
+      { ruta: '/solicitudes-acceso', icono: 'fa-user-plus', texto: t('access_requests_menu') },
       { ruta: '/empresas', icono: 'fa-building', texto: t('companies') },
       { ruta: '/auditoria', icono: 'fa-clipboard-list-check', texto: t('audit_trail') },
       { ruta: '/zonas-francas', icono: 'fa-sliders', texto: t('regime_settings') },

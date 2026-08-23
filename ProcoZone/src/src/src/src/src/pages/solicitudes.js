@@ -11,15 +11,13 @@ import { clasificarSolicitud, clasificarSolicitudesPendientes } from '../../../s
 import { refrescarAlertas } from '../../../../components/header.js';
 import { toast } from '../../../../services/notificacion-service.js';
 import { esAnalista, esAdmin, esEmpresa, obtenerSesion } from '../../../../utils/auth.js';
-import { estadoSolicitudBadge, tipoSolicitudTexto, recomendacionIaTexto, esEstadoEnProceso, esEstadoHistorial } from '../../../../utils/constantes.js';
+import { estadoSolicitudBadge, tipoSolicitudTexto, recomendacionIaTexto } from '../../../../utils/constantes.js';
 import { formatearFecha } from '../../../../utils/formateador.js';
 import { t } from '../../../../utils/translations.js';
 
 let filtroActual = 'todos';
 let filtroZona = 'todos';
 let filtroFecha = '';
-// Pestaña activa de la vista empresa: "proceso" (trámites activos) o "historial" (resueltas)
-let pestanaActual = 'proceso';
 let destroyFn = null;
 
 export async function render() {
@@ -162,71 +160,44 @@ export async function init() {
   }
 
   /* ===== Vista exclusiva del rol Empresa Solicitante =====
-     Pestaña "En proceso": solicitudes activas o que requieren acción
-     (pendiente, en revisión, borrador, requiere ajustes).
-     Pestaña "Historial": trámites resueltos (aprobada, rechazada). */
+     Lista única "Todas": todas las solicitudes en un solo lugar,
+     las recién enviadas aparecen de inmediato. */
   function renderVistaEmpresa() {
-    const enProceso = solicitudes.filter(s => esEstadoEnProceso(s.estado));
-    const enHistorial = solicitudes.filter(s => esEstadoHistorial(s.estado));
-    const base = pestanaActual === 'historial' ? enHistorial : enProceso;
-
-    let filtradas = filtroActual === 'todos' ? base : base.filter(s => s.estado === filtroActual);
+    let filtradas = filtroActual === 'todos' ? solicitudes : solicitudes.filter(s => s.estado === filtroActual);
     if (filtroZona !== 'todos') filtradas = filtradas.filter((solicitud) => solicitud.zonaFrancaId === Number(filtroZona));
     if (filtroFecha) filtradas = filtradas.filter((solicitud) => solicitud.fechaSolicitud === filtroFecha);
 
-    const contar = (estado) => base.filter(s => s.estado === estado).length;
+    const contar = (estado) => solicitudes.filter(s => s.estado === estado).length;
     const chip = (valor, texto, cantidad) => `
       <button class="filtro-btn ${filtroActual === valor ? 'active' : ''}" data-filtro="${valor}">
         ${texto} (${cantidad})
       </button>`;
 
-    const filtrosProceso = `
-      ${chip('todos', t('all'), base.length)}
+    const filtros = `
+      ${chip('todos', t('all'), solicitudes.length)}
       ${chip('pendiente', t('pending'), contar('pendiente'))}
       ${chip('en_revision', t('in_review'), contar('en_revision'))}
       ${contar('borrador') ? chip('borrador', t('state_draft'), contar('borrador')) : ''}
-      ${chip('observada', t('filter_observed'), contar('observada'))}`;
+      ${contar('aprobada') ? chip('aprobada', t('approved'), contar('aprobada')) : ''}
+      ${contar('rechazada') ? chip('rechazada', t('rejected'), contar('rechazada')) : ''}`;
 
-    const filtrosHistorial = `
-      ${chip('todos', t('all'), base.length)}
-      ${chip('aprobada', t('approved'), contar('aprobada'))}
-      ${chip('rechazada', t('rejected'), contar('rechazada'))}`;
-
-    const vacio = pestanaActual === 'historial'
-      ? `
-        <div class="empty-state">
-          <i class="fa-solid fa-box-archive"></i>
-          <h3>${t('empty_history_title')}</h3>
-          <p>${t('empty_history_msg')}</p>
-        </div>`
-      : `
-        <div class="empty-state">
-          <i class="fa-solid fa-file-circle-plus"></i>
-          <h3>${t('empty_process_title')}</h3>
-          <p>${t('empty_process_msg')}</p>
-          <a href="#/nueva-solicitud" class="btn btn-primary" style="margin-top: var(--space-4);">
-            <i class="fa-solid fa-plus"></i> ${t('new_application_btn')}
-          </a>
-        </div>`;
+    const vacio = `
+      <div class="empty-state">
+        <i class="fa-solid fa-file-circle-plus"></i>
+        <h3>${t('empty_all_title')}</h3>
+        <p>${t('empty_all_msg')}</p>
+        <a href="#/nueva-solicitud" class="btn btn-primary" style="margin-top: var(--space-4);">
+          <i class="fa-solid fa-plus"></i> ${t('new_application_btn')}
+        </a>
+      </div>`;
 
     container.innerHTML = `
       <div class="solicitudes-header">
         <h1>${t('my_applications')}</h1>
       </div>
 
-      <div class="sol-tabs" role="tablist">
-        <button type="button" role="tab" aria-selected="${pestanaActual === 'proceso'}" class="sol-tab ${pestanaActual === 'proceso' ? 'active' : ''}" data-pestana="proceso">
-          <i class="fa-solid fa-hourglass-half"></i> ${t('tab_in_process')}
-          <span class="sol-tab__count">${enProceso.length}</span>
-        </button>
-        <button type="button" role="tab" aria-selected="${pestanaActual === 'historial'}" class="sol-tab ${pestanaActual === 'historial' ? 'active' : ''}" data-pestana="historial">
-          <i class="fa-solid fa-box-archive"></i> ${t('tab_history')}
-          <span class="sol-tab__count">${enHistorial.length}</span>
-        </button>
-      </div>
-
       <div class="solicitudes-filtros">
-        ${pestanaActual === 'historial' ? filtrosHistorial : filtrosProceso}
+        ${filtros}
         <select class="form-select" id="filtroZona" style="width:auto"><option value="todos">${t('all_zones')}</option>${zonas.map((zona) => `<option value="${zona.id}" ${Number(filtroZona) === zona.id ? 'selected' : ''}>${zona.nombre}</option>`).join('')}</select>
         <input class="form-input filtro-fecha" id="filtroFecha" type="date" value="${filtroFecha}" style="width:auto">
       </div>
@@ -252,15 +223,6 @@ export async function init() {
   }
 
   function bindEvents() {
-    // Pestañas de la vista empresa (cambiar de pestaña reinicia el filtro de estado)
-    container.querySelectorAll('.sol-tab').forEach(tab => {
-      tab.addEventListener('click', () => {
-        if (pestanaActual === tab.dataset.pestana) return;
-        pestanaActual = tab.dataset.pestana;
-        filtroActual = 'todos';
-        renderSolicitudes();
-      });
-    });
     // Filtros
     container.querySelectorAll('.filtro-btn').forEach(btn => {
       btn.addEventListener('click', () => {
@@ -333,6 +295,19 @@ export async function init() {
     }
   }
 
+  /** Estructura de detalle completo que se guarda en la alerta
+      para que la campanita muestre el mensaje íntegro */
+  function construirDetalleAlerta(solicitud, decisionAnalista) {
+    return {
+      decision: decisionAnalista.decision,
+      revisor: decisionAnalista.analista,
+      motivos: solicitud.clasificacionIa?.factores || [],
+      observacionesRevisor: decisionAnalista.justificacion || solicitud.observaciones || '',
+      fechaDecision: decisionAnalista.fecha,
+      estadoFinal: decisionAnalista.decision
+    };
+  }
+
   function bindModalEvents(solicitud) {
     // Botón clasificar dentro del modal
     document.getElementById('btnClasificarModal')?.addEventListener('click', async () => {
@@ -345,7 +320,7 @@ export async function init() {
         const decisionAnalista = { decision: 'aprobada', fecha: new Date().toISOString(), analista: obtenerSesion()?.nombre || 'Analista', justificacion: window.prompt(t('decision_justification')) || '' };
         await http.patch('solicitudes', solicitud.id, { estado: 'aprobada', decisionAnalista });
         solicitud.estado = 'aprobada';
-        // Notificación a la empresa: la solicitud cambió de estado (campanita)
+        // Notificación a la empresa con el detalle completo de la decisión (campanita)
         await http.post('alertas', {
           empresaId: solicitud.empresaId,
           solicitudId: solicitud.id,
@@ -353,7 +328,8 @@ export async function init() {
           titulo: t('notif_approved_title'),
           descripcion: `${empresas.find(e => e.id === solicitud.empresaId)?.nombre || 'Empresa'}: ${t('notif_approved_msg')}`,
           fechaCreacion: new Date().toISOString().slice(0, 10),
-          estado: 'abierta'
+          estado: 'abierta',
+          detalle: construirDetalleAlerta(solicitud, decisionAnalista)
         });
         refrescarAlertas();
         cerrarModal();
@@ -379,7 +355,8 @@ export async function init() {
           titulo: t('notif_rejected_title'),
           descripcion: `${empresas.find(e => e.id === solicitud.empresaId)?.nombre || 'Empresa'}: ${t('notif_rejected_msg')}${documentoPendiente}`,
           fechaCreacion: new Date().toISOString().slice(0, 10),
-          estado: 'abierta'
+          estado: 'abierta',
+          detalle: construirDetalleAlerta(solicitud, decisionAnalista)
         });
         refrescarAlertas();
         cerrarModal();
