@@ -301,12 +301,8 @@ function responder(pregunta) {
   const resultado = clasificarConsulta(pregunta);
   if (!resultado) {
     return {
-      texto: lang === 'en'
-        ? "I'm not sure I understood. Could you rephrase it? Here are some frequently asked questions:"
-        : 'No estoy seguro de haber entendido. ¿Podrías reformularla? Estas son algunas preguntas frecuentes:',
-      sugerencias: lang === 'en'
-        ? ['How do I create an application?', 'What documents do I need?', 'What is a free zone?']
-        : ['¿Cómo creo una solicitud?', '¿Qué documentos necesito?', '¿Qué es una zona franca?']
+      texto: t('chatbot_no_match'),
+      sugerencias: t('chatbot_no_match_suggestions').split('|')
     };
   }
   if (resultado.puntaje >= UMBRAL_ACIERTO) {
@@ -314,19 +310,13 @@ function responder(pregunta) {
   }
   if (resultado.puntaje >= UMBRAL_RELACION) {
     return {
-      texto: lang === 'en'
-        ? `Maybe you meant "${resultado.clave}". ${resultado.tema.respuesta[lang]}`
-        : `Quizás te refieres a "${resultado.clave}". ${resultado.tema.respuesta[lang]}`,
+      texto: t('chatbot_maybe').replace('{n}', resultado.clave) + ` ${resultado.tema.respuesta[lang]}`,
       sugerencias: resultado.tema.sugerencias[lang]
     };
   }
   return {
-    texto: lang === 'en'
-      ? 'My specialty is free zone procedures: applications, documents, investment, jobs, and statuses. Perhaps you wanted to ask about:'
-      : 'Mi especialidad son los trámites de zonas francas: solicitudes, documentos, inversión, empleos y estados de trámite. ¿Quizás quisiste preguntar por:',
-    sugerencias: lang === 'en'
-      ? ['How do I create an application?', 'What documents do I need?', 'How do I check my application status?']
-      : ['¿Cómo creo una solicitud?', '¿Qué documentos necesito?', '¿Cómo consulto el estado de mi solicitud?']
+    texto: t('chatbot_low_confidence'),
+    sugerencias: t('chatbot_low_confidence_suggestions').split('|')
   };
 }
 
@@ -404,14 +394,9 @@ export function iniciarChatbot() {
   }
 
   // Mensaje de bienvenida (ES usa el saludo del diccionario de palabras clave)
-  const bienvenida = getLanguage() === 'en'
-    ? 'Hello! I am the ProcoZone virtual assistant for your installation application. Pick a question or type your query.'
-    : (responderPorPalabraClave('hola') ??
-      '¡Hola! Soy el asistente virtual de ProcoZone. Selecciona una pregunta o escríbeme tu consulta.');
+  const bienvenida = t('chatbot_welcome');
   agregarMensaje(formatearRespuesta(bienvenida), 'bot');
-  agregarChips(getLanguage() === 'en'
-    ? ['How do I fill in the form?', 'What documents do I need?', 'How do I check my application status?']
-    : ['¿Cómo lleno el formulario?', 'Requerimientos', 'Reportes de cumplimiento', 'Estado de mi solicitud']);
+  agregarChips(t('chatbot_welcome_suggestions').split('|'));
 
   document.getElementById('chatbotToggle').addEventListener('click', () => { panel.hidden = !panel.hidden; });
   document.getElementById('chatbotClose').addEventListener('click', event => {

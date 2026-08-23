@@ -5,7 +5,7 @@
 import { http } from '../../../services/http-client.js';
 import { renderLoading, renderError } from '../../components/estado-carga.js';
 import { formatearMoneda, formatearFecha, tiempoRelativo, colorCumplimiento, colorDesdeString, obtenerIniciales } from '../../../utils/formateador.js';
-import { UMBRALES_CUMPLIMIENTO, ALERTA_BADGE, estadoSolicitudBadge, estadoSolicitudTexto, tipoSolicitudTexto, alertaTipoTexto } from '../../../utils/constantes.js';
+import { UMBRALES_CUMPLIMIENTO, ALERTA_BADGE, estadoSolicitudBadge, estadoSolicitudTexto, tipoSolicitudTexto, alertaTipoTexto, alertaTexto } from '../../../utils/constantes.js';
 import { renderIndicador } from '../components/indicador-cumplimiento.js';
 import { t } from '../../../utils/translations.js';
 
@@ -148,6 +148,7 @@ export async function init() {
         </div>
         ${alertas.slice(0, 3).map(alerta => {
           const empresa = empresas.find(e => e.id === alerta.empresaId);
+          const textoAlerta = alertaTexto(alerta);
           return `
             <div class="activity-item">
               <div class="activity-dot" style="background: ${
@@ -156,7 +157,7 @@ export async function init() {
               };"></div>
               <div style="flex: 1;">
                 <div class="activity-text">
-                  <strong>${alerta.titulo}</strong> — ${empresa?.nombre || '—'}
+                    <strong>${textoAlerta.titulo}</strong> — ${empresa?.nombre || '—'}
                 </div>
                 <div class="activity-time">${tiempoRelativo(alerta.fechaCreacion)}</div>
               </div>

@@ -1,10 +1,11 @@
 import { http } from './http-client.js';
+import { t } from '../utils/translations.js';
 
 const nombresIndicador = {
-  empleos: 'Empleos',
-  inversion: 'Inversión ejecutada',
-  exportaciones: 'Exportaciones',
-  reportesOportunos: 'Reportes a tiempo'
+  empleos: 'indicator_employees',
+  inversion: 'indicator_investment',
+  exportaciones: 'indicator_exports',
+  reportesOportunos: 'indicator_timely_reports'
 };
 
 const promedio = (indicadores) => {
@@ -13,7 +14,7 @@ const promedio = (indicadores) => {
 };
 
 export function evaluarCumplimiento(datos, solicitud) {
-  if (!solicitud) throw new Error('La empresa no posee una solicitud aprobada con compromisos para comparar.');
+  if (!solicitud) throw new Error(t('compliance_missing_commitments'));
   const compromiso = solicitud.compromisos || solicitud.detalles || {};
   const indicadores = {
     empleos: { requerido: Number(compromiso.empleosNuevos || 0), actual: Number(datos.empleosReales), estado: Number(datos.empleosReales) >= Number(compromiso.empleosNuevos || 0) ? 'cumple' : 'incumple' },
@@ -30,8 +31,8 @@ function crearAlerta(empresa, reporte, nombre, indicador) {
     empresaId: empresa.id,
     reporteId: reporte.id,
     tipo: 'critica',
-    titulo: `Incumplimiento: ${nombresIndicador[nombre]}`,
-    descripcion: `${empresa.nombre}: ${nombresIndicador[nombre]} reportado ${indicador.actual}; requerido ${indicador.requerido}.`,
+    titulo: `${t('noncompliance_title')}: ${t(nombresIndicador[nombre])}`,
+    descripcion: `${empresa.nombre}: ${t(nombresIndicador[nombre])} ${t('noncompliance_desc')} ${indicador.actual}; ${t('required_value')} ${indicador.requerido}.`,
     fechaCreacion: new Date().toISOString().slice(0, 10),
     estado: 'abierta',
     metrica: nombre,

@@ -6,7 +6,7 @@
 import { http } from '../../services/http-client.js';
 import { renderLoading, renderError } from '../components/estado-carga.js';
 import { formatearFecha, formatearMoneda } from '../../utils/formateador.js';
-import { ALERTA_BADGE, estadoSolicitudBadge, tipoSolicitudTexto, recomendacionIaTexto } from '../../utils/constantes.js';
+import { ALERTA_BADGE, estadoSolicitudBadge, tipoSolicitudTexto, recomendacionIaTexto, textoCatalogo } from '../../utils/constantes.js';
 import { t } from '../../utils/translations.js';
 
 let destroyFn = null;
@@ -103,7 +103,7 @@ export async function init() {
                     <td><strong>${rep.porcentajeCumplimiento}%</strong></td>
                     <td>
                       ${rep.alertasGeneradas?.length > 0
-                        ? rep.alertasGeneradas.map(a => `<span class="badge ${ALERTA_BADGE.warning}" style="margin: 2px;">${a}</span>`).join('')
+                        ? rep.alertasGeneradas.map(a => `<span class="badge ${ALERTA_BADGE.warning}" style="margin: 2px;">${textoCatalogo(a)}</span>`).join('')
                         : `<span class="badge badge-success">${t('no_alerts_generated')}</span>`}
                     </td>
                   </tr>

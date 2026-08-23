@@ -1,11 +1,13 @@
 import { http } from '../services/http-client.js';
 import { t } from '../utils/translations.js';
+import { renderHeaderControls } from '../components/theme-language-controls.js';
 
 const escapeHtml = (value = '') => String(value).replace(/[&<>'"]/g, (character) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' })[character]);
 
 export function render() {
   return `
     <main class="public-page access-page">
+      <div class="public-controls">${renderHeaderControls()}</div>
       <a class="access-page__back" href="#/login"><i class="fa-solid fa-arrow-left"></i> ${t('access_back')}</a>
       <section class="access-card page-enter" aria-labelledby="accessTitle">
         <div class="access-card__heading">

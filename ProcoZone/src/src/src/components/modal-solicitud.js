@@ -2,11 +2,12 @@
    ProcoZone — Componente Modal de Solicitud
    Muestra detalle completo + clasificación IA
    ============================================ */
-import { estadoSolicitudBadge, tipoSolicitudTexto, recomendacionIaTexto, nivelRiesgoTexto, factorIaTexto } from '../../utils/constantes.js';
+import { estadoSolicitudBadge, tipoSolicitudTexto, recomendacionIaTexto, nivelRiesgoTexto, factorIaTexto, textoCatalogo } from '../../utils/constantes.js';
 import { formatearFecha, formatearMoneda, formatearNumero, colorAfinidad } from '../../utils/formateador.js';
 import { renderLoading } from './estado-carga.js';
 import { esAnalista } from '../../utils/auth.js';
 import { t } from '../../utils/translations.js';
+import { solicitudDescripcionTexto } from '../../utils/constantes.js';
 
 export function abrirModalSolicitud(solicitud, empresa) {
   const container = document.getElementById('modal-container');
@@ -49,7 +50,7 @@ export function abrirModalSolicitud(solicitud, empresa) {
           </div>
           <div class="detalle-item detalle-item--full">
             <span class="detalle-item__label">${t('modal_description')}</span>
-            <span class="detalle-item__value" style="font-weight: 400; line-height: 1.6;">${solicitud.descripcion}</span>
+            <span class="detalle-item__value" style="font-weight: 400; line-height: 1.6;">${solicitudDescripcionTexto(solicitud.descripcion)}</span>
           </div>
         </div>
 
@@ -58,7 +59,7 @@ export function abrirModalSolicitud(solicitud, empresa) {
           <div class="detalle-grid">
             <div class="detalle-item">
               <span class="detalle-item__label">${t('modal_activity_type')}</span>
-              <span class="detalle-item__value">${solicitud.detalles?.tipoActividad || '—'}</span>
+              <span class="detalle-item__value">${textoCatalogo(solicitud.detalles?.tipoActividad) || '—'}</span>
             </div>
             <div class="detalle-item">
               <span class="detalle-item__label">${t('modal_requested_area')}</span>

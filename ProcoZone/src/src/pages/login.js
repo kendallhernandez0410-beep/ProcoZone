@@ -1,12 +1,17 @@
 import { http } from '../services/http-client.js';
 import { t } from '../utils/translations.js';
 import { guardarSesion, obtenerUsuarioRecordado, recordarUsuario } from '../utils/auth.js';
+<<<<<<< HEAD
 import { abrirModalSolicitudAcceso } from '../components/modal-solicitud-acceso.js';
+=======
+import { renderHeaderControls } from '../components/theme-language-controls.js';
+>>>>>>> e435924bdc93b7c329c0ddb461006df7d6762005
 
 export function render() {
   const usuarioRecordado = obtenerUsuarioRecordado();
   return `
     <div class="public-page login-page">
+      <div class="public-controls">${renderHeaderControls()}</div>
       <a class="login-back" href="#/landing"><i class="fa-solid fa-arrow-left"></i> ${t('back_to_landing')}</a>
       <div class="login-layout">
         <section class="login-aside login-left-panel">
@@ -35,7 +40,7 @@ export function render() {
             <p class="section-desc">${t('login_subtitle')}</p>
             <form id="loginForm" class="login-form">
               <label for="loginEmail">${t('username')}</label>
-              <div class="input-wrap"><i class="fa-regular fa-user"></i><input id="loginEmail" type="text" placeholder="empresa, analista o admin" autocomplete="username" value="${usuarioRecordado}" required></div>
+              <div class="input-wrap"><i class="fa-regular fa-user"></i><input id="loginEmail" type="text" placeholder="${t('username_placeholder')}" autocomplete="username" value="${usuarioRecordado}" required></div>
               <label for="loginPassword">${t('password')}</label>
               <div class="input-wrap"><i class="fa-solid fa-lock"></i><input id="loginPassword" type="password" placeholder="${t('password')}" autocomplete="current-password" required><button type="button" class="password-toggle" aria-label="${t('show_password')}"><i class="fa-regular fa-eye"></i></button></div>
               <div class="login-options"><label class="checkbox-label"><input type="checkbox" id="rememberUser" ${usuarioRecordado ? 'checked' : ''}> <span>${t('remember_user')}</span></label><button type="button" class="login-link" id="forgotPassword">${t('forgot_password')}</button></div>

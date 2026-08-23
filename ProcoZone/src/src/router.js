@@ -36,11 +36,13 @@ const titulos = () => ({
 });
 
 let moduloActual = null;
+let navegacionActual = 0;
 
 /**
  * Navega a una ruta específica
  */
 export async function navegar(ruta) {
+  const idNavegacion = ++navegacionActual;
   const contentEl = document.getElementById('content') || document.getElementById('public-content');
   if (!contentEl) return;
 
@@ -86,10 +88,12 @@ export async function navegar(ruta) {
   // Cargar módulo dinámicamente
   try {
     const modulo = await rutas[ruta]();
+    if (idNavegacion !== navegacionActual) return;
     moduloActual = modulo;
 
     // Renderizar HTML de la página
     const html = await modulo.render();
+    if (idNavegacion !== navegacionActual) return;
     contentEl.innerHTML = html;
 
     // Inicializar la página (bind events, cargar datos, etc.)

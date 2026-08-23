@@ -4,6 +4,7 @@
    y estados de carga
    ============================================ */
 import { API_BASE_URL } from '../utils/constantes.js';
+import { t } from '../utils/translations.js';
 
 /**
  * Cliente HTTP basado en fetch con soporte para async/await.
@@ -54,7 +55,7 @@ class HttpClient {
       if (error instanceof HttpError) throw error;
       // Error de red u otro
       throw new HttpError(
-        `Error de conexión: ${error.message}`,
+        `${t('connection_error')}: ${error.message}`,
         0,
         null
       );

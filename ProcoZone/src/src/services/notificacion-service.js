@@ -1,3 +1,5 @@
+import { t } from '../utils/translations.js';
+
 const iconos = {
 	success: 'fa-circle-check',
 	warning: 'fa-triangle-exclamation',
@@ -17,7 +19,7 @@ function mostrar(tipo, titulo, mensaje) {
 			<strong>${titulo}</strong>
 			<p>${mensaje}</p>
 		</div>
-		<button type="button" class="toast__close" aria-label="Cerrar notificación">&times;</button>
+		<button type="button" class="toast__close" aria-label="${t('close_notification')}">&times;</button>
 	`;
 
 	toastElement.querySelector('.toast__close').addEventListener('click', () => toastElement.remove());

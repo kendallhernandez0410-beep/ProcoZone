@@ -63,6 +63,40 @@ export function tipoSolicitudTexto(tipo) {
   return mapas[tipo] ? t(mapas[tipo]) : tipo;
 }
 
+/** Textos de catálogos que llegan guardados en español desde la API. */
+export function textoCatalogo(valor) {
+  const claves = {
+    'Servicios Tecnológicos': 'catalog_tech_services',
+    'Desarrollo de Software': 'catalog_software_development',
+    'Servicios Compartidos': 'catalog_shared_services',
+    'Dispositivos Médicos': 'catalog_medical_devices',
+    'Industria Farmacéutica': 'catalog_pharma',
+    'Biotecnología': 'catalog_biotech',
+    'Manufactura Electrónica': 'catalog_electronics',
+    'Alimentos Procesados': 'catalog_processed_food',
+    'Logística y Distribución': 'catalog_logistics_distribution',
+    'Centro de Contacto': 'catalog_contact_center',
+    'Diseño e Ingeniería': 'catalog_design_engineering',
+    'Energías Renovables': 'catalog_renewable_energy',
+    'Empaques Biodegradables': 'catalog_biodegradable_packaging',
+    'Análisis de Datos': 'catalog_data_analysis',
+    'Materiales Compuestos': 'catalog_composite_materials',
+    'Logística Avanzada': 'catalog_advanced_logistics'
+  };
+  return claves[valor] ? t(claves[valor]) : valor;
+}
+
+export function solicitudDescripcionTexto(descripcion) {
+  const traducciones = {
+    'Instalación de nueva línea de servidores y centro de datos en el módulo C-3 para expansión de servicios cloud.': 'description_server_line',
+    'Expansión del laboratorio de investigación para desarrollo de nuevos compuestos farmacéuticos.': 'description_lab_expansion',
+    'Instalación de planta de procesamiento de plásticos reciclados en módulo A-1.': 'description_recycled_plastics',
+    'Nueva línea de ensamblaje de circuitos impresos para exportación a mercado estadounidense.': 'description_circuit_assembly',
+    'Ampliación del área de trabajo para incorporar equipo de procesamiento de datos en tiempo real.': 'description_data_processing'
+  };
+  return traducciones[descripcion] ? t(traducciones[descripcion]) : descripcion;
+}
+
 // Compatibilidad: texto según idioma actual (evitar uso nuevo)
 export function TIPO_TEXTO() {
   return {
@@ -150,6 +184,32 @@ export const ESTADOS_ALERTA = {
 export function alertaEstadoTexto(estado) {
   const mapas = { abierta: 'alert_open', en_proceso: 'alert_in_process', cerrada: 'alert_closed' };
   return mapas[estado] ? t(mapas[estado]) : estado;
+}
+
+export function alertaTexto(alerta) {
+  const traducciones = {
+    'Suspensión inminente del régimen': ['alert_title_suspension', 'alert_desc_suspension'],
+    'Empleo nacional por debajo del mínimo': ['alert_title_jobs_below', 'alert_desc_jobs_below'],
+    'Empresa en estado de revisión': ['alert_title_under_review', 'alert_desc_under_review'],
+    'Reportes presentados fuera de plazo': ['alert_title_late_reports', 'alert_desc_late_reports']
+  };
+  const claves = traducciones[alerta.titulo];
+  if (claves) return { titulo: t(claves[0]), descripcion: t(claves[1]) };
+  const incumplimiento = /^Incumplimiento: (.+)$/.exec(alerta.titulo || '');
+  const indicadores = {
+    Empleos: 'indicator_employees',
+    'Inversión ejecutada': 'indicator_investment',
+    Exportaciones: 'indicator_exports',
+    'Reportes a tiempo': 'indicator_timely_reports'
+  };
+  const indicador = incumplimiento && indicadores[incumplimiento[1]];
+  if (indicador) {
+    return {
+      titulo: `${t('noncompliance_title')}: ${t(indicador)}`,
+      descripcion: alerta.descripcion.replace(incumplimiento[1], t(indicador)).replace('reportado', t('reported')).replace('requerido', t('required_value'))
+    };
+  }
+  return { titulo: alerta.titulo, descripcion: alerta.descripcion };
 }
 
 /** Texto traducido "Cumple" / "No cumple" */

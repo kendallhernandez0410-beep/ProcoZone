@@ -5,7 +5,7 @@
 import { http } from '../../services/http-client.js';
 import { renderLoading, renderError } from '../components/estado-carga.js';
 import { formatearFecha, tiempoRelativo, colorDesdeString, obtenerIniciales } from '../../utils/formateador.js';
-import { ALERTA_BADGE, alertaTipoTexto, alertaEstadoTexto } from '../../utils/constantes.js';
+import { ALERTA_BADGE, alertaTipoTexto, alertaEstadoTexto, alertaTexto } from '../../utils/constantes.js';
 import { toast } from '../../services/notificacion-service.js';
 import { esAnalista, esAdmin, esEmpresa, obtenerSesion } from '../../utils/auth.js';
 import { abrirModalDetalleAlerta } from '../../components/modal-alerta-detalle.js';
@@ -70,6 +70,7 @@ export async function init() {
       <div class="alertas-list">
         ${filtradas.length > 0 ? filtradas.map(alerta => {
           const empresa = empresas.find(e => e.id === alerta.empresaId);
+          const textoAlerta = alertaTexto(alerta);
           const estadoTexto = alertaEstadoTexto(alerta.estado);
           const estadoBadge = alerta.estado === 'abierta' ? 'badge-error' :
             alerta.estado === 'en_proceso' ? 'badge-warning' : 'badge-neutral';
@@ -83,8 +84,8 @@ export async function init() {
                 <i class="fa-solid ${icono}"></i>
               </div>
               <div class="alerta-card__body">
-                <div class="alerta-card__titulo">${alerta.titulo}</div>
-                <div class="alerta-card__desc">${alerta.descripcion}</div>
+                <div class="alerta-card__titulo">${textoAlerta.titulo}</div>
+                <div class="alerta-card__desc">${textoAlerta.descripcion}</div>
                 <div class="alerta-card__footer">
                   <span><i class="fa-solid fa-building" style="margin-right: 4px;"></i>${empresa?.nombre || '—'}</span>
                   <span><i class="fa-regular fa-calendar" style="margin-right: 4px;"></i>${formatearFecha(alerta.fechaCreacion)} (${tiempoRelativo(alerta.fechaCreacion)})</span>

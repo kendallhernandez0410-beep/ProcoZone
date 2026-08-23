@@ -13,7 +13,7 @@ export function renderHeader(titulo, subtitulo = '') {
   return `
     <header class="header">
       <div class="header__left">
-        <button class="header__menu-btn" id="menuToggle" aria-label="Menú">
+        <button class="header__menu-btn" id="menuToggle" aria-label="${t('menu')}" title="${t('menu')}">
           <i class="fa-solid fa-bars"></i>
         </button>
         <div>
@@ -83,9 +83,11 @@ export function iniciarBusqueda() {
   input.addEventListener('input', pintar);
   input.addEventListener('focus', pintar);
   results.addEventListener('click', () => { results.hidden = true; input.value = ''; });
-  document.addEventListener('click', event => {
+  if (cerrarBusquedaHandler) document.removeEventListener('click', cerrarBusquedaHandler);
+  cerrarBusquedaHandler = event => {
     if (!event.target.closest('.header__search')) results.hidden = true;
-  });
+  };
+  document.addEventListener('click', cerrarBusquedaHandler);
 }
 
 /* ============================================
@@ -134,6 +136,7 @@ export function refrescarAlertas() {
 }
 
 let cerrarDropdownHandler = null;
+let cerrarBusquedaHandler = null;
 
 export function iniciarAlertasDropdown() {
   const btn = document.getElementById('alertasBtn');
@@ -163,6 +166,7 @@ export function iniciarAlertasDropdown() {
           btn.classList.add('header__icon-btn--pulse');
         }
       }
+<<<<<<< HEAD
       idsConocidos = idsActuales;
 
       const ordenadas = [...propias]
@@ -207,6 +211,17 @@ export function iniciarAlertasDropdown() {
           </div>
         `;
     } catch {
+=======
+      const items = [...base]
+        .sort((a, b) => (b.fechaSolicitud || '').localeCompare(a.fechaSolicitud || ''))
+        .slice(0, 8)
+        .map(solicitud => {
+          const empresa = empresas.find(e => e.id === solicitud.empresaId);
+          return mensajePorEstado(solicitud.estado, empresa?.nombre || t('th_company'), solicitud);
+        });
+      pintar(items);
+    } catch (error) {
+>>>>>>> e435924bdc93b7c329c0ddb461006df7d6762005
       list.innerHTML = `
         <div class="alertas-dropdown__empty">
           <i class="fa-solid fa-circle-exclamation"></i>
