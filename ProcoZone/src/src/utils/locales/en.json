@@ -409,8 +409,7 @@
   "alert_doc_pending_desc": "The file is incomplete ({n}/100). The application remains pending until the requirements are completed.",
   "doc_pending_note": "Pending document: complete the required documentation and submit again.",
   "view_full_info": "Open full details",
-<<<<<<< HEAD
-  "mark_all_read": "Mark all as read",
+"mark_all_read": "Mark all as read",
   "state_draft": "Draft",
   "state_observed": "Requires changes",
   "state_incomplete_badge": "Incomplete / Missing requirements",
@@ -490,9 +489,8 @@
   "access_req_manage": "Manage request",
   "access_state_pendiente": "Pending approval",
   "access_state_aprobada": "Approved",
-  "access_state_rechazada": "Rejected"
-=======
-  "menu": "Menu",
+  "access_state_rechazada": "Rejected",
+"menu": "Menu",
   "brand_home": "ProcoZone home",
   "username_placeholder": "company, analyst, or admin",
   "close_notification": "Close notification",
@@ -504,8 +502,8 @@
   "validation_legal_id_required": "The legal ID is required.",
   "validation_legal_id_format": "Invalid format. Use: X-XXX-XXXXXX",
   "zone_name_required": "Name is required.",
-  "zone_min_investment": "Minimum investment must be greater than zero.",
-  "zone_min_jobs": "Minimum jobs must be greater than zero.",
+  "zone_min_investment_error": "Minimum investment must be greater than zero.",
+  "zone_min_jobs_error": "Minimum jobs must be greater than zero.",
   "zone_sectors_required": "Specify at least one allowed sector.",
   "compliance_missing_commitments": "The company has no approved application commitments to compare.",
   "connection_error": "Connection error",
@@ -554,5 +552,4 @@
   ,"catalog_data_analysis": "Data Analysis"
   ,"catalog_composite_materials": "Composite Materials"
   ,"catalog_advanced_logistics": "Advanced Logistics"
->>>>>>> e435924bdc93b7c329c0ddb461006df7d6762005
 }

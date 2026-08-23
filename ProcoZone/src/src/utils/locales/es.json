@@ -409,8 +409,7 @@
   "alert_doc_pending_desc": "El expediente está incompleto ({n}/100). La solicitud quedó pendiente hasta completar los requerimientos.",
   "doc_pending_note": "Documento pendiente: complete la documentación requerida y vuelva a enviarla.",
   "view_full_info": "Ingresar a la información completa",
-<<<<<<< HEAD
-  "mark_all_read": "Marcar todo como leído",
+"mark_all_read": "Marcar todo como leído",
   "state_draft": "Borrador",
   "state_observed": "Requiere ajustes",
   "state_incomplete_badge": "Incompleto / Faltan requerimientos",
@@ -490,9 +489,8 @@
   "access_req_manage": "Gestionar solicitud",
   "access_state_pendiente": "Pendiente de aprobación",
   "access_state_aprobada": "Aprobada",
-  "access_state_rechazada": "Rechazada"
-=======
-  "menu": "Menú",
+  "access_state_rechazada": "Rechazada",
+"menu": "Menú",
   "brand_home": "ProcoZone inicio",
   "username_placeholder": "empresa, analista o admin",
   "close_notification": "Cerrar notificación",
@@ -504,8 +502,8 @@
   "validation_legal_id_required": "La cédula jurídica es requerida.",
   "validation_legal_id_format": "Formato inválido. Use: X-XXX-XXXXXX",
   "zone_name_required": "El nombre es requerido.",
-  "zone_min_investment": "La inversión mínima debe ser mayor a cero.",
-  "zone_min_jobs": "Los empleos mínimos deben ser mayores a cero.",
+  "zone_min_investment_error": "La inversión mínima debe ser mayor a cero.",
+  "zone_min_jobs_error": "Los empleos mínimos deben ser mayores a cero.",
   "zone_sectors_required": "Indique al menos un sector permitido.",
   "compliance_missing_commitments": "La empresa no posee una solicitud aprobada con compromisos para comparar.",
   "connection_error": "Error de conexión",
@@ -554,5 +552,4 @@
   ,"catalog_data_analysis": "Análisis de Datos"
   ,"catalog_composite_materials": "Materiales Compuestos"
   ,"catalog_advanced_logistics": "Logística Avanzada"
->>>>>>> e435924bdc93b7c329c0ddb461006df7d6762005
 }

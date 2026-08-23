@@ -1,11 +1,8 @@
 import { http } from '../services/http-client.js';
 import { t } from '../utils/translations.js';
 import { guardarSesion, obtenerUsuarioRecordado, recordarUsuario } from '../utils/auth.js';
-<<<<<<< HEAD
 import { abrirModalSolicitudAcceso } from '../components/modal-solicitud-acceso.js';
-=======
 import { renderHeaderControls } from '../components/theme-language-controls.js';
->>>>>>> e435924bdc93b7c329c0ddb461006df7d6762005
 
 export function render() {
   const usuarioRecordado = obtenerUsuarioRecordado();

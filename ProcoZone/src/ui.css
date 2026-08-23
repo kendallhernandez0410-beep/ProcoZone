@@ -420,7 +420,7 @@ html[data-theme='dark'] .activity-item {
   gap: 10px;
 }
 
-.public-controls { position: absolute; top: var(--space-6); right: var(--space-8); z-index: 3; }
+.public-controls { position: absolute; top: 24px; right: 24px; z-index: 3; }
 
 .pill-switch {
   position: relative;
@@ -516,9 +516,48 @@ html[data-theme='dark'] .activity-item {
   transform: translateX(34px);
 }
 
+/* ============================================
+   Páginas públicas (login / solicitar acceso):
+   switches en tono neutro y semitransparente,
+   en la misma línea visual del enlace minimalista
+   "Volver al inicio" para que no compitan con
+   el formulario principal.
+   ============================================ */
+.public-controls .pill-switch {
+  background: color-mix(in srgb, var(--card) 60%, transparent);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--border-light) 65%, transparent);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+}
+
+.public-controls .pill-switch--lang,
+.public-controls .pill-switch--theme,
+.public-controls .pill-switch--theme[aria-checked='true'] {
+  background: transparent;
+}
+
+.public-controls .pill-switch__thumb {
+  background: color-mix(in srgb, var(--primary) 14%, transparent);
+}
+
+.public-controls .pill-switch--lang .pill-switch__opt {
+  color: var(--text-muted);
+}
+
+.public-controls .pill-switch--lang[aria-checked='false'] .pill-switch__opt--es,
+.public-controls .pill-switch--lang[aria-checked='true'] .pill-switch__opt--en {
+  color: var(--primary);
+}
+
+.public-controls .pill-switch__knob {
+  background: var(--card);
+  color: var(--text-muted);
+  box-shadow: 0 1px 3px rgba(22, 33, 30, 0.22);
+}
+
 @media (max-width: 768px) {
   .header__controls { gap: 8px; }
-  .public-controls { top: var(--space-4); right: var(--space-4); }
+  .public-controls { top: 16px; right: 16px; }
 }
 
 /* ============================================

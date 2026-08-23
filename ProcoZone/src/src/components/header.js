@@ -166,7 +166,6 @@ export function iniciarAlertasDropdown() {
           btn.classList.add('header__icon-btn--pulse');
         }
       }
-<<<<<<< HEAD
       idsConocidos = idsActuales;
 
       const ordenadas = [...propias]
@@ -211,17 +210,6 @@ export function iniciarAlertasDropdown() {
           </div>
         `;
     } catch {
-=======
-      const items = [...base]
-        .sort((a, b) => (b.fechaSolicitud || '').localeCompare(a.fechaSolicitud || ''))
-        .slice(0, 8)
-        .map(solicitud => {
-          const empresa = empresas.find(e => e.id === solicitud.empresaId);
-          return mensajePorEstado(solicitud.estado, empresa?.nombre || t('th_company'), solicitud);
-        });
-      pintar(items);
-    } catch (error) {
->>>>>>> e435924bdc93b7c329c0ddb461006df7d6762005
       list.innerHTML = `
         <div class="alertas-dropdown__empty">
           <i class="fa-solid fa-circle-exclamation"></i>
