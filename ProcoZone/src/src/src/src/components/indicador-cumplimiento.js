@@ -2,6 +2,7 @@
    ProcoZone — Componente Indicador de Cumplimiento
    ============================================ */
 import { colorCumplimiento } from '../../../utils/formateador.js';
+import { t } from '../../../utils/translations.js';
 
 export function renderIndicador(nombre, requerido, actual, esPorcentaje = true, unidad = '%') {
   const estado = actual >= requerido ? 'cumple' : 'incumple';
@@ -11,8 +12,8 @@ export function renderIndicador(nombre, requerido, actual, esPorcentaje = true, 
     : Math.min(100, (actual / requerido) * 100);
 
   const estadoBadge = estado === 'cumple'
-    ? '<span class="badge badge-success" style="font-size: 10px; padding: 1px 8px;">Cumple</span>'
-    : '<span class="badge badge-error" style="font-size: 10px; padding: 1px 8px;">No cumple</span>';
+    ? `<span class="badge badge-success" style="font-size: 10px; padding: 1px 8px;">${t('meets')}</span>`
+    : `<span class="badge badge-error" style="font-size: 10px; padding: 1px 8px;">${t('does_not_meet')}</span>`;
 
   return `
     <div class="indicador-row">

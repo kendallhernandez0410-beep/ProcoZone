@@ -3,14 +3,39 @@
    Layout principal: Sidebar + Header + Content
    ============================================ */
 import { renderSidebar, iniciarSidebar } from './components/sidebar.js';
-import { renderHeader } from '../components/header.js';
+import { renderHeader, iniciarAlertasDropdown } from '../components/header.js';
 import { navegar } from '../router.js';
-import { esAnalista, esConsulta, obtenerSesion } from '../utils/auth.js';
-import { iniciarBusqueda } from '../components/header.js';
-import { iniciarChatbot } from './components/chatbot.js';
+import { esEmpresa, esInterno, estaAutenticado } from '../utils/auth.js';
+import { iniciarChatbot, detenerChatbot } from './components/chatbot.js';
+import { mostrarCookieConsent } from './components/cookie-consent.js';
+import { applyTheme } from '../utils/theme.js';
+import { getLanguage, t } from '../utils/translations.js';
+import { iniciarControlesGlobales } from '../components/theme-language-controls.js';
 
-const rutasPublicas = ['/landing', '/login'];
-const rutasConsulta = ['/solicitudes', '/nueva-solicitud', '/alertas'];
+const rutasPublicas = ['/landing', '/login', '/solicitar-acceso'];
+// Rol 1 — Empresa Solicitante / Instalada: registra solicitudes y consulta estado/alertas
+// (los reportes de cumplimiento son exclusivos del panel interno)
+const rutasEmpresa = ['/solicitudes', '/nueva-solicitud', '/alertas'];
+
+/**
+ * Devuelve la ruta corregida según el rol de la sesión activa:
+ * - Empresa: solo sus rutas (solicitudes, reportes y alertas)
+ * - Analista/Administrador: todo el panel interno excepto nueva solicitud
+ */
+function normalizarRutaPorRol(ruta) {
+  if (esEmpresa()) {
+    if (!rutasEmpresa.includes(ruta)) {
+      window.location.hash = '#/solicitudes';
+      return '/solicitudes';
+    }
+    return ruta;
+  }
+  if (esInterno() && ruta === '/nueva-solicitud') {
+    window.location.hash = '#/';
+    return '/';
+  }
+  return ruta;
+}
 
 function rutaActual() {
   return window.location.hash.slice(1) || '/landing';
@@ -24,20 +49,15 @@ function montarAplicacion() {
   const lang = getLanguage();
   document.documentElement.lang = lang;
 
-  let ruta = rutaActual();
-  if (esConsulta() && !rutasConsulta.includes(ruta)) {
-    window.location.hash = '#/solicitudes';
-    ruta = '/solicitudes';
-  } else if (esAnalista() && ruta === '/nueva-solicitud') {
-    window.location.hash = '#/';
-    ruta = '/';
-  }
-  if (!rutasPublicas.includes(ruta) && sessionStorage.getItem('procozone-authenticated') !== 'true') {
+  let ruta = normalizarRutaPorRol(rutaActual());
+  if (!rutasPublicas.includes(ruta) && !estaAutenticado()) {
     window.location.hash = '#/login';
     ruta = '/login';
   }
   if (rutasPublicas.includes(ruta)) {
+    detenerChatbot();
     app.innerHTML = '<main id="public-content"></main>';
+    mostrarCookieConsent();
     navegar(ruta);
     return;
   }
@@ -54,8 +74,9 @@ function montarAplicacion() {
     </div>
   `;
   iniciarSidebar();
-  iniciarBusqueda();
-  if (esConsulta()) iniciarChatbot();
+  iniciarAlertasDropdown();
+  // El asistente virtual acompaña a la empresa en toda su área
+  if (esEmpresa()) iniciarChatbot(); else detenerChatbot();
 
   // Actualizar título dinámicamente desde el router
   const headerTitle = document.getElementById('headerTitle');
@@ -65,27 +86,16 @@ function montarAplicacion() {
     if (h1) h1.id = 'headerTitle';
   }
 
-  // Navegación desde el sidebar al alertas
-  document.getElementById('alertasBtn')?.addEventListener('click', () => {
-    window.location.hash = '#/alertas';
-  });
-
   navegar(ruta);
 }
 
 export function iniciarApp() {
+  iniciarControlesGlobales();
   montarAplicacion();
   window.addEventListener('app:language-updated', () => montarAplicacion());
   window.addEventListener('app:theme-updated', () => montarAplicacion());
   window.addEventListener('hashchange', () => {
-    let ruta = rutaActual();
-    if (esConsulta() && !rutasConsulta.includes(ruta)) {
-      window.location.hash = '#/solicitudes';
-      ruta = '/solicitudes';
-    } else if (esAnalista() && ruta === '/nueva-solicitud') {
-      window.location.hash = '#/';
-      ruta = '/';
-    }
+    let ruta = normalizarRutaPorRol(rutaActual());
     const esPublica = rutasPublicas.includes(ruta);
     const hayShell = document.querySelector('.app-layout');
     if (esPublica !== !hayShell) montarAplicacion();

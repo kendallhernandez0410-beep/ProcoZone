@@ -1,211 +1,89 @@
-/* ============================================
-   ProcoZone — Página Nueva Solicitud
-   Formulario completo con validación y submit
-   ============================================ */
 import { http } from '../services/http-client.js';
 import { toast } from '../services/notificacion-service.js';
-import { validarSolicitud } from '../utils/validaciones.js';
-import { CATEGORIAS_ZF, ZONAS_FRANCAS, TIPOS_SOLICITUD, TIPO_TEXTO } from '../utils/constantes.js';
-import { esConsulta, obtenerSesion } from '../utils/auth.js';
+import { clasificarSolicitud } from '../src/services/ia-service.js';
+import { refrescarAlertas } from '../components/header.js';
+import { obtenerSesion } from '../utils/auth.js';
+import { t, tf } from '../utils/translations.js';
+import { ACTIVIDADES_ECONOMICAS, textoCatalogo } from '../utils/constantes.js';
 
-let destroyFn = null;
+const campo = (id, etiqueta, tipo = 'text', extra = '') => `<div class="form-group"><label class="form-label" for="${id}">${etiqueta} *</label><input class="form-input" id="${id}" type="${tipo}" ${extra} required><span class="form-error" id="error-${id}"></span></div>`;
 
 export async function render() {
-  // Cargar empresas para el select
-  let opcionesEmpresas = '<option value="">Seleccione una empresa</option>';
   try {
-    const empresas = await http.get('empresas');
-    opcionesEmpresas += empresas
-      .filter(e => e.estado !== 'Suspendida' && (!esConsulta() || e.id === obtenerSesion()?.empresaId))
-      .map(e => `<option value="${e.id}">${e.nombre} — ${e.zonaFranca}</option>`)
-      .join('');
-  } catch (e) {
-    // Si falla, mostrar opciones vacías
+    const [empresas, zonas] = await Promise.all([http.get('empresas'), http.get('zonasFrancas')]);
+    const sesion = obtenerSesion();
+    const disponibles = empresas.filter((empresa) => empresa.estado !== 'Suspendida');
+    return `<div class="page-enter"><div style="margin-bottom:var(--space-6)"><h1>${t('new_request_title')}</h1><p>${t('new_request_intro')}</p></div><form id="formSolicitud" novalidate>
+      <div class="form-section"><div class="form-section-title">${t('company_and_destination')}</div><div class="form-grid">
+        <div class="form-group"><label class="form-label" for="empresaId">${t('company_label')}</label><select class="form-select" id="empresaId" required><option value="">${t('select_company_option')}</option>${disponibles.map((empresa) => `<option value="${empresa.id}" data-cedula="${empresa.cedulaJuridica}">${empresa.nombre}</option>`).join('')}</select><span class="form-error" id="error-empresaId"></span></div>
+        <div class="form-group"><label class="form-label" for="cedulaJuridica">${t('legal_id_label')}</label><input class="form-input" id="cedulaJuridica" readonly placeholder="${t('legal_id_autofill')}"><span class="form-error" id="error-cedulaJuridica"></span></div>
+        <div class="form-group"><label class="form-label" for="zonaFrancaId">${t('destination_zone')}</label><select class="form-select" id="zonaFrancaId" required><option value="">${t('select_zone')}</option>${zonas.map((zona) => `<option value="${zona.id}">${zona.nombre}</option>`).join('')}</select><span class="form-error" id="error-zonaFrancaId"></span></div>
+        <div class="form-group"><label class="form-label" for="sector">${t('sector_label')}</label><select class="form-select" id="sector" required disabled><option value="">${t('select_zone_first')}</option></select><span class="form-error" id="error-sector"></span></div>
+      </div></div>
+      <div class="form-section"><div class="form-section-title">${t('request_projection')}</div><div class="form-grid">
+        <div class="form-group"><label class="form-label" for="tipo">${t('request_type_label')}</label><select class="form-select" id="tipo" required><option value="">${t('select_type')}</option><option value="instalacion">${t('type_installation')}</option><option value="expansion">${t('type_expansion')}</option></select><span class="form-error" id="error-tipo"></span></div>
+        <div class="form-group"><label class="form-label" for="tipoActividad">${t('activity_type')} *</label><select class="form-select" id="tipoActividad" required><option value="">${t('select_activity')}</option>${ACTIVIDADES_ECONOMICAS.map((actividad) => `<option value="${actividad}">${textoCatalogo(actividad)}</option>`).join('')}</select><span class="form-error" id="error-tipoActividad"></span></div>${campo('areaSolicitada', t('requested_area'), 'number', 'min="1"')}${campo('inversionEstimada', t('projected_investment'), 'number', 'min="1"')}${campo('empleosNuevos', t('new_jobs'), 'number', 'min="1"')}${campo('exportacionesProyectadas', t('projected_exports'), 'number', 'min="0" max="100"')}${campo('reportesOportunosComprometidos', t('committed_timely_reports'), 'number', 'min="0" max="100" value="100"')}
+        <div class="form-group form-group--full"><label class="form-label" for="descripcion">${t('description_label')}</label><textarea class="form-textarea" id="descripcion" rows="3" required></textarea><span class="form-error" id="error-descripcion"></span></div>
+      </div></div><div style="display:flex;gap:var(--space-3);justify-content:flex-end;margin-bottom:var(--space-12)"><a class="btn btn-outline" href="#/solicitudes">${t('cancel')}</a><button class="btn btn-primary btn-lg" id="btnSubmit">${t('send_evaluate_ai')}</button></div></form></div>`;
+  } catch (error) {
+    return `<div class="empty-state"><h2>${t('form_load_error')}</h2><p>${t('check_connection')}</p><button class="btn btn-primary" onclick="location.reload()">${t('retry')}</button></div>`;
   }
-
-  return `
-    <div class="page-enter" id="nuevaSolicitudPage">
-      <div style="margin-bottom: var(--space-6);">
-        <h1 style="font-size: var(--text-2xl); margin-bottom: var(--space-2);">Nueva Solicitud</h1>
-        <p style="color: var(--text-muted); font-size: var(--text-sm);">Complete el formulario para registrar una nueva solicitud de instalación o expansión.</p>
-      </div>
-
-      <form id="formSolicitud" novalidate>
-        <!-- Sección: Información General -->
-        <div class="form-section">
-          <div class="form-section-title">
-            <i class="fa-solid fa-circle-info"></i>
-            Información General
-          </div>
-          <div class="form-grid">
-            <div class="form-group">
-              <label class="form-label" for="empresaId">Empresa *</label>
-              <select class="form-select" id="empresaId" name="empresaId" ${esConsulta() ? 'disabled' : ''} required>
-                ${opcionesEmpresas}
-              </select>
-              <span class="form-error" id="error-empresaId"></span>
-            </div>
-            <div class="form-group">
-              <label class="form-label" for="tipo">Tipo de Solicitud *</label>
-              <select class="form-select" id="tipo" name="tipo" required>
-                <option value="">Seleccione un tipo</option>
-                ${Object.entries(TIPOS_SOLICITUD).map(([key, val]) =>
-                  `<option value="${val}">${TIPO_TEXTO[val]}</option>`
-                ).join('')}
-              </select>
-              <span class="form-error" id="error-tipo"></span>
-            </div>
-            <div class="form-group form-group--full">
-              <label class="form-label" for="descripcion">Descripción de la Solicitud *</label>
-              <textarea class="form-textarea" id="descripcion" name="descripcion" rows="3" placeholder="Describa detalladamente la solicitud..." required></textarea>
-              <span class="form-error" id="error-descripcion"></span>
-            </div>
-            <div class="form-group">
-              <label class="form-label" for="responsable">Responsable / Analista Asignado *</label>
-              <input class="form-input" type="text" id="responsable" name="responsable" placeholder="Nombre del analista" required />
-              <span class="form-error" id="error-responsable"></span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Sección: Detalles Técnicos -->
-        <div class="form-section">
-          <div class="form-section-title">
-            <i class="fa-solid fa-gear"></i>
-            Detalles Técnicos
-          </div>
-          <div class="form-grid">
-            <div class="form-group">
-              <label class="form-label" for="tipoActividad">Tipo de Actividad *</label>
-              <input class="form-input" type="text" id="tipoActividad" name="tipoActividad" placeholder="Ej: Manufactura electrónica" required />
-              <span class="form-error" id="error-tipoActividad"></span>
-            </div>
-            <div class="form-group">
-              <label class="form-label" for="areaSolicitada">Área Solicitada (m²) *</label>
-              <input class="form-input" type="number" id="areaSolicitada" name="areaSolicitada" placeholder="Ej: 500" min="1" max="10000" required />
-              <span class="form-error" id="error-areaSolicitada"></span>
-            </div>
-            <div class="form-group">
-              <label class="form-label" for="inversionEstimada">Inversión Estimada (CRC) *</label>
-              <input class="form-input" type="number" id="inversionEstimada" name="inversionEstimada" placeholder="Ej: 2000000" min="1" required />
-              <span class="form-error" id="error-inversionEstimada"></span>
-            </div>
-            <div class="form-group">
-              <label class="form-label" for="empleosNuevos">Empleos Nuevos Generados *</label>
-              <input class="form-input" type="number" id="empleosNuevos" name="empleosNuevos" placeholder="Ej: 30" min="1" max="5000" required />
-              <span class="form-error" id="error-empleosNuevos"></span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Botones -->
-        <div style="display: flex; gap: var(--space-3); justify-content: flex-end; padding-top: var(--space-4); border-top: 1px solid var(--border);">
-          <a href="#/solicitudes" class="btn btn-outline">Cancelar</a>
-          <button type="submit" class="btn btn-primary btn-lg" id="btnSubmit">
-            <i class="fa-solid fa-paper-plane"></i> Enviar Solicitud
-          </button>
-        </div>
-      </form>
-    </div>
-  `;
 }
 
-export async function init() {
+export function init() {
   const form = document.getElementById('formSolicitud');
   if (!form) return;
-
-  let enviando = false;
-
-  form.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    if (enviando) return;
-
-    // Recopilar datos
-    const datos = {
-      empresaId: parseInt(document.getElementById('empresaId').value) || null,
-      tipo: document.getElementById('tipo').value,
-      descripcion: document.getElementById('descripcion').value,
-      responsable: document.getElementById('responsable').value,
-      tipoActividad: document.getElementById('tipoActividad').value,
-      areaSolicitada: parseFloat(document.getElementById('areaSolicitada').value) || null,
-      inversionEstimada: parseFloat(document.getElementById('inversionEstimada').value) || null,
-      empleosNuevos: parseInt(document.getElementById('empleosNuevos').value) || null
-    };
-
-    // Validar
-    const errores = validarSolicitud(datos);
-    limpiarErrores();
-
-    if (errores) {
-      mostrarErrores(errores);
-      toast.warning('Campos incompletos', 'Por favor corrija los errores marcados.');
-      return;
-    }
-
-    // Enviar
-    enviando = true;
-    const btnSubmit = document.getElementById('btnSubmit');
-    btnSubmit.disabled = true;
-    btnSubmit.innerHTML = '<div class="spinner spinner-sm" style="border-top-color: white;"></div> Enviando...';
-
-    try {
-      const nuevaSolicitud = {
-        ...datos,
-        empresaId: datos.empresaId,
-        estado: 'pendiente',
-        fechaSolicitud: new Date().toISOString().split('T')[0],
-        clasificacionIa: null,
-        detalles: {
-          areaSolicitada: datos.areaSolicitada,
-          tipoActividad: datos.tipoActividad,
-          inversionEstimada: datos.inversionEstimada,
-          empleosNuevos: datos.empleosNuevos
-        },
-        observaciones: ''
-      };
-
-      // Limpiar campos que no van en el nivel raíz
-      delete nuevaSolicitud.tipoActividad;
-      delete nuevaSolicitud.areaSolicitada;
-      delete nuevaSolicitud.inversionEstimada;
-      delete nuevaSolicitud.empleosNuevos;
-
-      await http.post('solicitudes', nuevaSolicitud);
-
-      toast.success('Solicitud creada', 'La solicitud ha sido registrada exitosamente. Puede clasificarla con IA desde la lista de solicitudes.');
-
-      // Navegar a solicitudes
-      window.location.hash = '#/solicitudes';
-
-    } catch (error) {
-      toast.error('Error al enviar', error.message || 'No se pudo crear la solicitud.');
-      enviando = false;
-      btnSubmit.disabled = false;
-      btnSubmit.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Enviar Solicitud';
-    }
-  });
-
-  destroyFn = () => {
-    enviando = false;
+  const empresa = document.getElementById('empresaId'); const cedula = document.getElementById('cedulaJuridica'); const zona = document.getElementById('zonaFrancaId'); const sector = document.getElementById('sector');
+  const actualizarCedula = () => { cedula.value = empresa.selectedOptions[0]?.dataset.cedula || ''; };
+  actualizarCedula(); empresa.addEventListener('change', actualizarCedula);
+  // Intentar escribir/clic en la cédula sin empresa seleccionada → aviso abajo a la derecha
+  const avisarSeleccionEmpresa = () => {
+    if (!empresa.value) toast.warning(t('select_company_first_title'), t('select_company_first_msg'));
   };
-}
-
-function limpiarErrores() {
-  document.querySelectorAll('.form-error').forEach(el => el.textContent = '');
-  document.querySelectorAll('.form-input, .form-select, .form-textarea').forEach(el => {
-    el.style.borderColor = '';
+  ['click', 'focus', 'keydown'].forEach((evento) => cedula.addEventListener(evento, avisarSeleccionEmpresa));
+  zona.addEventListener('change', async () => {
+    try {
+      const seleccionada = (await http.getById('zonasFrancas', zona.value));
+      sector.disabled = false;
+      sector.innerHTML = `<option value="">${t('select_sector')}</option>${seleccionada.sectoresPermitidos.map((nombre) => `<option value="${nombre}">${nombre}</option>`).join('')}`;
+    } catch { toast.error(t('error_title'), t('sectors_load_error')); }
   });
-}
-
-function mostrarErrores(errores) {
-  for (const [campo, mensaje] of Object.entries(errores)) {
-    const errorEl = document.getElementById(`error-${campo}`);
-    const inputEl = document.getElementById(campo);
-    if (errorEl) errorEl.textContent = mensaje;
-    if (inputEl) inputEl.style.borderColor = 'var(--error)';
-  }
-}
-
-export function destroy() {
-  if (destroyFn) destroyFn();
+  form.addEventListener('submit', async (event) => {
+    event.preventDefault(); document.querySelectorAll('.form-error').forEach((el) => { el.textContent = ''; });
+    const valor = (id) => document.getElementById(id).value.trim();
+    const numero = (id) => Number(document.getElementById(id).value);
+    const ids = ['empresaId', 'zonaFrancaId', 'sector', 'tipo', 'tipoActividad', 'areaSolicitada', 'inversionEstimada', 'empleosNuevos', 'exportacionesProyectadas', 'reportesOportunosComprometidos', 'descripcion'];
+    const vacios = ids.filter((id) => !valor(id));
+    let valido = vacios.length === 0;
+    vacios.forEach((id) => { document.getElementById(`error-${id}`).textContent = t('required_field'); });
+    if (valor('descripcion') && valor('descripcion').length < 20) { document.getElementById('error-descripcion').textContent = t('desc_min_length'); valido = false; }
+    ['areaSolicitada', 'inversionEstimada', 'empleosNuevos'].forEach((id) => { if (valor(id) && !(numero(id) > 0)) { document.getElementById(`error-${id}`).textContent = t('invalid_number'); valido = false; } });
+    ['exportacionesProyectadas', 'reportesOportunosComprometidos'].forEach((id) => { if (valor(id) && !(numero(id) >= 0 && numero(id) <= 100)) { document.getElementById(`error-${id}`).textContent = t('invalid_range'); valido = false; } });
+    if (!valido) { toast.warning(t('incomplete_fields_title'), t('incomplete_fields_msg')); return; }
+    const seleccionada = empresa.selectedOptions[0];
+    const detalles = { tipoActividad: valor('tipoActividad'), areaSolicitada: numero('areaSolicitada'), inversionEstimada: numero('inversionEstimada'), empleosNuevos: numero('empleosNuevos') };
+    const nueva = { empresaId: Number(empresa.value), cedulaJuridica: seleccionada.dataset.cedula, zonaFrancaId: Number(zona.value), sector: sector.value, tipo: document.getElementById('tipo').value, descripcion: valor('descripcion'), fechaSolicitud: new Date().toISOString().slice(0, 10), estado: 'en_revision', clasificacionIa: null, compromisos: { ...detalles, exportacionesProyectadas: numero('exportacionesProyectadas'), reportesOportunosComprometidos: numero('reportesOportunosComprometidos') }, detalles, observaciones: '' };
+    const boton = document.getElementById('btnSubmit'); boton.disabled = true; boton.innerHTML = `<span class="spinner spinner-sm"></span> ${t('saving_evaluating')}`;
+    try {
+      const creada = await http.post('solicitudes', nueva);
+      // Notificación al equipo de analistas: solicitud entró en revisión
+      await http.post('alertas', {
+        empresaId: nueva.empresaId,
+        solicitudId: creada.id,
+        tipo: 'info',
+        titulo: t('alert_new_request_title'),
+        descripcion: `${seleccionada.textContent.trim()} ${tf('alert_new_request_desc', creada.id)}`,
+        fechaCreacion: nueva.fechaSolicitud,
+        estado: 'abierta'
+      });
+      // Actualizar la campanita sin recargar la página
+      refrescarAlertas();
+      // La IA evalúa y decide automáticamente (en revisión / pendiente por documento)
+      const ia = await clasificarSolicitud(creada.id);
+      // Refrescar la campanita con la alerta generada por la evaluación
+      refrescarAlertas();
+      toast.success(t('toast_submitted_title'), `${t('affinity_score')}: ${ia.puntajeAfinidad}/100. ${t('toast_submitted_msg')}`);
+      window.location.hash = '#/solicitudes';
+    } catch (error) { console.error(error); toast.error(t('evaluation_failed_title'), t('evaluation_failed_msg')); boton.disabled = false; boton.textContent = t('send_evaluate_ai'); }
+  });
 }

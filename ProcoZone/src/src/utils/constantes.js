@@ -1,22 +1,55 @@
 /* ============================================
    ProcoZone — Constantes de la aplicación
+   Los textos de estado son funciones para
+   mantener el idioma de la UI consistente.
    ============================================ */
+import { t } from './translations.js';
 
 // Estados de solicitudes
 export const ESTADOS_SOLICITUD = {
+  BORRADOR: 'borrador',
   PENDIENTE: 'pendiente',
   EN_REVISION: 'en_revision',
+  OBSERVADA: 'observada',
   APROBADA: 'aprobada',
   RECHAZADA: 'rechazada'
 };
 
-// Mapeo de estados a badges
+// Agrupación de estados para la vista de empresa:
+// "En proceso" = trámites activos o que requieren acción · "Historial" = resueltos
+export const ESTADOS_EN_PROCESO = ['borrador', 'pendiente', 'en_revision', 'observada'];
+export const ESTADOS_HISTORIAL = ['aprobada', 'rechazada'];
+
+export const esEstadoEnProceso = (estado) => ESTADOS_EN_PROCESO.includes(estado);
+export const esEstadoHistorial = (estado) => ESTADOS_HISTORIAL.includes(estado);
+
+// Clase de badge por estado (el texto se obtiene con estadoSolicitudTexto)
 export const ESTADO_BADGE = {
-  pendiente: { clase: 'badge-accent', texto: 'Pendiente' },
-  en_revision: { clase: 'badge-info', texto: 'En Revisión' },
-  aprobada: { clase: 'badge-success', texto: 'Aprobada' },
-  rechazada: { clase: 'badge-error', texto: 'Rechazada' }
+  borrador: { clase: 'badge-neutral' },
+  pendiente: { clase: 'badge-accent' },
+  en_revision: { clase: 'badge-info' },
+  observada: { clase: 'badge-warning' },
+  aprobada: { clase: 'badge-success' },
+  rechazada: { clase: 'badge-error' }
 };
+
+/** Texto traducido del estado de una solicitud */
+export function estadoSolicitudTexto(estado) {
+  const mapas = {
+    borrador: 'state_draft',
+    pendiente: 'state_pending',
+    en_revision: 'state_under_review',
+    observada: 'state_observed',
+    aprobada: 'state_approved',
+    rechazada: 'state_rejected'
+  };
+  return mapas[estado] ? t(mapas[estado]) : estado;
+}
+
+/** Badge completo (clase + texto traducido) de una solicitud */
+export function estadoSolicitudBadge(estado) {
+  return { clase: ESTADO_BADGE[estado]?.clase || 'badge-info', texto: estadoSolicitudTexto(estado) };
+}
 
 // Tipos de solicitud
 export const TIPOS_SOLICITUD = {
@@ -24,10 +57,53 @@ export const TIPOS_SOLICITUD = {
   EXPANSION: 'expansion'
 };
 
-export const TIPO_TEXTO = {
-  instalacion: 'Instalación',
-  expansion: 'Expansión'
-};
+/** Texto traducido del tipo de solicitud */
+export function tipoSolicitudTexto(tipo) {
+  const mapas = { instalacion: 'type_installation', expansion: 'type_expansion' };
+  return mapas[tipo] ? t(mapas[tipo]) : tipo;
+}
+
+/** Textos de catálogos que llegan guardados en español desde la API. */
+export function textoCatalogo(valor) {
+  const claves = {
+    'Servicios Tecnológicos': 'catalog_tech_services',
+    'Desarrollo de Software': 'catalog_software_development',
+    'Servicios Compartidos': 'catalog_shared_services',
+    'Dispositivos Médicos': 'catalog_medical_devices',
+    'Industria Farmacéutica': 'catalog_pharma',
+    'Biotecnología': 'catalog_biotech',
+    'Manufactura Electrónica': 'catalog_electronics',
+    'Alimentos Procesados': 'catalog_processed_food',
+    'Logística y Distribución': 'catalog_logistics_distribution',
+    'Centro de Contacto': 'catalog_contact_center',
+    'Diseño e Ingeniería': 'catalog_design_engineering',
+    'Energías Renovables': 'catalog_renewable_energy',
+    'Empaques Biodegradables': 'catalog_biodegradable_packaging',
+    'Análisis de Datos': 'catalog_data_analysis',
+    'Materiales Compuestos': 'catalog_composite_materials',
+    'Logística Avanzada': 'catalog_advanced_logistics'
+  };
+  return claves[valor] ? t(claves[valor]) : valor;
+}
+
+export function solicitudDescripcionTexto(descripcion) {
+  const traducciones = {
+    'Instalación de nueva línea de servidores y centro de datos en el módulo C-3 para expansión de servicios cloud.': 'description_server_line',
+    'Expansión del laboratorio de investigación para desarrollo de nuevos compuestos farmacéuticos.': 'description_lab_expansion',
+    'Instalación de planta de procesamiento de plásticos reciclados en módulo A-1.': 'description_recycled_plastics',
+    'Nueva línea de ensamblaje de circuitos impresos para exportación a mercado estadounidense.': 'description_circuit_assembly',
+    'Ampliación del área de trabajo para incorporar equipo de procesamiento de datos en tiempo real.': 'description_data_processing'
+  };
+  return traducciones[descripcion] ? t(traducciones[descripcion]) : descripcion;
+}
+
+// Compatibilidad: texto según idioma actual (evitar uso nuevo)
+export function TIPO_TEXTO() {
+  return {
+    instalacion: tipoSolicitudTexto('instalacion'),
+    expansion: tipoSolicitudTexto('expansion')
+  };
+}
 
 // Estados de empresa
 export const ESTADOS_EMPRESA = {
@@ -42,12 +118,41 @@ export const EMPRESA_ESTADO_BADGE = {
   Suspendida: 'badge-error'
 };
 
+/** Texto traducido del estado de una empresa */
+export function empresaEstadoTexto(estado) {
+  const mapas = {
+    'Activa': 'company_active',
+    'En Revisión': 'company_under_review',
+    'Suspendida': 'company_suspended'
+  };
+  return mapas[estado] ? t(mapas[estado]) : estado;
+}
+
 // Niveles de riesgo IA
 export const NIVELES_RIESGO = {
   BAJO: 'Bajo',
   MEDIO: 'Medio',
   ALTO: 'Alto'
 };
+
+/** Texto traducido de la recomendación de la IA */
+export function recomendacionIaTexto(recomendacion) {
+  const mapas = {
+    'Recomendada': 'rec_recommended',
+    'Revisar': 'rec_review',
+    'Rechazada': 'state_rejected',
+    'Aprobada': 'state_approved',
+    'Aprobar': 'approve',
+    'Rechazar': 'reject'
+  };
+  return mapas[recomendacion] ? t(mapas[recomendacion]) : recomendacion;
+}
+
+/** Texto traducido del nivel de riesgo */
+export function nivelRiesgoTexto(nivel) {
+  const mapas = { 'Bajo': 'risk_low', 'Medio': 'risk_medium', 'Alto': 'risk_high' };
+  return mapas[nivel] ? t(mapas[nivel]) : nivel;
+}
 
 // Tipos de alerta
 export const TIPOS_ALERTA = {
@@ -62,11 +167,11 @@ export const ALERTA_BADGE = {
   info: 'badge-info'
 };
 
-export const ALERTA_TEXTO = {
-  critica: 'Crítica',
-  warning: 'Advertencia',
-  info: 'Informativa'
-};
+/** Texto traducido del tipo de alerta */
+export function alertaTipoTexto(tipo) {
+  const mapas = { critica: 'alert_critical', warning: 'alert_warning', info: 'alert_info' };
+  return mapas[tipo] ? t(mapas[tipo]) : tipo;
+}
 
 // Estados de alerta
 export const ESTADOS_ALERTA = {
@@ -75,11 +180,107 @@ export const ESTADOS_ALERTA = {
   CERRADA: 'cerrada'
 };
 
-export const ALERTA_ESTADO_TEXTO = {
-  abierta: 'Abierta',
-  en_proceso: 'En Proceso',
-  cerrada: 'Cerrada'
+/** Texto traducido del estado de una alerta */
+export function alertaEstadoTexto(estado) {
+  const mapas = { abierta: 'alert_open', en_proceso: 'alert_in_process', cerrada: 'alert_closed' };
+  return mapas[estado] ? t(mapas[estado]) : estado;
+}
+
+/* Categorías de alerta para el perfil de empresa:
+   trámites, cumplimiento, documentación y sistema */
+export const CATEGORIAS_ALERTA = {
+  solicitud: { icono: 'fa-file-signature' },
+  cumplimiento: { icono: 'fa-clipboard-check' },
+  documentacion: { icono: 'fa-folder-open' },
+  sistema: { icono: 'fa-shield-halved' }
 };
+
+/** Etiqueta e ícono traducidos de la categoría de una alerta (null si no tiene) */
+export function alertaCategoriaInfo(alerta) {
+  if (!alerta?.categoria || !CATEGORIAS_ALERTA[alerta.categoria]) return null;
+  return { id: alerta.categoria, etiqueta: t(`cat_${alerta.categoria}`), icono: CATEGORIAS_ALERTA[alerta.categoria].icono };
+}
+
+export function alertaTexto(alerta) {
+  // Alertas con plantilla bilingüe (clave + parámetros {x})
+  if (alerta.clave) {
+    const reemplazar = (texto) => Object.entries(alerta.params || {}).reduce(
+      (acumulado, [parametro, valor]) => acumulado.replaceAll(`{${parametro}}`, String(valor)),
+      texto
+    );
+    return { titulo: reemplazar(t(`${alerta.clave}_titulo`)), descripcion: reemplazar(t(`${alerta.clave}_msg`)) };
+  }
+  const traducciones = {
+    'Suspensión inminente del régimen': ['alert_title_suspension', 'alert_desc_suspension'],
+    'Empleo nacional por debajo del mínimo': ['alert_title_jobs_below', 'alert_desc_jobs_below'],
+    'Empresa en estado de revisión': ['alert_title_under_review', 'alert_desc_under_review'],
+    'Reportes presentados fuera de plazo': ['alert_title_late_reports', 'alert_desc_late_reports']
+  };
+  const claves = traducciones[alerta.titulo];
+  if (claves) return { titulo: t(claves[0]), descripcion: t(claves[1]) };
+  const incumplimiento = /^Incumplimiento: (.+)$/.exec(alerta.titulo || '');
+  const indicadores = {
+    Empleos: 'indicator_employees',
+    'Inversión ejecutada': 'indicator_investment',
+    Exportaciones: 'indicator_exports',
+    'Reportes a tiempo': 'indicator_timely_reports'
+  };
+  const indicador = incumplimiento && indicadores[incumplimiento[1]];
+  if (indicador) {
+    return {
+      titulo: `${t('noncompliance_title')}: ${t(indicador)}`,
+      descripcion: alerta.descripcion.replace(incumplimiento[1], t(indicador)).replace('reportado', t('reported')).replace('requerido', t('required_value'))
+    };
+  }
+  return { titulo: alerta.titulo, descripcion: alerta.descripcion };
+}
+
+/** Texto traducido "Cumple" / "No cumple" */
+export function indicadorEstadoTexto(estado) {
+  return estado === 'cumple' ? t('meets') : t('does_not_meet');
+}
+
+/** Texto traducido del estado general del reporte */
+export function estadoGeneralTexto(estadoGeneral) {
+  return estadoGeneral === 'en_regla' ? t('in_compliance') : t('with_non_compliance');
+}
+
+/**
+ * Traduce en pantalla los factores generados por la IA
+ * (los datos almacenados permanecen en su idioma original)
+ */
+export function factorIaTexto(factor) {
+  const patrones = [
+    { regex: /^Sector\s+(permitido|no permitido)\s+.*?:\s*(\d+\/\d+)$/i, clave: (m) => m[1].toLowerCase() === 'permitido' ? 'ia_factor_sector_allowed' : 'ia_factor_sector_not_allowed' },
+    { regex: /^Inversión proyectada:\s*(\d+\/\d+)$/i, clave: () => 'ia_factor_investment' },
+    { regex: /^Inversion proyectada:\s*(\d+\/\d+)$/i, clave: () => 'ia_factor_investment' },
+    { regex: /^Empleos proyectados:\s*(\d+\/\d+)$/i, clave: () => 'ia_factor_jobs' }
+  ];
+  for (const patron of patrones) {
+    const m = factor.match(patron.regex);
+    if (m) {
+      const sufijo = m[m.length - 1];
+      return `${t(patron.clave(m))}: ${sufijo}`;
+    }
+  }
+  return factor;
+}
+
+// Actividades económicas del formulario de solicitud
+export const ACTIVIDADES_ECONOMICAS = [
+  'Servicios Tecnológicos',
+  'Desarrollo de Software',
+  'Servicios Compartidos',
+  'Dispositivos Médicos',
+  'Industria Farmacéutica',
+  'Biotecnología',
+  'Manufactura Electrónica',
+  'Alimentos Procesados',
+  'Logística y Distribución',
+  'Centro de Contacto',
+  'Diseño e Ingeniería',
+  'Energías Renovables'
+];
 
 // Categorías de zona franca
 export const CATEGORIAS_ZF = [
@@ -108,7 +309,7 @@ export const ZONAS_FRANCAS = [
 
 // Colores para avatares de empresas
 export const AVATAR_COLORS = [
-  '#0EA5A0', '#E8A838', '#10B981', '#EF4444',
+  '#007E48', '#0B6CD4', '#10B981', '#EF4444',
   '#8B5CF6', '#EC4899', '#F59E0B', '#38BDF8'
 ];
 

@@ -1,21 +1,82 @@
 /* ============================================
    ProcoZone — Página Dashboard
    Carga datos en paralelo con Promise.all
+   Métricas visualizadas como gráficos de dona
    ============================================ */
 import { http } from '../../../services/http-client.js';
 import { renderLoading, renderError } from '../../components/estado-carga.js';
-import { formatearMoneda, formatearFecha, tiempoRelativo, colorCumplimiento, colorDesdeString, obtenerIniciales } from '../../../utils/formateador.js';
-import { ESTADO_BADGE, TIPO_TEXTO, UMBRALES_CUMPLIMIENTO, ALERTA_BADGE, ALERTA_TEXTO } from '../../../utils/constantes.js';
-import { renderIndicador } from '../components/indicador-cumplimiento.js';
+import { tiempoRelativo, colorCumplimiento } from '../../../utils/formateador.js';
+import { UMBRALES_CUMPLIMIENTO, ALERTA_BADGE, estadoSolicitudTexto, alertaTipoTexto, alertaTexto, nivelRiesgoTexto } from '../../../utils/constantes.js';
+import { t } from '../../../utils/translations.js';
 
 let destroyFn = null;
+
+/* Color de cada estado de solicitud, alineado con los badges */
+const COLOR_ESTADO = {
+  borrador: 'var(--text-muted)',
+  pendiente: 'var(--warning)',
+  en_revision: 'var(--info)',
+  observada: 'var(--accent)',
+  aprobada: 'var(--success)',
+  rechazada: 'var(--error)'
+};
+
+/**
+ * Gráfico de dona SVG (sin librerías) con centro informativo
+ * y leyenda de porcentajes. segmentos: [{ etiqueta, cantidad, color }]
+ */
+function crearGraficoDona(segmentos, etiquetaCentro) {
+  const total = segmentos.reduce((suma, seg) => suma + seg.cantidad, 0);
+
+  if (!total) {
+    return `<p class="dash-vacio"><i class="fa-regular fa-chart-bar"></i> ${t('chart_no_data')}</p>`;
+  }
+
+  let acumulado = 0;
+  const arcos = segmentos
+    .filter(seg => seg.cantidad > 0)
+    .map(seg => {
+      const pct = (seg.cantidad / total) * 100;
+      const offset = 25 - acumulado;
+      acumulado += pct;
+      // Circunferencia r=15.9155 ≈ 100 unidades → dasharray trabaja en %
+      const trazo = Math.max(pct - 0.8, 0.4);
+      return `<circle class="dash-donut__arc" cx="21" cy="21" r="15.9155" fill="none" stroke="${seg.color}" stroke-width="4.6"
+        stroke-dasharray="${trazo} ${100 - trazo}" stroke-dashoffset="${offset}"></circle>`;
+    })
+    .join('');
+
+  const leyenda = segmentos.map(seg => `
+    <div class="dash-leyenda__item" title="${seg.etiqueta}">
+      <span class="dash-leyenda__dot" style="background: ${seg.color};"></span>
+      <span class="dash-leyenda__nombre">${seg.etiqueta}</span>
+      <span class="dash-leyenda__valor">${seg.cantidad}</span>
+      <span class="dash-leyenda__pct">${total ? Math.round((seg.cantidad / total) * 100) : 0}%</span>
+    </div>`).join('');
+
+  return `
+    <div class="dash-donut">
+      <div class="dash-donut__figura">
+        <svg viewBox="0 0 42 42" role="img" aria-label="${etiquetaCentro}">
+          <circle cx="21" cy="21" r="15.9155" fill="none" stroke="var(--bg-tertiary)" stroke-width="4.6"></circle>
+          ${arcos}
+        </svg>
+        <div class="dash-donut__centro">
+          <span class="dash-donut__total">${total}</span>
+          <span class="dash-donut__etiqueta">${etiquetaCentro}</span>
+        </div>
+      </div>
+      <div class="dash-donut__leyenda">${leyenda}</div>
+    </div>
+  `;
+}
 
 export async function render() {
   return `
     <div class="page-enter" id="dashboardPage">
       <div class="loading-overlay">
         <div class="spinner"></div>
-        <span>Cargando datos del dashboard...</span>
+        <span>${t('loading_dashboard')}</span>
       </div>
     </div>
   `;
@@ -42,136 +103,123 @@ export async function init() {
       ? Math.round(reportes.reduce((sum, r) => sum + r.porcentajeCumplimiento, 0) / reportes.length)
       : 0;
     const empresasActivas = empresas.filter(e => e.estado === 'Activa').length;
+    const conteoEstados = ['pendiente', 'en_revision', 'aprobada', 'rechazada'].map((estado) => `${estadoSolicitudTexto(estado)}: ${solicitudes.filter((solicitud) => solicitud.estado === estado).length}`).join(' · ');
 
-    // Solicitudes recientes (últimas 5)
-    const recientes = [...solicitudes].sort((a, b) =>
-      new Date(b.fechaSolicitud) - new Date(a.fechaSolicitud)
-    ).slice(0, 5);
+    /* Segmentos del gráfico: distribución porcentual por estado */
+    const segmentosSolicitudes = ['pendiente', 'en_revision', 'aprobada', 'rechazada', 'observada', 'borrador']
+      .map(estado => ({
+        etiqueta: estadoSolicitudTexto(estado),
+        cantidad: solicitudes.filter(s => s.estado === estado).length,
+        color: COLOR_ESTADO[estado]
+      }))
+      .filter(seg => seg.cantidad > 0);
 
-    // Empresas con menor cumplimiento
-    const empresasRiesgo = empresas
-      .filter(e => e.porcentajeCumplimiento < UMBRALES_CUMPLIMIENTO.ACEPTABLE)
-      .sort((a, b) => a.porcentajeCumplimiento - b.porcentajeCumplimiento);
-
-    // Último reporte por empresa para la tabla
-    const ultimosReportes = reportes.slice(0, 4);
+    /* Segmentos del gráfico: empresas por categoría de riesgo */
+    const riesgoAlto = empresas.filter(e => e.porcentajeCumplimiento < UMBRALES_CUMPLIMIENTO.CRITICO).length;
+    const riesgoMedio = empresas.filter(e =>
+      e.porcentajeCumplimiento >= UMBRALES_CUMPLIMIENTO.CRITICO &&
+      e.porcentajeCumplimiento < UMBRALES_CUMPLIMIENTO.ACEPTABLE
+    ).length;
+    const cumplimientoOptimo = empresas.length - riesgoAlto - riesgoMedio;
+    const segmentosRiesgo = [
+      { etiqueta: nivelRiesgoTexto('Alto'), cantidad: riesgoAlto, color: 'var(--error)' },
+      { etiqueta: nivelRiesgoTexto('Medio'), cantidad: riesgoMedio, color: 'var(--warning)' },
+      { etiqueta: t('risk_optimal_compliance'), cantidad: cumplimientoOptimo, color: 'var(--success)' }
+    ];
 
     container.innerHTML = `
-      <!-- Tarjetas de estadísticas -->
+      <!-- Tarjetas de estadísticas compactas (accesos directos a cada sección) -->
       <div class="dashboard-grid">
-        <div class="stat-card stat-card--primary">
+        <a class="stat-card stat-card--compact stat-card--primary" href="#/solicitudes">
           <div class="stat-card__icon"><i class="fa-solid fa-file-circle-plus"></i></div>
-          <div class="stat-card__value">${solicitudesPendientes}</div>
-          <div class="stat-card__label">Solicitudes Pendientes</div>
-        </div>
-        <div class="stat-card stat-card--accent">
+          <div class="stat-card__meta">
+            <span class="stat-card__value">${solicitudes.length}</span>
+            <span class="stat-card__label">${t('total_applications')}</span>
+            <small class="stat-card__hint" title="${conteoEstados}"><i class="fa-solid fa-clock"></i> ${solicitudesPendientes} ${t('pending').toLowerCase()}</small>
+          </div>
+        </a>
+        <a class="stat-card stat-card--compact stat-card--accent" href="#/empresas">
           <div class="stat-card__icon"><i class="fa-solid fa-building"></i></div>
-          <div class="stat-card__value">${empresasActivas}</div>
-          <div class="stat-card__label">Empresas Activas</div>
-        </div>
-        <div class="stat-card stat-card--success">
+          <div class="stat-card__meta">
+            <span class="stat-card__value">${empresasActivas}</span>
+            <span class="stat-card__label">${t('active_companies')}</span>
+            <small class="stat-card__hint"><i class="fa-solid fa-arrow-up-right-from-square"></i></small>
+          </div>
+        </a>
+        <a class="stat-card stat-card--compact stat-card--success" href="#/cumplimiento">
           <div class="stat-card__icon"><i class="fa-solid fa-chart-line"></i></div>
-          <div class="stat-card__value">${avgCumplimiento}%</div>
-          <div class="stat-card__label">Cumplimiento Promedio</div>
-        </div>
-        <div class="stat-card stat-card--error">
+          <div class="stat-card__meta">
+            <span class="stat-card__value">${avgCumplimiento}%</span>
+            <span class="stat-card__label">${t('average_compliance')}</span>
+            <div class="progress-bar stat-card__bar">
+              <div class="progress-bar__fill progress-bar__fill--${colorCumplimiento(avgCumplimiento)}" style="width: ${avgCumplimiento}%;"></div>
+            </div>
+          </div>
+        </a>
+        <a class="stat-card stat-card--compact stat-card--error" href="#/alertas">
           <div class="stat-card__icon"><i class="fa-solid fa-bell"></i></div>
-          <div class="stat-card__value">${alertasAbiertas}</div>
-          <div class="stat-card__label">Alertas Abiertas</div>
-        </div>
+          <div class="stat-card__meta">
+            <span class="stat-card__value">${alertasAbiertas}</span>
+            <span class="stat-card__label">${t('open_alerts')}</span>
+            <small class="stat-card__hint"><i class="fa-solid fa-circle-info"></i></small>
+          </div>
+        </a>
       </div>
 
-      <!-- Secciones inferiores -->
+      <!-- Secciones inferiores: gráficos porcentuales -->
       <div class="dashboard-sections">
-        <!-- Solicitudes recientes -->
-        <div class="card">
+        <!-- Distribución de solicitudes por estado -->
+        <div class="card dash-card">
           <div class="section-header">
-            <h2>Solicitudes Recientes</h2>
-            <a href="#/solicitudes" class="btn btn-ghost btn-sm">Ver todas <i class="fa-solid fa-arrow-right" style="font-size: 10px;"></i></a>
+            <h2>${t('dash_requests_distribution')}</h2>
+            <a href="#/solicitudes" class="btn btn-ghost btn-sm">${t('view_all')} <i class="fa-solid fa-arrow-right" style="font-size: 10px;"></i></a>
           </div>
-          ${recientes.length > 0 ? recientes.map(sol => {
-            const empresa = empresas.find(e => e.id === sol.empresaId);
-            const estado = ESTADO_BADGE[sol.estado];
-            return `
-              <div class="activity-item" style="cursor: pointer;" data-sol-id="${sol.id}">
-                <div class="activity-dot" style="background: ${
-                  sol.estado === 'aprobada' ? 'var(--success)' :
-                  sol.estado === 'rechazada' ? 'var(--error)' :
-                  'var(--accent)'
-                };"></div>
-                <div style="flex: 1;">
-                  <div class="activity-text">
-                    <strong>${empresa?.nombre || '—'}</strong> — ${TIPO_TEXTO[sol.tipo]} #${sol.id}
-                  </div>
-                  <div class="activity-time">${tiempoRelativo(sol.fechaSolicitud)}</div>
-                </div>
-                <span class="badge ${estado.clase}" style="font-size: 10px;">${estado.texto}</span>
-              </div>
-            `;
-          }).join('') : '<p style="color: var(--text-muted); font-size: var(--text-sm); padding: var(--space-4);">No hay solicitudes recientes.</p>'}
+          ${crearGraficoDona(segmentosSolicitudes, t('unit_applications'))}
         </div>
 
-        <!-- Empresas en riesgo -->
-        <div class="card">
+        <!-- Nivel de riesgo de las empresas -->
+        <div class="card dash-card">
           <div class="section-header">
-            <h2>Empresas en Riesgo</h2>
-            <a href="#/cumplimiento" class="btn btn-ghost btn-sm">Ver cumplimiento <i class="fa-solid fa-arrow-right" style="font-size: 10px;"></i></a>
+            <h2>${t('dash_risk_distribution')}</h2>
+            <a href="#/cumplimiento" class="btn btn-ghost btn-sm">${t('see_compliance')} <i class="fa-solid fa-arrow-right" style="font-size: 10px;"></i></a>
           </div>
-          ${empresasRiesgo.length > 0 ? empresasRiesgo.map(emp => {
-            const color = colorCumplimiento(emp.porcentajeCumplimiento);
-            return `
-              <div style="display: flex; align-items: center; gap: var(--space-3); padding: var(--space-3) 0; border-bottom: 1px solid var(--border);">
-                <div style="width: 32px; height: 32px; border-radius: var(--radius-sm); background: ${colorDesdeString(emp.nombre)}22; color: ${colorDesdeString(emp.nombre)}; display: flex; align-items: center; justify-content: center; font-size: var(--text-xs); font-weight: 700; font-family: var(--font-heading); flex-shrink: 0;">
-                  ${obtenerIniciales(emp.nombre)}
-                </div>
-                <div style="flex: 1; min-width: 0;">
-                  <div style="font-size: var(--text-sm); font-weight: 500; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${emp.nombre}</div>
-                  <div class="progress-bar" style="height: 4px; margin-top: var(--space-1);">
-                    <div class="progress-bar__fill progress-bar__fill--${color}" style="width: ${emp.porcentajeCumplimiento}%;"></div>
-                  </div>
-                </div>
-                <span style="font-family: var(--font-heading); font-weight: 600; font-size: var(--text-sm); color: var(--${color}); min-width: 40px; text-align: right;">${emp.porcentajeCumplimiento}%</span>
-              </div>
-            `;
-          }).join('') : '<p style="color: var(--text-muted); font-size: var(--text-sm); padding: var(--space-4);">No hay empresas en riesgo actualmente.</p>'}
+          ${crearGraficoDona(segmentosRiesgo, t('unit_companies'))}
         </div>
       </div>
 
       <!-- Alertas recientes -->
       <div class="card" style="margin-top: var(--space-6);">
         <div class="section-header">
-          <h2>Alertas Recientes</h2>
-          <a href="#/alertas" class="btn btn-ghost btn-sm">Ver todas <i class="fa-solid fa-arrow-right" style="font-size: 10px;"></i></a>
+          <h2>${t('recent_alerts')} <span class="dash-chip dash-chip--warning">${alertas.filter(a => a.estado === 'abierta').length}</span></h2>
+          <a href="#/alertas" class="btn btn-ghost btn-sm">${t('view_all')} <i class="fa-solid fa-arrow-right" style="font-size: 10px;"></i></a>
         </div>
+        <div class="dash-list">
         ${alertas.slice(0, 3).map(alerta => {
           const empresa = empresas.find(e => e.id === alerta.empresaId);
+          const textoAlerta = alertaTexto(alerta);
           return `
-            <div class="activity-item">
+            <div class="activity-item dash-list__item">
               <div class="activity-dot" style="background: ${
                 alerta.tipo === 'critica' ? 'var(--error)' :
                 alerta.tipo === 'warning' ? 'var(--warning)' : 'var(--info)'
               };"></div>
               <div style="flex: 1;">
                 <div class="activity-text">
-                  <strong>${alerta.titulo}</strong> — ${empresa?.nombre || '—'}
+                    <strong>${textoAlerta.titulo}</strong> — ${empresa?.nombre || '—'}
                 </div>
                 <div class="activity-time">${tiempoRelativo(alerta.fechaCreacion)}</div>
               </div>
-              <span class="badge ${ALERTA_BADGE[alerta.tipo]}" style="font-size: 10px;">${ALERTA_TEXTO[alerta.tipo]}</span>
+              <span class="badge ${ALERTA_BADGE[alerta.tipo]}" style="font-size: 10px;">${alertaTipoTexto(alerta.tipo)}</span>
             </div>
           `;
         }).join('')}
+        </div>
       </div>
     `;
 
-    // Click en solicitudes recientes navega al detalle
-    destroyFn = () => {
-      // cleanup si se necesita
-    };
-
   } catch (error) {
     container.innerHTML = renderError(
-      error.message || 'No se pudieron cargar los datos del dashboard.',
+      error.message || t('dashboard_load_error'),
       () => init()
     );
     // Bind retry

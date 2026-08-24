@@ -434,7 +434,18 @@
       "descripcion": "solicitudhndwjdiwjdiwsj",
       "fechaSolicitud": "2026-08-24",
       "estado": "en_revision",
-      "clasificacionIa": null,
+      "clasificacionIa": {
+        "puntajeAfinidad": 64,
+        "recomendacion": "Revisar",
+        "nivelRiesgo": "Medio",
+        "factores": [
+          "Sector permitido en la zona franca: 40/40",
+          "Inversión proyectada: 0/30",
+          "Empleos proyectados: 24/30"
+        ],
+        "justificacion": "Sector permitido en la zona franca: 40/40. Inversión proyectada: 0/30. Empleos proyectados: 24/30",
+        "fechaClasificacion": "2026-08-24T14:46:53.421Z"
+      },
       "compromisos": {
         "tipoActividad": "Servicios Compartidos",
         "areaSolicitada": 13,
@@ -1087,6 +1098,16 @@
       "fechaCreacion": "2026-08-24",
       "estado": "abierta",
       "id": 32
+    },
+    {
+      "empresaId": 7,
+      "solicitudId": 9,
+      "tipo": "info",
+      "titulo": "Solicitud en revisión",
+      "descripcion": "NovaMed Devices CR S.A.: cumplió los requisitos iniciales (64/100) y pasó a revisión del equipo evaluador.",
+      "fechaCreacion": "2026-08-24",
+      "estado": "abierta",
+      "id": 33
     }
   ],
   "solicitudesAcceso": [

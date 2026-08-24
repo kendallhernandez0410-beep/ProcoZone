@@ -1,0 +1,698 @@
+/* ============================================
+   ProcoZone — UI global: tablas, modales,
+   botones/badges, chips de fecha y modo oscuro
+   ============================================ */
+
+/* ---------- Utilidades de alineación ---------- */
+.mx-auto { margin-left: auto; margin-right: auto; }
+.w-full { width: 100%; }
+.max-w-7xl { max-width: 80rem; }
+.text-center { text-align: center; }
+
+/* ---------- Tablas ---------- */
+.table.text-center th,
+.table.text-center td {
+  text-align: center;
+}
+
+.table-container {
+  width: 100%;
+  overflow-x: auto;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--card);
+  box-shadow: var(--shadow-sm);
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--text-sm);
+}
+
+.table th {
+  padding: var(--space-3) var(--space-4);
+  background: var(--bg-secondary);
+  color: var(--text-muted);
+  font-size: var(--text-xs);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  text-align: left;
+  white-space: nowrap;
+  border-bottom: 1px solid var(--border);
+}
+
+.table td {
+  padding: var(--space-3) var(--space-4);
+  color: var(--text-secondary);
+  vertical-align: middle;
+  border-bottom: 1px solid var(--border-light);
+}
+
+.table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.table tbody tr:hover {
+  background: var(--card-hover);
+}
+
+.table .empresa-row,
+.table .solicitud-row {
+  cursor: pointer;
+}
+
+/* ---------- Chip de fecha (con padding correcto) ---------- */
+.fecha-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  border-radius: var(--radius-full);
+  background: var(--bg-tertiary);
+  color: var(--text-muted);
+  font-size: var(--text-xs);
+  white-space: nowrap;
+}
+
+.solicitudes-filtros .filtro-fecha,
+input[type="date"].form-input {
+  min-height: 36px;
+  padding: var(--space-2) var(--space-3);
+}
+
+/* ---------- Modales ---------- */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  background: rgba(2, 10, 24, 0.55);
+  backdrop-filter: blur(3px);
+  animation: modal-fade var(--transition-base) ease;
+}
+
+.modal-content {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 201;
+  display: flex;
+  flex-direction: column;
+  width: min(720px, calc(100vw - 32px));
+  max-height: 88vh;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  box-shadow: var(--shadow-lg);
+  animation: modal-pop var(--transition-base) ease;
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: var(--space-4) var(--space-5);
+  border-bottom: 1px solid var(--border);
+}
+
+.modal-header h3 {
+  margin: 0;
+  font-family: var(--font-heading);
+  font-size: var(--text-lg);
+  color: var(--text);
+}
+
+.modal-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--space-5);
+}
+
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-2);
+  padding: var(--space-4) var(--space-5);
+  border-top: 1px solid var(--border);
+}
+
+.modal-close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border: none;
+  border-radius: var(--radius-full);
+  background: transparent;
+  color: var(--text-muted);
+  font-size: var(--text-base);
+  cursor: pointer;
+  transition: background var(--transition-fast), color var(--transition-fast);
+}
+
+.modal-close:hover {
+  background: var(--bg-tertiary);
+  color: var(--text);
+}
+
+@keyframes modal-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes modal-pop {
+  from { opacity: 0; transform: translate(-50%, calc(-50% + 10px)); }
+  to { opacity: 1; transform: translate(-50%, -50%); }
+}
+
+/* ---------- Modal de Solicitud de Acceso ---------- */
+.modal-content--acceso {
+  width: min(560px, calc(100vw - 32px));
+}
+
+.modal-content--acceso .modal-header h3 i {
+  margin-right: 6px;
+  color: var(--accent);
+}
+
+.acceso-form__intro {
+  margin: 0 0 var(--space-5);
+  color: var(--text-muted);
+  font-size: var(--text-sm);
+  line-height: 1.6;
+}
+
+.acceso-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.acceso-form__fila {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-4);
+}
+
+.acceso-form__campo {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.acceso-form__campo > label {
+  color: var(--text-secondary);
+  font-size: var(--text-xs);
+  font-weight: 600;
+}
+
+.acceso-form__campo > label span {
+  color: var(--error);
+}
+
+.acceso-form .input-wrap {
+  margin: 0;
+}
+
+.acceso-form select,
+.acceso-form textarea {
+  width: 100%;
+  min-height: 46px;
+  padding: var(--space-2) 0;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: var(--text);
+  font-family: inherit;
+  font-size: inherit;
+}
+
+.acceso-form textarea {
+  min-height: 0;
+  padding: var(--space-3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--card);
+  resize: vertical;
+}
+
+.acceso-form textarea:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+
+.acceso-form select:invalid {
+  color: var(--text-muted);
+}
+
+.acceso-form__error,
+.acceso-form__general-error {
+  min-height: 1em;
+  margin: 0;
+  color: var(--error);
+  font-size: var(--text-xs);
+}
+
+.acceso-form__campo.has-error .input-wrap {
+  border-color: var(--error);
+  box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.12);
+}
+
+.acceso-form__general-error {
+  min-height: 0;
+  text-align: center;
+}
+
+.acceso-form__submit {
+  width: 100%;
+  margin-top: var(--space-2);
+}
+
+/* Panel de éxito */
+.acceso-exito {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-6) var(--space-4);
+  text-align: center;
+}
+
+.acceso-exito__icono {
+  display: grid;
+  place-items: center;
+  width: 64px;
+  height: 64px;
+  border-radius: var(--radius-full);
+  background: color-mix(in srgb, var(--success) 12%, transparent);
+  color: var(--success);
+  font-size: 2rem;
+}
+
+.acceso-exito h3 {
+  margin: 0;
+  font-family: var(--font-heading);
+  color: var(--primary);
+}
+
+.acceso-exito p {
+  max-width: 40ch;
+  margin: 0;
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+@media (max-width: 560px) {
+  .acceso-form__fila {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ---------- Botones y badges faltantes ---------- */
+.btn-accent {
+  background: var(--accent);
+  color: #fff;
+}
+
+.btn-accent:hover {
+  background: var(--accent-hover);
+  color: #fff;
+}
+
+.btn-danger {
+  background: var(--error);
+  color: #fff;
+}
+
+.btn-danger:hover {
+  background: var(--error);
+  filter: brightness(0.88);
+  color: #fff;
+}
+
+.btn-success {
+  background: var(--success);
+  color: #fff;
+}
+
+.btn-success:hover {
+  background: var(--primary-hover);
+  color: #fff;
+}
+
+.badge-neutral {
+  background: var(--bg-tertiary);
+  color: var(--text-muted);
+}
+
+/* ---------- Modo oscuro elegante ---------- */
+html[data-theme='dark'] body {
+  background:
+    radial-gradient(1100px 500px at 85% -10%, rgba(63, 181, 121, 0.07), transparent 60%),
+    radial-gradient(900px 420px at -10% 0%, rgba(111, 177, 242, 0.06), transparent 55%),
+    var(--bg);
+}
+
+html[data-theme='dark'] .card,
+html[data-theme='dark'] .stat-card {
+  border-color: rgba(148, 163, 184, 0.16);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
+}
+
+html[data-theme='dark'] .input-wrap,
+html[data-theme='dark'] .credential-card,
+html[data-theme='dark'] .recovery-panel .input-wrap,
+html[data-theme='dark'] .company-credential {
+  background: var(--bg-tertiary);
+  border-color: var(--border);
+  color: var(--text);
+}
+
+html[data-theme='dark'] .acceso-form select option {
+  background: var(--bg-secondary);
+  color: var(--text);
+}
+
+html[data-theme='dark'] .acceso-form textarea {
+  background: var(--bg-tertiary);
+  border-color: var(--border);
+}
+
+html[data-theme='dark'] .chatbot__message--bot {
+  background: var(--bg-tertiary);
+  color: var(--text-secondary);
+}
+
+html[data-theme='dark'] .visual-panel {
+  background: rgba(16, 28, 43, 0.92);
+  border-color: rgba(148, 163, 184, 0.18);
+  color: var(--text);
+}
+
+html[data-theme='dark'] .landing-page {
+  background:
+    radial-gradient(1000px 480px at 90% -10%, rgba(63, 181, 121, 0.08), transparent 60%),
+    radial-gradient(800px 400px at -5% 10%, rgba(111, 177, 242, 0.06), transparent 55%),
+    var(--bg);
+  color: var(--text);
+}
+
+html[data-theme='dark'] .access-page {
+  background:
+    radial-gradient(900px 450px at 50% -10%, rgba(63, 181, 121, 0.08), transparent 60%),
+    var(--bg);
+  color: var(--text);
+}
+
+html[data-theme='dark'] .activity-item {
+  border-color: rgba(148, 163, 184, 0.14);
+}
+
+/* Toastify integrado a los tokens del tema */
+.toastify {
+  border-radius: 6px;
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  box-shadow: var(--shadow-lg);
+}
+
+/* ============================================
+   Switches tipo píldora (tema / idioma)
+   Estilo neutro y semitransparente, unificado en
+   landing, páginas públicas y header interno:
+   no compiten con el contenido principal.
+   El cursor pointer aplica sobre TODO el control.
+   ============================================ */
+.header__controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.public-controls { position: absolute; top: 24px; right: 24px; z-index: 3; }
+
+.pill-switch {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+  width: 64px;
+  height: 30px;
+  padding: 3px;
+  border: 0;
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  background: color-mix(in srgb, var(--card) 60%, transparent);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--border-light) 65%, transparent);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+  transition: all 0.3s ease;
+}
+
+.pill-switch:hover {
+  filter: brightness(1.07);
+}
+
+.pill-switch:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--bg), 0 0 0 4px var(--primary);
+}
+
+.pill-switch__knob {
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border-radius: var(--radius-full);
+  background: var(--card);
+  color: var(--text-muted);
+  box-shadow: 0 1px 3px rgba(22, 33, 30, 0.22);
+  font-family: var(--font-heading);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.03em;
+  line-height: 1;
+  transition: all 0.3s ease;
+}
+
+/* Idioma ES/EN — etiquetas neutras; la opción activa
+   se destaca en verde institucional. El pulgar
+   translúcido se desliza sobre la opción activa. */
+.pill-switch--lang {
+  justify-content: space-between;
+  width: 84px;
+  padding: 0 9px;
+}
+
+.pill-switch--lang .pill-switch__thumb {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 36px;
+  height: 24px;
+  border-radius: var(--radius-full);
+  background: color-mix(in srgb, var(--primary) 14%, transparent);
+  transition: all 0.3s ease;
+}
+
+.pill-switch--lang[aria-checked='true'] .pill-switch__thumb {
+  transform: translateX(42px);
+}
+
+.pill-switch--lang .pill-switch__opt {
+  position: relative;
+  z-index: 1;
+  font-family: var(--font-heading);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  color: var(--text-muted);
+  transition: all 0.3s ease;
+}
+
+.pill-switch--lang[aria-checked='false'] .pill-switch__opt--es,
+.pill-switch--lang[aria-checked='true'] .pill-switch__opt--en {
+  color: var(--primary);
+}
+
+/* Tema claro/oscuro — pista neutra con perilla clara */
+.pill-switch--theme[aria-checked='true'] .pill-switch__knob {
+  transform: translateX(34px);
+}
+
+@media (max-width: 768px) {
+  .header__controls { gap: 8px; }
+  .public-controls { top: 16px; right: 16px; }
+}
+
+/* ============================================
+   Accesos directos y notificaciones clicables
+   ============================================ */
+a.stat-card {
+  color: inherit;
+  text-decoration: none;
+  transition: all 0.3s ease;
+}
+
+a.stat-card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-md);
+}
+
+.alertas-dropdown__list .alerta-item--link {
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.alertas-dropdown__list .alerta-item--link:hover,
+.alertas-dropdown__list .alerta-item--link:focus-visible {
+  background: var(--bg-tertiary);
+  outline: none;
+}
+
+.alerta-item__go {
+  align-self: center;
+  margin-left: auto;
+  font-size: 10px;
+  opacity: 0.5;
+}
+
+/* ============================================
+   Búsqueda local por sección
+   El campo permanece oculto hasta presionar la
+   lupa; no existe buscador global en el header.
+   ============================================ */
+.solicitudes-header__acciones,
+.empresas-header__acciones {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+
+.btn-buscador-toggle.active {
+  background: var(--primary-soft);
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+.buscador-seccion {
+  margin-bottom: var(--space-5);
+  animation: page-enter 180ms ease both;
+}
+
+.buscador-seccion[hidden] { display: none; }
+
+.buscador-seccion .search-box {
+  width: min(100%, 480px);
+  flex: none;
+}
+
+/* ============================================
+   Dashboard — Gráficos de dona con leyenda %
+   (SVG puro, sin librerías externas)
+   ============================================ */
+.dash-donut {
+  display: flex;
+  align-items: center;
+  gap: var(--space-6);
+  padding: var(--space-3) 0;
+  flex-wrap: wrap;
+}
+
+.dash-donut__figura {
+  position: relative;
+  width: 180px;
+  height: 180px;
+  margin: 0 auto;
+  flex-shrink: 0;
+}
+
+.dash-donut__arc { transition: stroke-dasharray 0.6s ease; }
+
+.dash-donut__centro {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  pointer-events: none;
+}
+
+.dash-donut__total {
+  font-family: var(--font-heading);
+  font-size: var(--text-3xl);
+  font-weight: 700;
+  color: var(--text);
+  line-height: 1;
+}
+
+.dash-donut__etiqueta {
+  margin-top: 4px;
+  color: var(--text-muted);
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.dash-donut__leyenda {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  flex: 1;
+  min-width: 210px;
+}
+
+.dash-leyenda__item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  color: var(--text-secondary);
+  font-size: var(--text-sm);
+}
+
+.dash-leyenda__dot {
+  width: 10px;
+  height: 10px;
+  flex-shrink: 0;
+  border-radius: var(--radius-full);
+}
+
+.dash-leyenda__nombre {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.dash-leyenda__valor {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  color: var(--text);
+}
+
+.dash-leyenda__pct {
+  min-width: 40px;
+  color: var(--text-muted);
+  font-size: var(--text-xs);
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.dash-vacio {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  padding: var(--space-8) var(--space-4);
+  color: var(--text-muted);
+  font-size: var(--text-sm);
+}

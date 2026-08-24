@@ -1,13 +1,17 @@
 /* ============================================
    ProcoZone — Utilidades de formateo
+   Sensibles al idioma activo de la UI
    ============================================ */
+import { t, tf, getLanguage } from './translations.js';
+
+const localeActivo = () => (getLanguage() === 'en' ? 'en-US' : 'es-CR');
 
 /**
  * Formatea un número como moneda en colones
  */
 export function formatearMoneda(valor) {
   if (valor == null) return '—';
-  return new Intl.NumberFormat('es-CR', {
+  return new Intl.NumberFormat(localeActivo(), {
     style: 'currency',
     currency: 'CRC',
     minimumFractionDigits: 0,
@@ -20,7 +24,7 @@ export function formatearMoneda(valor) {
  */
 export function formatearNumero(valor) {
   if (valor == null) return '—';
-  return new Intl.NumberFormat('es-CR').format(valor);
+  return new Intl.NumberFormat(localeActivo()).format(valor);
 }
 
 /**
@@ -29,7 +33,7 @@ export function formatearNumero(valor) {
 export function formatearFecha(fechaISO) {
   if (!fechaISO) return '—';
   const fecha = new Date(fechaISO);
-  return fecha.toLocaleDateString('es-CR', {
+  return fecha.toLocaleDateString(localeActivo(), {
     year: 'numeric',
     month: 'short',
     day: 'numeric'
@@ -42,7 +46,7 @@ export function formatearFecha(fechaISO) {
 export function formatearFechaHora(fechaISO) {
   if (!fechaISO) return '—';
   const fecha = new Date(fechaISO);
-  return fecha.toLocaleDateString('es-CR', {
+  return fecha.toLocaleDateString(localeActivo(), {
     year: 'numeric',
     month: 'short',
     day: 'numeric',
@@ -61,12 +65,12 @@ export function tiempoRelativo(fechaISO) {
   const diffMs = ahora - fecha;
   const diffDias = Math.floor(diffMs / (1000 * 60 * 60 * 24));
 
-  if (diffDias === 0) return 'Hoy';
-  if (diffDias === 1) return 'Ayer';
-  if (diffDias < 7) return `Hace ${diffDias} días`;
-  if (diffDias < 30) return `Hace ${Math.floor(diffDias / 7)} semanas`;
-  if (diffDias < 365) return `Hace ${Math.floor(diffDias / 30)} meses`;
-  return `Hace ${Math.floor(diffDias / 365)} años`;
+  if (diffDias === 0) return t('today');
+  if (diffDias === 1) return t('yesterday');
+  if (diffDias < 7) return tf('days_ago', diffDias);
+  if (diffDias < 30) return tf('weeks_ago', Math.floor(diffDias / 7));
+  if (diffDias < 365) return tf('months_ago', Math.floor(diffDias / 30));
+  return tf('years_ago', Math.floor(diffDias / 365));
 }
 
 /**
@@ -113,11 +117,11 @@ export function colorAfinidad(puntaje) {
  * Genera un color consistente para un string (para avatares)
  */
 export function colorDesdeString(str) {
-  if (!str) return '#0EA5A0';
+  if (!str) return '#007E48';
   let hash = 0;
   for (let i = 0; i < str.length; i++) {
     hash = str.charCodeAt(i) + ((hash << 5) - hash);
   }
-  const colores = ['#0EA5A0', '#E8A838', '#10B981', '#EC4899', '#8B5CF6', '#F59E0B', '#38BDF8', '#EF4444'];
+  const colores = ['#007E48', '#0B6CD4', '#10B981', '#EC4899', '#8B5CF6', '#F59E0B', '#38BDF8', '#EF4444'];
   return colores[Math.abs(hash) % colores.length];
 }

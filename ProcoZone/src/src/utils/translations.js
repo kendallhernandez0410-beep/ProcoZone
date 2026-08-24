@@ -1,109 +1,40 @@
-const translations = {
-  es: {
-    dashboard: 'Dashboard',
-    applications: 'Solicitudes',
-    compliance: 'Cumplimiento',
-    alerts: 'Alertas',
-    companies: 'Empresas',
-    new_application: 'Nueva Solicitud',
-    principal: 'Principal',
-    logout: 'Cerrar sesión',
-    user: 'Usuario',
-    viewer: 'Consulta',
-    search_placeholder: 'Buscar...',
-    language: 'Idioma',
-    theme: 'Tema',
-    dark_mode: 'Modo oscuro',
-    light_mode: 'Modo claro',
-    spanish: 'Español',
-    english: 'English',
-    dashboard_subtitle: 'Gestión de Zonas Francas — PROCOMER',
-    all: 'Todas',
-    critical: 'Críticas',
-    warnings: 'Advertencias',
-    info: 'Informativas',
-    pending_applications: 'Solicitudes Pendientes',
-    active_companies: 'Empresas Activas',
-    average_compliance: 'Cumplimiento Promedio',
-    open_alerts: 'Alertas Abiertas',
-    recent_applications: 'Solicitudes Recientes',
-    view_all: 'Ver todas',
-    risk_companies: 'Empresas en Riesgo',
-    see_compliance: 'Ver cumplimiento',
-    recent_alerts: 'Alertas Recientes',
-    no_recent_applications: 'No hay solicitudes recientes.',
-    no_risk_companies: 'No hay empresas en riesgo actualmente.',
-    loading_dashboard: 'Cargando datos del dashboard...',
-    no_alerts: 'Sin alertas',
-    no_alerts_message: 'No hay alertas del tipo seleccionado.',
-    auth_user: 'Usuario',
-    search_companies_placeholder: 'Buscar por nombre, cédula o zona franca...',
-    no_results: 'No se encontraron resultados.',
-    filter_all: 'Todos',
-    pending: 'Pendientes',
-    in_review: 'En Revisión',
-    approved: 'Aprobadas',
-    rejected: 'Rechazadas',
-    no_applications: 'No hay solicitudes',
-    no_application_message: 'No se encontraron solicitudes con el filtro seleccionado.',
-    loading_applications: 'Cargando solicitudes...',
-    loading_alerts: 'Cargando alertas...',
-    loading_reports: 'Cargando reportes de cumplimiento...',
-    loading_companies: 'Cargando empresas...'
-  },
-  en: {
-    dashboard: 'Dashboard',
-    applications: 'Applications',
-    compliance: 'Compliance',
-    alerts: 'Alerts',
-    companies: 'Companies',
-    new_application: 'New Application',
-    principal: 'Main',
-    logout: 'Log out',
-    user: 'User',
-    viewer: 'Consultant',
-    search_placeholder: 'Search...',
-    language: 'Language',
-    theme: 'Theme',
-    dark_mode: 'Dark mode',
-    light_mode: 'Light mode',
-    spanish: 'Español',
-    english: 'English',
-    dashboard_subtitle: 'Free Zone Management — PROCOMER',
-    all: 'All',
-    critical: 'Critical',
-    warnings: 'Warnings',
-    info: 'Info',
-    pending_applications: 'Pending Applications',
-    active_companies: 'Active Companies',
-    average_compliance: 'Average Compliance',
-    open_alerts: 'Open Alerts',
-    recent_applications: 'Recent Applications',
-    view_all: 'View all',
-    risk_companies: 'At-Risk Companies',
-    see_compliance: 'View compliance',
-    recent_alerts: 'Recent Alerts',
-    no_recent_applications: 'No recent applications.',
-    no_risk_companies: 'No companies at risk right now.',
-    loading_dashboard: 'Loading dashboard data...',
-    no_alerts: 'No alerts',
-    no_alerts_message: 'There are no alerts for the selected type.',
-    auth_user: 'User',
-    search_companies_placeholder: 'Search by name, ID, or free zone...',
-    no_results: 'No results found.',
-    filter_all: 'All',
-    pending: 'Pending',
-    in_review: 'In Review',
-    approved: 'Approved',
-    rejected: 'Rejected',
-    no_applications: 'No applications',
-    no_application_message: 'No applications were found for the selected filter.',
-    loading_applications: 'Loading applications...',
-    loading_alerts: 'Loading alerts...',
-    loading_reports: 'Loading compliance reports...',
-    loading_companies: 'Loading companies...'
+/* ============================================
+   ProcoZone — i18n
+   Diccionarios separados por idioma:
+   - locales/es.json
+   - locales/en.json
+   API: t(), tf(), getLanguage(), setLanguage()
+   ============================================ */
+import es from './locales/es.json';
+import en from './locales/en.json';
+
+const translations = { es, en };
+const clavesReportadas = new Set();
+
+/**
+ * Comprueba que ambos diccionarios tengan exactamente las mismas claves.
+ * Se expone para que la comprobación pueda ejecutarse también en pruebas.
+ */
+export function validarTraducciones() {
+  const clavesEs = Object.keys(es);
+  const clavesEn = Object.keys(en);
+  const faltanEn = clavesEs.filter(clave => !(clave in en));
+  const faltanEs = clavesEn.filter(clave => !(clave in es));
+  const reporte = { faltanEn, faltanEs, valido: !faltanEn.length && !faltanEs.length };
+
+  if (!reporte.valido) {
+    console.error('[i18n] Diccionarios desincronizados.', reporte);
   }
-};
+  return reporte;
+}
+
+function reportarClaveFaltante(clave, idioma) {
+  const id = `${idioma}:${clave}`;
+  if (clavesReportadas.has(id)) return;
+  clavesReportadas.add(id);
+  // No se hace fallback silencioso: el marcador queda visible durante el desarrollo.
+  console.error(`[i18n] Falta la traducción "${clave}" para el idioma "${idioma}".`);
+}
 
 export function getLanguage() {
   const value = localStorage.getItem('procozone_language');
@@ -115,12 +46,28 @@ export function setLanguage(language) {
   localStorage.setItem('procozone_language', next);
   document.documentElement.lang = next;
   window.dispatchEvent(new CustomEvent('languagechange'));
+  window.dispatchEvent(new CustomEvent('app:language-updated'));
 }
 
 export function t(key, fallback = '') {
   const lang = getLanguage();
-  const text = translations[lang]?.[key] ?? translations.es[key] ?? fallback ?? key;
-  return text;
+  if (typeof key !== 'string' || !key) {
+    reportarClaveFaltante(String(key), lang);
+    return fallback || `⟦${String(key)}⟧`;
+  }
+  const text = translations[lang]?.[key];
+  if (text !== undefined) return text;
+  reportarClaveFaltante(key, lang);
+  return fallback || `⟦${key}⟧`;
+}
+
+/** Reemplaza {n} en plantillas tipo "Hace {n} días" */
+export function tf(key, valor) {
+  return t(key).replace('{n}', valor);
 }
 
 export { translations };
+
+// Detecta desajustes de claves en cuanto se carga el módulo, sin esperar a que
+// una pantalla intente usar la traducción faltante.
+validarTraducciones();

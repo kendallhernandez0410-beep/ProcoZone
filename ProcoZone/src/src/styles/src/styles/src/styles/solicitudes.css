@@ -40,6 +40,25 @@
   border-color: var(--primary);
 }
 
+/* Contexto de zona fijo (perfil empresa): badge estático, no interactivo */
+.filtro-zona-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: 36px;
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--radius-full);
+  background: var(--primary-soft);
+  color: var(--primary);
+  border: 1px dashed color-mix(in srgb, var(--primary) 45%, transparent);
+  font-size: var(--text-sm);
+  font-weight: 600;
+}
+
+.filtro-zona-badge i {
+  font-size: var(--text-xs);
+}
+
 .solicitudes-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
