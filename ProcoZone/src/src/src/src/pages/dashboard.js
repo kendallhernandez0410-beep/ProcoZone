@@ -1,14 +1,75 @@
 /* ============================================
    ProcoZone — Página Dashboard
    Carga datos en paralelo con Promise.all
+   Métricas visualizadas como gráficos de dona
    ============================================ */
 import { http } from '../../../services/http-client.js';
 import { renderLoading, renderError } from '../../components/estado-carga.js';
-import { tiempoRelativo, colorCumplimiento, colorDesdeString, colorAfinidad, obtenerIniciales } from '../../../utils/formateador.js';
-import { UMBRALES_CUMPLIMIENTO, ALERTA_BADGE, estadoSolicitudBadge, estadoSolicitudTexto, tipoSolicitudTexto, alertaTipoTexto, alertaTexto, nivelRiesgoTexto } from '../../../utils/constantes.js';
+import { tiempoRelativo, colorCumplimiento } from '../../../utils/formateador.js';
+import { UMBRALES_CUMPLIMIENTO, ALERTA_BADGE, estadoSolicitudTexto, alertaTipoTexto, alertaTexto, nivelRiesgoTexto } from '../../../utils/constantes.js';
 import { t } from '../../../utils/translations.js';
 
 let destroyFn = null;
+
+/* Color de cada estado de solicitud, alineado con los badges */
+const COLOR_ESTADO = {
+  borrador: 'var(--text-muted)',
+  pendiente: 'var(--warning)',
+  en_revision: 'var(--info)',
+  observada: 'var(--accent)',
+  aprobada: 'var(--success)',
+  rechazada: 'var(--error)'
+};
+
+/**
+ * Gráfico de dona SVG (sin librerías) con centro informativo
+ * y leyenda de porcentajes. segmentos: [{ etiqueta, cantidad, color }]
+ */
+function crearGraficoDona(segmentos, etiquetaCentro) {
+  const total = segmentos.reduce((suma, seg) => suma + seg.cantidad, 0);
+
+  if (!total) {
+    return `<p class="dash-vacio"><i class="fa-regular fa-chart-bar"></i> ${t('chart_no_data')}</p>`;
+  }
+
+  let acumulado = 0;
+  const arcos = segmentos
+    .filter(seg => seg.cantidad > 0)
+    .map(seg => {
+      const pct = (seg.cantidad / total) * 100;
+      const offset = 25 - acumulado;
+      acumulado += pct;
+      // Circunferencia r=15.9155 ≈ 100 unidades → dasharray trabaja en %
+      const trazo = Math.max(pct - 0.8, 0.4);
+      return `<circle class="dash-donut__arc" cx="21" cy="21" r="15.9155" fill="none" stroke="${seg.color}" stroke-width="4.6"
+        stroke-dasharray="${trazo} ${100 - trazo}" stroke-dashoffset="${offset}"></circle>`;
+    })
+    .join('');
+
+  const leyenda = segmentos.map(seg => `
+    <div class="dash-leyenda__item" title="${seg.etiqueta}">
+      <span class="dash-leyenda__dot" style="background: ${seg.color};"></span>
+      <span class="dash-leyenda__nombre">${seg.etiqueta}</span>
+      <span class="dash-leyenda__valor">${seg.cantidad}</span>
+      <span class="dash-leyenda__pct">${total ? Math.round((seg.cantidad / total) * 100) : 0}%</span>
+    </div>`).join('');
+
+  return `
+    <div class="dash-donut">
+      <div class="dash-donut__figura">
+        <svg viewBox="0 0 42 42" role="img" aria-label="${etiquetaCentro}">
+          <circle cx="21" cy="21" r="15.9155" fill="none" stroke="var(--bg-tertiary)" stroke-width="4.6"></circle>
+          ${arcos}
+        </svg>
+        <div class="dash-donut__centro">
+          <span class="dash-donut__total">${total}</span>
+          <span class="dash-donut__etiqueta">${etiquetaCentro}</span>
+        </div>
+      </div>
+      <div class="dash-donut__leyenda">${leyenda}</div>
+    </div>
+  `;
+}
 
 export async function render() {
   return `
@@ -44,20 +105,27 @@ export async function init() {
     const empresasActivas = empresas.filter(e => e.estado === 'Activa').length;
     const conteoEstados = ['pendiente', 'en_revision', 'aprobada', 'rechazada'].map((estado) => `${estadoSolicitudTexto(estado)}: ${solicitudes.filter((solicitud) => solicitud.estado === estado).length}`).join(' · ');
 
-    // Solicitudes recientes (últimas 6)
-    const recientes = [...solicitudes].sort((a, b) =>
-      new Date(b.fechaSolicitud) - new Date(a.fechaSolicitud)
-    ).slice(0, 6);
+    /* Segmentos del gráfico: distribución porcentual por estado */
+    const segmentosSolicitudes = ['pendiente', 'en_revision', 'aprobada', 'rechazada', 'observada', 'borrador']
+      .map(estado => ({
+        etiqueta: estadoSolicitudTexto(estado),
+        cantidad: solicitudes.filter(s => s.estado === estado).length,
+        color: COLOR_ESTADO[estado]
+      }))
+      .filter(seg => seg.cantidad > 0);
 
-    // Empresas con menor cumplimiento
-    const empresasRiesgo = empresas
-      .filter(e => e.porcentajeCumplimiento < UMBRALES_CUMPLIMIENTO.ACEPTABLE)
-      .sort((a, b) => a.porcentajeCumplimiento - b.porcentajeCumplimiento);
-
-    const avatarEmpresa = (nombre, tamano = 32) => {
-      const color = colorDesdeString(nombre);
-      return `<div class="empresa-avatar" style="background: ${color}22; color: ${color}; width: ${tamano}px; height: ${tamano}px;">${obtenerIniciales(nombre)}</div>`;
-    };
+    /* Segmentos del gráfico: empresas por categoría de riesgo */
+    const riesgoAlto = empresas.filter(e => e.porcentajeCumplimiento < UMBRALES_CUMPLIMIENTO.CRITICO).length;
+    const riesgoMedio = empresas.filter(e =>
+      e.porcentajeCumplimiento >= UMBRALES_CUMPLIMIENTO.CRITICO &&
+      e.porcentajeCumplimiento < UMBRALES_CUMPLIMIENTO.ACEPTABLE
+    ).length;
+    const cumplimientoOptimo = empresas.length - riesgoAlto - riesgoMedio;
+    const segmentosRiesgo = [
+      { etiqueta: nivelRiesgoTexto('Alto'), cantidad: riesgoAlto, color: 'var(--error)' },
+      { etiqueta: nivelRiesgoTexto('Medio'), cantidad: riesgoMedio, color: 'var(--warning)' },
+      { etiqueta: t('risk_optimal_compliance'), cantidad: cumplimientoOptimo, color: 'var(--success)' }
+    ];
 
     container.innerHTML = `
       <!-- Tarjetas de estadísticas compactas (accesos directos a cada sección) -->
@@ -98,59 +166,24 @@ export async function init() {
         </a>
       </div>
 
-      <!-- Secciones inferiores: cards compactos agrupados -->
+      <!-- Secciones inferiores: gráficos porcentuales -->
       <div class="dashboard-sections">
-        <!-- Solicitudes recientes -->
+        <!-- Distribución de solicitudes por estado -->
         <div class="card dash-card">
           <div class="section-header">
-            <h2>${t('recent_applications')} <span class="dash-chip">${recientes.length}</span></h2>
+            <h2>${t('dash_requests_distribution')} <span class="dash-chip">${solicitudes.length}</span></h2>
             <a href="#/solicitudes" class="btn btn-ghost btn-sm">${t('view_all')} <i class="fa-solid fa-arrow-right" style="font-size: 10px;"></i></a>
           </div>
-          <div class="dash-list">
-          ${recientes.length > 0 ? recientes.map(sol => {
-            const empresa = empresas.find(e => e.id === sol.empresaId);
-            const estado = estadoSolicitudBadge(sol.estado);
-            const ia = sol.clasificacionIa;
-            return `
-              <div class="activity-item dash-list__item" style="cursor: pointer;" data-sol-id="${sol.id}">
-                ${avatarEmpresa(empresa?.nombre || '?')}
-                <div style="flex: 1; min-width: 0;">
-                  <div class="activity-text"><strong>${empresa?.nombre || '—'}</strong> · ${tipoSolicitudTexto(sol.tipo)}</div>
-                  <div class="activity-time">#${sol.id} · ${tiempoRelativo(sol.fechaSolicitud)}</div>
-                </div>
-                ${ia ? `<span class="dash-score dash-score--${colorAfinidad(ia.puntajeAfinidad)}" title="${t('affinity_score')}">${ia.puntajeAfinidad}</span>` : ''}
-                <span class="badge ${estado.clase}" style="font-size: 10px; flex-shrink: 0;">${estado.texto}</span>
-              </div>
-            `;
-          }).join('') : `<p style="color: var(--text-muted); font-size: var(--text-sm); padding: var(--space-4);">${t('no_recent_applications')}</p>`}
-          </div>
+          ${crearGraficoDona(segmentosSolicitudes, t('unit_applications'))}
         </div>
 
-        <!-- Empresas en riesgo -->
+        <!-- Nivel de riesgo de las empresas -->
         <div class="card dash-card">
           <div class="section-header">
-            <h2>${t('risk_companies')} <span class="dash-chip dash-chip--error">${empresasRiesgo.length}</span></h2>
+            <h2>${t('dash_risk_distribution')} <span class="dash-chip dash-chip--error">${riesgoAlto + riesgoMedio}</span></h2>
             <a href="#/cumplimiento" class="btn btn-ghost btn-sm">${t('see_compliance')} <i class="fa-solid fa-arrow-right" style="font-size: 10px;"></i></a>
           </div>
-          <div class="dash-list">
-          ${empresasRiesgo.length > 0 ? empresasRiesgo.map(emp => {
-            const color = colorCumplimiento(emp.porcentajeCumplimiento);
-            const critico = emp.porcentajeCumplimiento < UMBRALES_CUMPLIMIENTO.CRITICO;
-            return `
-              <div class="activity-item dash-list__item" style="cursor: pointer;" data-empresa-id="${emp.id}">
-                ${avatarEmpresa(emp.nombre)}
-                <div style="flex: 1; min-width: 0;">
-                  <div style="font-size: var(--text-sm); font-weight: 500; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${emp.nombre}</div>
-                  <div class="progress-bar" style="height: 4px; margin-top: var(--space-1);">
-                    <div class="progress-bar__fill progress-bar__fill--${color}" style="width: ${emp.porcentajeCumplimiento}%;"></div>
-                  </div>
-                </div>
-                <span style="font-family: var(--font-heading); font-weight: 700; font-size: var(--text-sm); color: var(--${color}); flex-shrink: 0;">${emp.porcentajeCumplimiento}%</span>
-                <span class="badge ${critico ? 'badge-error' : 'badge-warning'}" style="font-size: 10px; flex-shrink: 0;">${nivelRiesgoTexto(critico ? 'Alto' : 'Medio')}</span>
-              </div>
-            `;
-          }).join('') : `<p style="color: var(--text-muted); font-size: var(--text-sm); padding: var(--space-4);">${t('no_risk_companies')}</p>`}
-          </div>
+          ${crearGraficoDona(segmentosRiesgo, t('unit_companies'))}
         </div>
       </div>
 
@@ -183,14 +216,6 @@ export async function init() {
         </div>
       </div>
     `;
-
-    // Click en solicitudes / empresas de riesgo navega al detalle
-    container.querySelectorAll('[data-sol-id]').forEach(item => {
-      item.addEventListener('click', () => { window.location.hash = '#/solicitudes'; });
-    });
-    container.querySelectorAll('[data-empresa-id]').forEach(item => {
-      item.addEventListener('click', () => { window.location.hash = '#/empresas'; });
-    });
 
   } catch (error) {
     container.innerHTML = renderError(

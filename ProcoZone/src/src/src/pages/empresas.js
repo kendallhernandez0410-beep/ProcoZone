@@ -1,11 +1,13 @@
 /* ============================================
    ProcoZone — Página de Empresas
-   Tabla con búsqueda y detalle en modal
+   Listado completo con búsqueda local desplegable,
+   detalle en modal y exportación a Excel (.xlsx)
    ============================================ */
 import { http } from '../../services/http-client.js';
 import { renderLoading, renderError, renderSkeletonRows } from '../components/estado-carga.js';
-import { formatearFecha, formatearNumero, formatearMoneda, colorCumplimiento, colorDesdeString, obtenerIniciales } from '../../utils/formateador.js';
+import { formatearFecha, formatearNumero, colorCumplimiento, colorDesdeString, obtenerIniciales } from '../../utils/formateador.js';
 import { EMPRESA_ESTADO_BADGE, empresaEstadoTexto, textoCatalogo } from '../../utils/constantes.js';
+import { descargarXlsx } from '../../utils/excel.js';
 import { toast } from '../../services/notificacion-service.js';
 import { t } from '../../utils/translations.js';
 
@@ -25,6 +27,8 @@ export async function init() {
 
   let empresas = [];
   let terminoBusqueda = '';
+  // La búsqueda se despliega únicamente al presionar el botón de lupa
+  let busquedaVisible = false;
 
   async function cargarEmpresas() {
     try {
@@ -37,6 +41,15 @@ export async function init() {
     }
   }
 
+  /** Restaura el foco (y el cursor al final) tras re-renderizar la búsqueda */
+  function enfocarBusqueda() {
+    const input = document.getElementById('searchEmpresas');
+    if (!input) return;
+    input.focus();
+    const largo = input.value.length;
+    input.setSelectionRange(largo, largo);
+  }
+
   function renderEmpresas() {
     const filtradas = terminoBusqueda
       ? empresas.filter(e =>
@@ -47,10 +60,22 @@ export async function init() {
 
     container.innerHTML = `
       <div class="empresas-header">
-        <h1>${t('companies')}</h1>
+        <h1>${t('companies')} <span class="dash-chip">${empresas.length}</span></h1>
+        <div class="empresas-header__acciones">
+          <button type="button" class="header__icon-btn btn-buscador-toggle ${busquedaVisible ? 'active' : ''}" id="btnToggleBusqueda"
+            aria-label="${t(busquedaVisible ? 'close_search' : 'search')}" title="${t(busquedaVisible ? 'close_search' : 'search')}" aria-expanded="${busquedaVisible}">
+            <i class="fa-solid fa-magnifying-glass"></i>
+          </button>
+          <button type="button" class="btn btn-primary" id="btnExportarExcel">
+            <i class="fa-solid fa-file-excel"></i> ${t('export_excel')}
+          </button>
+        </div>
+      </div>
+
+      <div class="buscador-seccion" id="buscadorSeccion" ${busquedaVisible ? '' : 'hidden'}>
         <div class="search-box">
-          <span class="search-box__icon"><i class="fa-solid fa-magnifying-glass"></i></span>
-          <input type="text" class="search-box__input" id="searchEmpresas" placeholder="${t('search_companies')}" value="${terminoBusqueda}" />
+          <span class="search-box__icon" aria-hidden="true"><i class="fa-solid fa-magnifying-glass"></i></span>
+          <input type="text" class="search-box__input" id="searchEmpresas" placeholder="${t('search_companies')}" value="${terminoBusqueda}" autocomplete="off" />
         </div>
       </div>
 
@@ -111,6 +136,14 @@ export async function init() {
       `}
     `;
 
+    // Búsqueda local: se despliega/oculta con el botón de lupa
+    document.getElementById('btnToggleBusqueda')?.addEventListener('click', () => {
+      busquedaVisible = !busquedaVisible;
+      if (!busquedaVisible) terminoBusqueda = '';
+      renderEmpresas();
+      if (busquedaVisible) enfocarBusqueda();
+    });
+
     // Bind búsqueda con debounce
     const searchInput = document.getElementById('searchEmpresas');
     let timeout;
@@ -119,7 +152,48 @@ export async function init() {
       timeout = setTimeout(() => {
         terminoBusqueda = e.target.value;
         renderEmpresas();
+        enfocarBusqueda();
       }, 300);
+    });
+
+    // Exportar el listado completo a Excel (.xlsx) con todos
+    // los datos y métricas registradas de las empresas
+    document.getElementById('btnExportarExcel')?.addEventListener('click', () => {
+      try {
+        descargarXlsx(
+          t('companies'),
+          [
+            t('th_company'),
+            t('lbl_legal_id'),
+            t('th_free_zone'),
+            t('th_category'),
+            t('th_status'),
+            t('th_employees'),
+            `${t('lbl_compliance')} (%)`,
+            t('lbl_registration_date'),
+            t('lbl_contact'),
+            t('lbl_email'),
+            t('lbl_phone')
+          ],
+          empresas.map(emp => [
+            emp.nombre,
+            String(emp.cedulaJuridica ?? ''),
+            emp.zonaFranca,
+            emp.categoria,
+            empresaEstadoTexto(emp.estado),
+            Number(emp.empleados) || 0,
+            Number(emp.porcentajeCumplimiento) || 0,
+            formatearFecha(emp.fechaRegistro),
+            emp.contactoNombre || '',
+            emp.contactoEmail || '',
+            emp.contactoTelefono || ''
+          ]),
+          'empresas-procozone'
+        );
+        toast.success(t('export_excel'), t('export_done_msg'));
+      } catch (error) {
+        toast.error(t('error_title'), error.message);
+      }
     });
 
     // Bind click en filas

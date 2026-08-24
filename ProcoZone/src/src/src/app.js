@@ -3,7 +3,7 @@
    Layout principal: Sidebar + Header + Content
    ============================================ */
 import { renderSidebar, iniciarSidebar } from './components/sidebar.js';
-import { renderHeader, iniciarBusqueda, iniciarAlertasDropdown } from '../components/header.js';
+import { renderHeader, iniciarAlertasDropdown } from '../components/header.js';
 import { navegar } from '../router.js';
 import { esEmpresa, esInterno, estaAutenticado } from '../utils/auth.js';
 import { iniciarChatbot, detenerChatbot } from './components/chatbot.js';
@@ -74,7 +74,6 @@ function montarAplicacion() {
     </div>
   `;
   iniciarSidebar();
-  iniciarBusqueda();
   iniciarAlertasDropdown();
   // El asistente virtual acompaña a la empresa en toda su área
   if (esEmpresa()) iniciarChatbot(); else detenerChatbot();

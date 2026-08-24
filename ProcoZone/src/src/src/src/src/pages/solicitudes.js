@@ -16,12 +16,14 @@ import { formatearFecha } from '../../../../utils/formateador.js';
 import { t } from '../../../../utils/translations.js';
 
 let filtroActual = 'todos';
-let filtroZona = 'todos';
 let filtroFecha = '';
+// Búsqueda local de la sección (empresa o cédula jurídica):
+// se despliega únicamente al presionar el botón de lupa
+let terminoBusqueda = '';
+let busquedaVisible = false;
 // Contexto de zona de la empresa en sesión (perfil con una sola zona):
 // se fija automáticamente tras cargar datos y no requiere selector
 let zonaEmpresaId = null;
-let zonaEmpresaNombre = '';
 let destroyFn = null;
 
 /** Filtro de fecha tolerante: compara año-mes para que la lista
@@ -62,10 +64,9 @@ export async function init() {
       }
 
       // Fijar el contexto de la zona automáticamente para el perfil empresa:
-      // la empresa pertenece a una sola zona, así que se resuelve su id y nombre
+      // la empresa pertenece a una sola zona, así que se resuelve su id
       const miEmpresa = esEmpresa() ? empresas.find(e => e.id === obtenerSesion()?.empresaId) : null;
       if (miEmpresa) {
-        zonaEmpresaNombre = zonas.find(zona => zona.nombre === miEmpresa.zonaFranca)?.nombre || miEmpresa.zonaFranca || '';
         zonaEmpresaId = zonas.find(zona => zona.nombre === miEmpresa.zonaFranca)?.id
           ?? solicitudes.find(solicitud => solicitud.zonaFrancaId != null)?.zonaFrancaId
           ?? null;
@@ -119,6 +120,35 @@ export async function init() {
     `;
   }
 
+  /** Coincidencia por nombre de empresa o cédula jurídica */
+  function coincideBusqueda(solicitud) {
+    const termino = terminoBusqueda.trim().toLowerCase();
+    if (!termino) return true;
+    const empresa = empresas.find(e => e.id === solicitud.empresaId);
+    return (empresa?.nombre || '').toLowerCase().includes(termino) ||
+      String(empresa?.cedulaJuridica || '').toLowerCase().includes(termino);
+  }
+
+  /** Botón de lupa que despliega la búsqueda local de la sección */
+  function botonBusqueda() {
+    return `
+      <button type="button" class="header__icon-btn btn-buscador-toggle ${busquedaVisible ? 'active' : ''}" id="btnToggleBusqueda"
+        aria-label="${t(busquedaVisible ? 'close_search' : 'search')}" title="${t(busquedaVisible ? 'close_search' : 'search')}" aria-expanded="${busquedaVisible}">
+        <i class="fa-solid fa-magnifying-glass"></i>
+      </button>`;
+  }
+
+  /** Campo de búsqueda local, visible solo tras presionar la lupa */
+  function buscadorSeccion() {
+    return `
+      <div class="buscador-seccion" id="buscadorSeccion" ${busquedaVisible ? '' : 'hidden'}>
+        <div class="search-box">
+          <span class="search-box__icon" aria-hidden="true"><i class="fa-solid fa-magnifying-glass"></i></span>
+          <input type="search" class="search-box__input" id="busquedaSeccion" placeholder="${t('search_placeholder')}" value="${terminoBusqueda}" autocomplete="off" />
+        </div>
+      </div>`;
+  }
+
   function renderSolicitudes() {
     if (esEmpresa()) {
       renderVistaEmpresa();
@@ -129,7 +159,7 @@ export async function init() {
     let filtradas = filtroActual === 'todos'
       ? solicitudes
       : solicitudes.filter(s => s.estado === filtroActual);
-    if (filtroZona !== 'todos') filtradas = filtradas.filter((solicitud) => solicitud.zonaFrancaId === Number(filtroZona));
+    if (terminoBusqueda) filtradas = filtradas.filter(coincideBusqueda);
     if (filtroFecha) filtradas = filtradas.filter((solicitud) => coincideFecha(solicitud.fechaSolicitud));
 
     const contar = (estado) => solicitudes.filter(s => s.estado === estado).length;
@@ -137,7 +167,10 @@ export async function init() {
     container.innerHTML = `
       <div class="solicitudes-header">
         <h1>${t('applications')}</h1>
-        ${esAnalista() ? `<button class="btn btn-outline" id="btnClasificarPendientes">${t('evaluate_pending')}</button>` : ''}
+        <div class="solicitudes-header__acciones">
+          ${botonBusqueda()}
+          ${esAnalista() ? `<button class="btn btn-outline" id="btnClasificarPendientes">${t('evaluate_pending')}</button>` : ''}
+        </div>
       </div>
 
       <div class="solicitudes-filtros">
@@ -156,9 +189,10 @@ export async function init() {
         <button class="filtro-btn ${filtroActual === 'rechazada' ? 'active' : ''}" data-filtro="rechazada">
           ${t('rejected')} (${contar('rechazada')})
         </button>
-        <select class="form-select" id="filtroZona" style="width:auto"><option value="todos">${t('all_zones')}</option>${zonas.map((zona) => `<option value="${zona.id}" ${Number(filtroZona) === zona.id ? 'selected' : ''}>${zona.nombre}</option>`).join('')}</select>
         <input class="form-input filtro-fecha" id="filtroFecha" type="date" value="${filtroFecha}" style="width:auto">
       </div>
+
+      ${buscadorSeccion()}
 
       ${filtradas.length > 0 ? (
         esAdmin() ? renderTablaSolicitudes(filtradas) : `
@@ -185,9 +219,10 @@ export async function init() {
      las recién enviadas aparecen de inmediato. */
   function renderVistaEmpresa() {
     let filtradas = filtroActual === 'todos' ? solicitudes : solicitudes.filter(s => s.estado === filtroActual);
-    // Perfil empresa: la zona se aplica internamente (sin dropdown) usando el
-    // zona_id asociado a la empresa; usuarios con múltiples zonas usan el selector
+    // Perfil empresa: la zona se aplica internamente (sin selector ni badge)
+    // usando el zona_id asociado a la empresa en sesión
     if (zonaEmpresaId != null) filtradas = filtradas.filter((solicitud) => solicitud.zonaFrancaId === zonaEmpresaId);
+    if (terminoBusqueda) filtradas = filtradas.filter(coincideBusqueda);
     if (filtroFecha) filtradas = filtradas.filter((solicitud) => coincideFecha(solicitud.fechaSolicitud));
 
     const contar = (estado) => solicitudes.filter(s => s.estado === estado).length;
@@ -217,13 +252,17 @@ export async function init() {
     container.innerHTML = `
       <div class="solicitudes-header">
         <h1>${t('my_applications')}</h1>
+        <div class="solicitudes-header__acciones">
+          ${botonBusqueda()}
+        </div>
       </div>
 
       <div class="solicitudes-filtros">
         ${filtros}
-        ${zonaEmpresaNombre ? `<span class="filtro-zona-badge" title="${t('lbl_free_zone')}"><i class="fa-solid fa-location-dot"></i> ${zonaEmpresaNombre}</span>` : ''}
         <input class="form-input filtro-fecha" id="filtroFecha" type="date" value="${filtroFecha}" style="width:auto">
       </div>
+
+      ${buscadorSeccion()}
 
       ${filtradas.length > 0 ? `
         <div class="solicitudes-grid">
@@ -245,6 +284,15 @@ export async function init() {
     bindModalEvents(sol);
   }
 
+  /** Restaura el foco (y el cursor al final) tras re-renderizar la búsqueda */
+  function enfocarBusqueda() {
+    const input = document.getElementById('busquedaSeccion');
+    if (!input) return;
+    input.focus();
+    const largo = input.value.length;
+    input.setSelectionRange(largo, largo);
+  }
+
   function bindEvents() {
     // Filtros
     container.querySelectorAll('.filtro-btn').forEach(btn => {
@@ -253,7 +301,25 @@ export async function init() {
         renderSolicitudes();
       });
     });
-    document.getElementById('filtroZona')?.addEventListener('change', (event) => { filtroZona = event.target.value; renderSolicitudes(); });
+
+    // Búsqueda local por empresa o cédula jurídica:
+    // se despliega únicamente al presionar el botón de lupa
+    document.getElementById('btnToggleBusqueda')?.addEventListener('click', () => {
+      busquedaVisible = !busquedaVisible;
+      if (!busquedaVisible) terminoBusqueda = '';
+      renderSolicitudes();
+      if (busquedaVisible) enfocarBusqueda();
+    });
+    let debounceBusqueda;
+    document.getElementById('busquedaSeccion')?.addEventListener('input', (event) => {
+      clearTimeout(debounceBusqueda);
+      debounceBusqueda = setTimeout(() => {
+        terminoBusqueda = event.target.value;
+        renderSolicitudes();
+        enfocarBusqueda();
+      }, 250);
+    });
+
     const filtroFechaInput = document.getElementById('filtroFecha');
     filtroFechaInput?.addEventListener('change', (event) => { filtroFecha = event.target.value; renderSolicitudes(); });
     // Desplegar el calendario nativo al hacer clic o enfocar el campo
