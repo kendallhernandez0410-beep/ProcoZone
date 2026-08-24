@@ -18,7 +18,18 @@ import { t } from '../../../../utils/translations.js';
 let filtroActual = 'todos';
 let filtroZona = 'todos';
 let filtroFecha = '';
+// Contexto de zona de la empresa en sesión (perfil con una sola zona):
+// se fija automáticamente tras cargar datos y no requiere selector
+let zonaEmpresaId = null;
+let zonaEmpresaNombre = '';
 let destroyFn = null;
+
+/** Filtro de fecha tolerante: compara año-mes para que la lista
+    muestre todos los registros del período seleccionado */
+function coincideFecha(fechaIso) {
+  if (!fechaIso) return false;
+  return String(fechaIso).slice(0, 7) === String(filtroFecha).slice(0, 7);
+}
 
 export async function render() {
   return `
@@ -48,6 +59,16 @@ export async function init() {
       ]);
       if (esEmpresa()) {
         solicitudes = solicitudes.filter(solicitud => solicitud.empresaId === obtenerSesion()?.empresaId);
+      }
+
+      // Fijar el contexto de la zona automáticamente para el perfil empresa:
+      // la empresa pertenece a una sola zona, así que se resuelve su id y nombre
+      const miEmpresa = esEmpresa() ? empresas.find(e => e.id === obtenerSesion()?.empresaId) : null;
+      if (miEmpresa) {
+        zonaEmpresaNombre = zonas.find(zona => zona.nombre === miEmpresa.zonaFranca)?.nombre || miEmpresa.zonaFranca || '';
+        zonaEmpresaId = zonas.find(zona => zona.nombre === miEmpresa.zonaFranca)?.id
+          ?? solicitudes.find(solicitud => solicitud.zonaFrancaId != null)?.zonaFrancaId
+          ?? null;
       }
 
       renderSolicitudes();
@@ -109,7 +130,7 @@ export async function init() {
       ? solicitudes
       : solicitudes.filter(s => s.estado === filtroActual);
     if (filtroZona !== 'todos') filtradas = filtradas.filter((solicitud) => solicitud.zonaFrancaId === Number(filtroZona));
-    if (filtroFecha) filtradas = filtradas.filter((solicitud) => solicitud.fechaSolicitud === filtroFecha);
+    if (filtroFecha) filtradas = filtradas.filter((solicitud) => coincideFecha(solicitud.fechaSolicitud));
 
     const contar = (estado) => solicitudes.filter(s => s.estado === estado).length;
 
@@ -164,8 +185,10 @@ export async function init() {
      las recién enviadas aparecen de inmediato. */
   function renderVistaEmpresa() {
     let filtradas = filtroActual === 'todos' ? solicitudes : solicitudes.filter(s => s.estado === filtroActual);
-    if (filtroZona !== 'todos') filtradas = filtradas.filter((solicitud) => solicitud.zonaFrancaId === Number(filtroZona));
-    if (filtroFecha) filtradas = filtradas.filter((solicitud) => solicitud.fechaSolicitud === filtroFecha);
+    // Perfil empresa: la zona se aplica internamente (sin dropdown) usando el
+    // zona_id asociado a la empresa; usuarios con múltiples zonas usan el selector
+    if (zonaEmpresaId != null) filtradas = filtradas.filter((solicitud) => solicitud.zonaFrancaId === zonaEmpresaId);
+    if (filtroFecha) filtradas = filtradas.filter((solicitud) => coincideFecha(solicitud.fechaSolicitud));
 
     const contar = (estado) => solicitudes.filter(s => s.estado === estado).length;
     const chip = (valor, texto, cantidad) => `
@@ -198,7 +221,7 @@ export async function init() {
 
       <div class="solicitudes-filtros">
         ${filtros}
-        <select class="form-select" id="filtroZona" style="width:auto"><option value="todos">${t('all_zones')}</option>${zonas.map((zona) => `<option value="${zona.id}" ${Number(filtroZona) === zona.id ? 'selected' : ''}>${zona.nombre}</option>`).join('')}</select>
+        ${zonaEmpresaNombre ? `<span class="filtro-zona-badge" title="${t('lbl_free_zone')}"><i class="fa-solid fa-location-dot"></i> ${zonaEmpresaNombre}</span>` : ''}
         <input class="form-input filtro-fecha" id="filtroFecha" type="date" value="${filtroFecha}" style="width:auto">
       </div>
 

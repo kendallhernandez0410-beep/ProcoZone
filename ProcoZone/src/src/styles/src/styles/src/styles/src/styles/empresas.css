@@ -14,17 +14,25 @@
 
 .search-box {
   position: relative;
+  display: flex;
+  align-items: stretch;
   width: min(100%, 360px);
   flex: 1 1 280px;
   max-width: 420px;
   min-width: 220px;
 }
 
+/* Lupa como prefijo independiente del campo de texto */
 .search-box__icon {
-  position: absolute;
-  left: var(--space-3);
-  top: 50%;
-  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  flex-shrink: 0;
+  border: 1px solid var(--border);
+  border-right: 0;
+  border-radius: var(--radius-full) 0 0 var(--radius-full);
+  background: var(--bg-secondary);
   color: var(--text-muted);
   font-size: var(--text-sm);
   pointer-events: none;
@@ -33,10 +41,10 @@
 .search-box__input {
   width: 100%;
   height: 42px;
-  padding: var(--space-2) var(--space-4) var(--space-2) var(--space-9);
+  padding: var(--space-2) var(--space-4);
   background: var(--bg-tertiary);
   border: 1px solid var(--border);
-  border-radius: var(--radius-full);
+  border-radius: 0 var(--radius-full) var(--radius-full) 0;
   color: var(--text);
   font-size: var(--text-sm);
   transition: all var(--transition-fast);

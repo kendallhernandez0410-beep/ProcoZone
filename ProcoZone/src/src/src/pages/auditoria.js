@@ -11,6 +11,24 @@ import { t } from '../../utils/translations.js';
 
 let destroyFn = null;
 
+/**
+ * Exporta un registro completo a Excel (.xls compatible con Office/LibreOffice)
+ * usando una tabla HTML como fuente, sin dependencias externas.
+ */
+function exportarExcel(columnas, filas, nombreBase) {
+  const escapar = (valor) => String(valor ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+  const encabezado = columnas.map((columna) => `<th style="background:#007E48;color:#FFFFFF;text-align:center;">${escapar(columna)}</th>`).join('');
+  const cuerpo = filas.map((fila) => `<tr>${fila.map((celda) => `<td style="text-align:center;vertical-align:middle;">${escapar(celda)}</td>`).join('')}</tr>`).join('');
+  const documento = `<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel"><head><meta charset="UTF-8"></head><body><table border="1"><thead><tr>${encabezado}</tr></thead><tbody>${cuerpo}</tbody></table></body></html>`;
+  const url = URL.createObjectURL(new Blob(['\uFEFF' + documento], { type: 'application/vnd.ms-excel;charset=utf-8;' }));
+  const enlace = Object.assign(document.createElement('a'), { href: url, download: `${nombreBase}-${new Date().toISOString().slice(0, 10)}.xls` });
+  enlace.click();
+  URL.revokeObjectURL(url);
+}
+
 export async function render() {
   return `
     <div class="page-enter" id="auditoriaPage">
@@ -36,15 +54,16 @@ export async function init() {
 
     container.innerHTML = `
       <div class="page-enter">
-        <div class="card" style="margin-bottom: var(--space-6);">
+        <div class="card mx-auto max-w-7xl w-full" style="margin-bottom: var(--space-6);">
           <div class="section-header">
             <h2><i class="fa-solid fa-clipboard-list-check" style="color: var(--primary); margin-right: var(--space-2);"></i> ${t('audit_requests_history')}</h2>
+            <button type="button" class="btn btn-outline btn-sm" id="btnExportarSolicitudesExcel"><i class="fa-solid fa-file-excel"></i> ${t('export_excel')}</button>
           </div>
           <p style="color: var(--text-muted); font-size: var(--text-sm); margin-bottom: var(--space-4);">
             ${t('audit_intro')}
           </p>
-          <div class="table-container">
-            <table class="table">
+          <div class="table-container mx-auto max-w-7xl w-full">
+            <table class="table text-center">
               <thead>
                 <tr>
                   <th>${t('th_company')}</th>
@@ -79,12 +98,12 @@ export async function init() {
           </div>
         </div>
 
-        <div class="card">
+        <div class="card mx-auto max-w-7xl w-full">
           <div class="section-header">
             <h2><i class="fa-solid fa-file-shield" style="color: var(--primary); margin-right: var(--space-2);"></i> ${t('audit_reports_history')}</h2>
           </div>
-          <div class="table-container">
-            <table class="table">
+          <div class="table-container mx-auto max-w-7xl w-full">
+            <table class="table text-center">
               <thead>
                 <tr>
                   <th>${t('th_company')}</th>
@@ -114,6 +133,28 @@ export async function init() {
         </div>
       </div>
     `;
+
+    // Exportación a Excel del historial completo de solicitudes y decisiones
+    document.getElementById('btnExportarSolicitudesExcel')?.addEventListener('click', () => {
+      exportarExcel(
+        [t('th_company'), t('th_type'), t('th_request_date'), t('th_ai_decision'), t('th_score'), t('th_final_status'), t('th_decided_by'), t('th_notes')],
+        decisiones.map((sol) => {
+          const ia = sol.clasificacionIa;
+          const estado = estadoSolicitudBadge(sol.estado);
+          return [
+            nombreEmpresa(sol.empresaId),
+            tipoSolicitudTexto(sol.tipo) || sol.tipo,
+            formatearFecha(sol.fechaSolicitud),
+            ia ? recomendacionIaTexto(ia.recomendacion) : t('unclassified'),
+            ia ? `${ia.puntajeAfinidad}/100` : '—',
+            estado.texto,
+            sol.responsable || '—',
+            sol.observaciones || t('no_notes')
+          ];
+        }),
+        'historial-solicitudes'
+      );
+    });
 
     destroyFn = () => {};
   } catch (error) {

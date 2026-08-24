@@ -8,7 +8,9 @@ const CLAVE_COOKIES = 'procozone-cookies';
 export function mostrarCookieConsent() {
   let decision = null;
   try {
-    decision = localStorage.getItem(CLAVE_COOKIES);
+    // Persistencia por sesión: el aviso reaparece en cada nueva
+    // visita (simulando el comportamiento real de un sitio público)
+    decision = sessionStorage.getItem(CLAVE_COOKIES);
   } catch {
     decision = null;
   }
@@ -42,7 +44,7 @@ function renderConsentimiento() {
 function enlazarAcciones() {
   const cerrar = valor => {
     try {
-      localStorage.setItem(CLAVE_COOKIES, valor);
+      sessionStorage.setItem(CLAVE_COOKIES, valor);
     } catch {
       /* almacenamiento no disponible */
     }
@@ -54,5 +56,5 @@ function enlazarAcciones() {
 }
 
 window.addEventListener('languagechange', () => {
-  if (!localStorage.getItem(CLAVE_COOKIES) && document.getElementById('cookieConsent')) mostrarCookieConsent();
+  if (!sessionStorage.getItem(CLAVE_COOKIES) && document.getElementById('cookieConsent')) mostrarCookieConsent();
 });

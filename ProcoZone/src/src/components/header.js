@@ -28,7 +28,7 @@ export function renderHeader(titulo, subtitulo = '') {
           <i class="fa-solid fa-plus"></i> <span class="header__cta-text">${t('new_application_btn')}</span>
         </a>` : ''}
         <div class="header__search">
-          <i class="fa-solid fa-magnifying-glass"></i>
+          <span class="header__search-icon" aria-hidden="true"><i class="fa-solid fa-magnifying-glass"></i></span>
           <input type="search" placeholder="${t('search_placeholder')}" class="header__search-input" id="globalSearch" autocomplete="off" />
           <div class="search-results" id="searchResults" hidden></div>
         </div>
@@ -54,33 +54,39 @@ export function renderHeader(titulo, subtitulo = '') {
   `;
 }
 
-const paginas = () => [
-  { titulo: t('dashboard'), ruta: '/' },
-  { titulo: t('applications'), ruta: '/solicitudes' },
-  { titulo: t('access_requests_menu'), ruta: '/solicitudes-acceso' },
-  { titulo: t('new_application'), ruta: '/nueva-solicitud' },
-  { titulo: t('companies'), ruta: '/empresas' },
-  { titulo: t('audit_trail'), ruta: '/auditoria' },
-  { titulo: t('regime_settings'), ruta: '/zonas-francas' },
-  { titulo: t('compliance_reports_menu'), ruta: '/cumplimiento' },
-  { titulo: t('alerts'), ruta: '/alertas' }
-];
+let empresasCache = null;
 
+/** Búsqueda general restringida a Nombre de Empresa o Cédula Jurídica */
 export function iniciarBusqueda() {
   const input = document.getElementById('globalSearch');
   const results = document.getElementById('searchResults');
   if (!input || !results) return;
-  const pintar = () => {
-    const termino = input.value.trim().toLowerCase();
-    const paginasDisponibles = esEmpresa()
-      ? paginas().filter(pagina => ['/solicitudes', '/nueva-solicitud', '/alertas'].includes(pagina.ruta))
-      : paginas();
-    const coincidencias = paginasDisponibles.filter(pagina => pagina.titulo.toLowerCase().includes(termino));
-    results.innerHTML = coincidencias.length
-      ? coincidencias.map(pagina => `<a href="#${pagina.ruta}"><i class="fa-solid fa-arrow-up-right-from-square"></i>${pagina.titulo}</a>`).join('')
-      : `<span>${t('no_results')}</span>`;
-    results.hidden = !termino;
+
+  const cargarEmpresas = async () => {
+    if (!empresasCache) {
+      try { empresasCache = await http.get('empresas'); }
+      catch { empresasCache = []; }
+    }
+    return empresasCache;
   };
+
+  const pintar = async () => {
+    const termino = input.value.trim().toLowerCase();
+    if (!termino) { results.hidden = true; return; }
+    const todas = await cargarEmpresas();
+    // El perfil empresa solo puede encontrar su propia compañía
+    const base = esEmpresa() ? todas.filter(emp => emp.id === obtenerSesion()?.empresaId) : todas;
+    const coincidencias = base.filter(emp =>
+      (emp.nombre || '').toLowerCase().includes(termino) ||
+      String(emp.cedulaJuridica || '').toLowerCase().includes(termino)
+    );
+    const destino = esEmpresa() ? '#/solicitudes' : '#/empresas';
+    results.innerHTML = coincidencias.length
+      ? coincidencias.map(emp => `<a href="${destino}"><i class="fa-solid fa-building"></i><strong>${emp.nombre}</strong><small>${emp.cedulaJuridica || ''}</small></a>`).join('')
+      : `<span>${t('no_results')}</span>`;
+    results.hidden = false;
+  };
+
   input.addEventListener('input', pintar);
   input.addEventListener('focus', pintar);
   results.addEventListener('click', () => { results.hidden = true; input.value = ''; });

@@ -41,8 +41,7 @@ export async function init() {
     const filtradas = terminoBusqueda
       ? empresas.filter(e =>
           e.nombre.toLowerCase().includes(terminoBusqueda.toLowerCase()) ||
-          e.cedulaJuridica.includes(terminoBusqueda) ||
-          e.zonaFranca.toLowerCase().includes(terminoBusqueda.toLowerCase())
+          String(e.cedulaJuridica || '').includes(terminoBusqueda)
         )
       : empresas;
 
@@ -50,7 +49,7 @@ export async function init() {
       <div class="empresas-header">
         <h1>${t('companies')}</h1>
         <div class="search-box">
-          <i class="fa-solid fa-magnifying-glass search-box__icon"></i>
+          <span class="search-box__icon"><i class="fa-solid fa-magnifying-glass"></i></span>
           <input type="text" class="search-box__input" id="searchEmpresas" placeholder="${t('search_companies')}" value="${terminoBusqueda}" />
         </div>
       </div>

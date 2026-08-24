@@ -3,7 +3,18 @@
    botones/badges, chips de fecha y modo oscuro
    ============================================ */
 
+/* ---------- Utilidades de alineación ---------- */
+.mx-auto { margin-left: auto; margin-right: auto; }
+.w-full { width: 100%; }
+.max-w-7xl { max-width: 80rem; }
+.text-center { text-align: center; }
+
 /* ---------- Tablas ---------- */
+.table.text-center th,
+.table.text-center td {
+  text-align: center;
+}
+
 .table-container {
   width: 100%;
   overflow-x: auto;
