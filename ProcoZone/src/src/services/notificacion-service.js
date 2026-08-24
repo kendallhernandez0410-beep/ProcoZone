@@ -6,9 +6,20 @@ const iconos = {
 	error: 'fa-circle-xmark'
 };
 
+/* Control anti-duplicados: una misma alerta (tipo + título + mensaje)
+   solo se muestra una vez por interacción, aunque varios eventos
+   (click + focus, doble submit, etc.) la disparen casi a la vez. */
+const VENTANA_DEDUPLICACION_MS = 1200;
+const ultimoToastPorClave = new Map();
+
 function mostrar(tipo, titulo, mensaje) {
 	const contenedor = document.getElementById('toast-container');
 	if (!contenedor) return;
+
+	const clave = `${tipo}|${titulo}|${mensaje}`;
+	const ahora = Date.now();
+	if (ahora - (ultimoToastPorClave.get(clave) || 0) < VENTANA_DEDUPLICACION_MS) return;
+	ultimoToastPorClave.set(clave, ahora);
 
 	const toastElement = document.createElement('div');
 	toastElement.className = `toast toast--${tipo}`;

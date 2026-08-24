@@ -12,7 +12,7 @@
       "contactoNombre": "María González",
       "contactoEmail": "maria.gonzalez@tecnova.cr",
       "contactoTelefono": "+506 2234-5678",
-      "porcentajeCumplimiento": 92
+      "porcentajeCumplimiento": 0
     },
     {
       "id": 2,
@@ -585,6 +585,68 @@
       "porcentajeCumplimiento": 0,
       "estadoGeneral": "incumple",
       "id": 5
+    },
+    {
+      "empresaId": 1,
+      "solicitudId": 1,
+      "periodo": "2026-Q3",
+      "fechaReporte": "2026-08-24",
+      "indicadores": {
+        "empleos": {
+          "requerido": 25,
+          "actual": 7,
+          "estado": "incumple"
+        },
+        "inversion": {
+          "requerido": 1800000,
+          "actual": 12,
+          "estado": "incumple"
+        },
+        "exportaciones": {
+          "requerido": 75,
+          "actual": 4,
+          "estado": "incumple"
+        },
+        "reportesOportunos": {
+          "requerido": 100,
+          "actual": 3,
+          "estado": "incumple"
+        }
+      },
+      "porcentajeCumplimiento": 0,
+      "estadoGeneral": "incumple",
+      "id": 6
+    },
+    {
+      "empresaId": 1,
+      "solicitudId": 1,
+      "periodo": "2026-Q3",
+      "fechaReporte": "2026-08-24",
+      "indicadores": {
+        "empleos": {
+          "requerido": 25,
+          "actual": 2,
+          "estado": "incumple"
+        },
+        "inversion": {
+          "requerido": 1800000,
+          "actual": 2,
+          "estado": "incumple"
+        },
+        "exportaciones": {
+          "requerido": 75,
+          "actual": 2,
+          "estado": "incumple"
+        },
+        "reportesOportunos": {
+          "requerido": 100,
+          "actual": 2,
+          "estado": "incumple"
+        }
+      },
+      "porcentajeCumplimiento": 0,
+      "estadoGeneral": "incumple",
+      "id": 7
     }
   ],
   "alertas": [
@@ -719,6 +781,110 @@
       "fechaCreacion": "2026-08-22",
       "estado": "abierta",
       "id": 12
+    },
+    {
+      "empresaId": 1,
+      "reporteId": 6,
+      "tipo": "critica",
+      "titulo": "Incumplimiento: Empleos",
+      "descripcion": "Tecnova Solutions CR S.A.: Empleos valor reportado 7; requerido 25.",
+      "fechaCreacion": "2026-08-24",
+      "estado": "abierta",
+      "metrica": "empleos",
+      "valorReportado": 7,
+      "valorRequerido": 25,
+      "id": 13
+    },
+    {
+      "empresaId": 1,
+      "reporteId": 6,
+      "tipo": "critica",
+      "titulo": "Incumplimiento: Inversión ejecutada",
+      "descripcion": "Tecnova Solutions CR S.A.: Inversión ejecutada valor reportado 12; requerido 1800000.",
+      "fechaCreacion": "2026-08-24",
+      "estado": "abierta",
+      "metrica": "inversion",
+      "valorReportado": 12,
+      "valorRequerido": 1800000,
+      "id": 14
+    },
+    {
+      "empresaId": 1,
+      "reporteId": 6,
+      "tipo": "critica",
+      "titulo": "Incumplimiento: Exportaciones",
+      "descripcion": "Tecnova Solutions CR S.A.: Exportaciones valor reportado 4; requerido 75.",
+      "fechaCreacion": "2026-08-24",
+      "estado": "abierta",
+      "metrica": "exportaciones",
+      "valorReportado": 4,
+      "valorRequerido": 75,
+      "id": 15
+    },
+    {
+      "empresaId": 1,
+      "reporteId": 6,
+      "tipo": "critica",
+      "titulo": "Incumplimiento: Reportes a tiempo",
+      "descripcion": "Tecnova Solutions CR S.A.: Reportes a tiempo valor reportado 3; requerido 100.",
+      "fechaCreacion": "2026-08-24",
+      "estado": "abierta",
+      "metrica": "reportesOportunos",
+      "valorReportado": 3,
+      "valorRequerido": 100,
+      "id": 16
+    },
+    {
+      "empresaId": 1,
+      "reporteId": 7,
+      "tipo": "critica",
+      "titulo": "Incumplimiento: Empleos",
+      "descripcion": "Tecnova Solutions CR S.A.: Empleos valor reportado 2; requerido 25.",
+      "fechaCreacion": "2026-08-24",
+      "estado": "abierta",
+      "metrica": "empleos",
+      "valorReportado": 2,
+      "valorRequerido": 25,
+      "id": 17
+    },
+    {
+      "empresaId": 1,
+      "reporteId": 7,
+      "tipo": "critica",
+      "titulo": "Incumplimiento: Inversión ejecutada",
+      "descripcion": "Tecnova Solutions CR S.A.: Inversión ejecutada valor reportado 2; requerido 1800000.",
+      "fechaCreacion": "2026-08-24",
+      "estado": "abierta",
+      "metrica": "inversion",
+      "valorReportado": 2,
+      "valorRequerido": 1800000,
+      "id": 18
+    },
+    {
+      "empresaId": 1,
+      "reporteId": 7,
+      "tipo": "critica",
+      "titulo": "Incumplimiento: Exportaciones",
+      "descripcion": "Tecnova Solutions CR S.A.: Exportaciones valor reportado 2; requerido 75.",
+      "fechaCreacion": "2026-08-24",
+      "estado": "abierta",
+      "metrica": "exportaciones",
+      "valorReportado": 2,
+      "valorRequerido": 75,
+      "id": 19
+    },
+    {
+      "empresaId": 1,
+      "reporteId": 7,
+      "tipo": "critica",
+      "titulo": "Incumplimiento: Reportes a tiempo",
+      "descripcion": "Tecnova Solutions CR S.A.: Reportes a tiempo valor reportado 2; requerido 100.",
+      "fechaCreacion": "2026-08-24",
+      "estado": "abierta",
+      "metrica": "reportesOportunos",
+      "valorReportado": 2,
+      "valorRequerido": 100,
+      "id": 20
     }
   ],
   "solicitudesAcceso": [

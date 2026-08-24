@@ -388,15 +388,20 @@ export function iniciarChatbot() {
       const respuesta = textoPorPalabraClave
         ? { texto: textoPorPalabraClave, sugerencias: [] }
         : responder(limpia);
+      // Si la respuesta no trae chips propios (diccionario de palabras
+      // clave), se reutilizan las últimas sugerencias para que los
+      // botones rápidos estén siempre disponibles al final del chat.
+      if (respuesta.sugerencias?.length) sugerenciasActivas = respuesta.sugerencias;
       agregarMensaje(formatearRespuesta(respuesta.texto), 'bot');
-      agregarChips(respuesta.sugerencias);
+      agregarChips(sugerenciasActivas);
     }, 500 + Math.random() * 700);
   }
 
   // Mensaje de bienvenida (ES usa el saludo del diccionario de palabras clave)
+  let sugerenciasActivas = t('chatbot_welcome_suggestions').split('|');
   const bienvenida = t('chatbot_welcome');
   agregarMensaje(formatearRespuesta(bienvenida), 'bot');
-  agregarChips(t('chatbot_welcome_suggestions').split('|'));
+  agregarChips(sugerenciasActivas);
 
   document.getElementById('chatbotToggle').addEventListener('click', () => { panel.hidden = !panel.hidden; });
   document.getElementById('chatbotClose').addEventListener('click', event => {
