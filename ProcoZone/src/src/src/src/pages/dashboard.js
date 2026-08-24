@@ -135,25 +135,25 @@ export async function init() {
           <div class="stat-card__meta">
             <span class="stat-card__value">${solicitudes.length}</span>
             <span class="stat-card__label">${t('total_applications')}</span>
+            <small class="stat-card__hint" title="${conteoEstados}"><i class="fa-solid fa-clock"></i> ${solicitudesPendientes} ${t('pending').toLowerCase()}</small>
           </div>
-          <small class="stat-card__hint" title="${conteoEstados}"><i class="fa-solid fa-clock"></i> ${solicitudesPendientes} ${t('pending').toLowerCase()}</small>
         </a>
         <a class="stat-card stat-card--compact stat-card--accent" href="#/empresas">
           <div class="stat-card__icon"><i class="fa-solid fa-building"></i></div>
           <div class="stat-card__meta">
             <span class="stat-card__value">${empresasActivas}</span>
             <span class="stat-card__label">${t('active_companies')}</span>
+            <small class="stat-card__hint"><i class="fa-solid fa-arrow-up-right-from-square"></i></small>
           </div>
-          <small class="stat-card__hint"><i class="fa-solid fa-arrow-up-right-from-square"></i></small>
         </a>
         <a class="stat-card stat-card--compact stat-card--success" href="#/cumplimiento">
           <div class="stat-card__icon"><i class="fa-solid fa-chart-line"></i></div>
           <div class="stat-card__meta">
             <span class="stat-card__value">${avgCumplimiento}%</span>
             <span class="stat-card__label">${t('average_compliance')}</span>
-          </div>
-          <div class="progress-bar stat-card__bar">
-            <div class="progress-bar__fill progress-bar__fill--${colorCumplimiento(avgCumplimiento)}" style="width: ${avgCumplimiento}%;"></div>
+            <div class="progress-bar stat-card__bar">
+              <div class="progress-bar__fill progress-bar__fill--${colorCumplimiento(avgCumplimiento)}" style="width: ${avgCumplimiento}%;"></div>
+            </div>
           </div>
         </a>
         <a class="stat-card stat-card--compact stat-card--error" href="#/alertas">
@@ -161,8 +161,8 @@ export async function init() {
           <div class="stat-card__meta">
             <span class="stat-card__value">${alertasAbiertas}</span>
             <span class="stat-card__label">${t('open_alerts')}</span>
+            <small class="stat-card__hint"><i class="fa-solid fa-circle-info"></i></small>
           </div>
-          <small class="stat-card__hint"><i class="fa-solid fa-circle-info"></i></small>
         </a>
       </div>
 
@@ -171,7 +171,7 @@ export async function init() {
         <!-- Distribución de solicitudes por estado -->
         <div class="card dash-card">
           <div class="section-header">
-            <h2>${t('dash_requests_distribution')} <span class="dash-chip">${solicitudes.length}</span></h2>
+            <h2>${t('dash_requests_distribution')}</h2>
             <a href="#/solicitudes" class="btn btn-ghost btn-sm">${t('view_all')} <i class="fa-solid fa-arrow-right" style="font-size: 10px;"></i></a>
           </div>
           ${crearGraficoDona(segmentosSolicitudes, t('unit_applications'))}
@@ -180,7 +180,7 @@ export async function init() {
         <!-- Nivel de riesgo de las empresas -->
         <div class="card dash-card">
           <div class="section-header">
-            <h2>${t('dash_risk_distribution')} <span class="dash-chip dash-chip--error">${riesgoAlto + riesgoMedio}</span></h2>
+            <h2>${t('dash_risk_distribution')}</h2>
             <a href="#/cumplimiento" class="btn btn-ghost btn-sm">${t('see_compliance')} <i class="fa-solid fa-arrow-right" style="font-size: 10px;"></i></a>
           </div>
           ${crearGraficoDona(segmentosRiesgo, t('unit_companies'))}
