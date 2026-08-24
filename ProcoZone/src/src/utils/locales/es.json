@@ -409,7 +409,7 @@
   "alert_doc_pending_desc": "El expediente está incompleto ({n}/100). La solicitud quedó pendiente hasta completar los requerimientos.",
   "doc_pending_note": "Documento pendiente: complete la documentación requerida y vuelva a enviarla.",
   "view_full_info": "Ingresar a la información completa",
-"mark_all_read": "Marcar todo como leído",
+  "mark_all_read": "Marcar todo como leído",
   "state_draft": "Borrador",
   "state_observed": "Requiere ajustes",
   "state_incomplete_badge": "Incompleto / Faltan requerimientos",
@@ -490,7 +490,7 @@
   "access_state_pendiente": "Pendiente de aprobación",
   "access_state_aprobada": "Aprobada",
   "access_state_rechazada": "Rechazada",
-"menu": "Menú",
+  "menu": "Menú",
   "brand_home": "ProcoZone inicio",
   "username_placeholder": "empresa, analista o admin",
   "close_notification": "Cerrar notificación",
@@ -535,21 +535,53 @@
   "description_lab_expansion": "Expansión del laboratorio de investigación para desarrollo de nuevos compuestos farmacéuticos.",
   "description_recycled_plastics": "Instalación de planta de procesamiento de plásticos reciclados en módulo A-1.",
   "description_circuit_assembly": "Nueva línea de ensamblaje de circuitos impresos para exportación a mercado estadounidense.",
-  "description_data_processing": "Ampliación del área de trabajo para incorporar equipo de procesamiento de datos en tiempo real."
-  ,"catalog_tech_services": "Servicios Tecnológicos"
-  ,"catalog_software_development": "Desarrollo de Software"
-  ,"catalog_shared_services": "Servicios Compartidos"
-  ,"catalog_medical_devices": "Dispositivos Médicos"
-  ,"catalog_pharma": "Industria Farmacéutica"
-  ,"catalog_biotech": "Biotecnología"
-  ,"catalog_electronics": "Manufactura Electrónica"
-  ,"catalog_processed_food": "Alimentos Procesados"
-  ,"catalog_logistics_distribution": "Logística y Distribución"
-  ,"catalog_contact_center": "Centro de Contacto"
-  ,"catalog_design_engineering": "Diseño e Ingeniería"
-  ,"catalog_renewable_energy": "Energías Renovables"
-  ,"catalog_biodegradable_packaging": "Empaques Biodegradables"
-  ,"catalog_data_analysis": "Análisis de Datos"
-  ,"catalog_composite_materials": "Materiales Compuestos"
-  ,"catalog_advanced_logistics": "Logística Avanzada"
+  "description_data_processing": "Ampliación del área de trabajo para incorporar equipo de procesamiento de datos en tiempo real.",
+  "catalog_tech_services": "Servicios Tecnológicos",
+  "catalog_software_development": "Desarrollo de Software",
+  "catalog_shared_services": "Servicios Compartidos",
+  "catalog_medical_devices": "Dispositivos Médicos",
+  "catalog_pharma": "Industria Farmacéutica",
+  "catalog_biotech": "Biotecnología",
+  "catalog_electronics": "Manufactura Electrónica",
+  "catalog_processed_food": "Alimentos Procesados",
+  "catalog_logistics_distribution": "Logística y Distribución",
+  "catalog_contact_center": "Centro de Contacto",
+  "catalog_design_engineering": "Diseño e Ingeniería",
+  "catalog_renewable_energy": "Energías Renovables",
+  "catalog_biodegradable_packaging": "Empaques Biodegradables",
+  "catalog_data_analysis": "Análisis de Datos",
+  "catalog_composite_materials": "Materiales Compuestos",
+  "catalog_advanced_logistics": "Logística Avanzada",
+  "th_cumplimiento": "Cumplimiento",
+  "th_cumple": "¿Cumple?",
+  "th_fecha_registro": "Fecha de registro",
+  "cumple_si": "Sí",
+  "cumple_no": "No",
+  "export_csv": "Exportar CSV",
+  "adjuntar_documento": "Adjuntar documento de respaldo",
+  "sin_archivo": "Ningún archivo seleccionado",
+  "cat_solicitud": "Trámites",
+  "cat_cumplimiento": "Cumplimiento",
+  "cat_documentacion": "Documentación",
+  "cat_sistema": "Sistema",
+  "al_sol_aprobada_titulo": "Solicitud aprobada",
+  "al_sol_aprobada_msg": "Su solicitud #{n} para otorgamiento de Régimen de Zona Franca ha sido APROBADA.",
+  "al_sol_observacion_titulo": "Requerimiento de corrección",
+  "al_sol_observacion_msg": "PROCOMER ha realizado una observación en su solicitud de {tramite}. Tiene {dias} días hábiles para subsanar los documentos.",
+  "al_sol_inspeccion_titulo": "Inspección programada",
+  "al_sol_inspeccion_msg": "Se ha agendado una visita de inspección técnica en su planta para el día {fecha}.",
+  "al_cum_iao_titulo": "Informe Anual de Operaciones",
+  "al_cum_iao_msg": "Recordatorio: Vence el plazo para presentar el Informe Anual de Operaciones (IAO) el {fecha}.",
+  "al_cum_umbral_titulo": "Alerta de umbral de inversión",
+  "al_cum_umbral_msg": "Se encuentra al {pct}% del plazo para cumplir la inversión mínima comprometida (${monto} USD).",
+  "al_cum_canon_titulo": "Pago de cánon",
+  "al_cum_canon_msg": "El cobro de cánon mensual correspondiente al periodo actual vence en {dias} días.",
+  "al_doc_garantia_titulo": "Vencimiento de garantía",
+  "al_doc_garantia_msg": "Su póliza / garantía de cumplimiento vence en {dias} días. Por favor adjunte la renovación.",
+  "al_doc_poder_titulo": "Vencimiento de poder legal",
+  "al_doc_poder_msg": "El poder de la representación legal adjunto en el sistema vence el próximo mes.",
+  "al_sis_perfil_titulo": "Actualización de perfil",
+  "al_sis_perfil_msg": "Se ha cambiado el correo de notificación principal de la empresa.",
+  "al_sis_documento_titulo": "Documento cargado",
+  "al_sis_documento_msg": "Se ha cargado con éxito la resolución aprobatoria N.º {numero}."
 }

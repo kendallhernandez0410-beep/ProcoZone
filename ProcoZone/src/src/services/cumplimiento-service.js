@@ -48,6 +48,7 @@ export async function guardarReporteCumplimiento(datos, empresa, solicitud) {
     solicitudId: solicitud.id,
     periodo: datos.periodo,
     fechaReporte: new Date().toISOString().slice(0, 10),
+    documento: datos.documento || null,
     ...evaluacion
   });
   const incumplidos = Object.entries(evaluacion.indicadores).filter(([, indicador]) => indicador.estado === 'incumple');

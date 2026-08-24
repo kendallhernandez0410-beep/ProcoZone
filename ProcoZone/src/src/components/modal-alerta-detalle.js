@@ -7,7 +7,7 @@
 import { http } from '../services/http-client.js';
 import { cerrarModal } from '../src/components/modal-solicitud.js';
 import { formatearFecha } from '../utils/formateador.js';
-import { factorIaTexto, estadoSolicitudTexto, alertaTipoTexto } from '../utils/constantes.js';
+import { factorIaTexto, estadoSolicitudTexto, alertaTipoTexto, alertaTexto } from '../utils/constantes.js';
 import { esEmpresa, obtenerSesion } from '../utils/auth.js';
 import { t } from '../utils/translations.js';
 
@@ -95,8 +95,8 @@ export async function abrirModalDetalleAlerta(alertaId) {
         <div class="alerta-detalle__cabecera">
           <div class="alerta-detalle__icono ${estilo.clase}"><i class="fa-solid ${estilo.icono}"></i></div>
           <div>
-            <strong>${alerta.titulo}</strong>
-            <p class="alerta-detalle__texto">${alerta.descripcion || ''}</p>
+            <strong>${alertaTexto(alerta).titulo}</strong>
+            <p class="alerta-detalle__texto">${alertaTexto(alerta).descripcion || ''}</p>
             <span class="badge badge-neutral">${alertaTipoTexto(alerta.tipo)}</span>
           </div>
         </div>

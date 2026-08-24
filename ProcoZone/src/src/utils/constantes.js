@@ -186,7 +186,30 @@ export function alertaEstadoTexto(estado) {
   return mapas[estado] ? t(mapas[estado]) : estado;
 }
 
+/* Categorías de alerta para el perfil de empresa:
+   trámites, cumplimiento, documentación y sistema */
+export const CATEGORIAS_ALERTA = {
+  solicitud: { icono: 'fa-file-signature' },
+  cumplimiento: { icono: 'fa-clipboard-check' },
+  documentacion: { icono: 'fa-folder-open' },
+  sistema: { icono: 'fa-shield-halved' }
+};
+
+/** Etiqueta e ícono traducidos de la categoría de una alerta (null si no tiene) */
+export function alertaCategoriaInfo(alerta) {
+  if (!alerta?.categoria || !CATEGORIAS_ALERTA[alerta.categoria]) return null;
+  return { id: alerta.categoria, etiqueta: t(`cat_${alerta.categoria}`), icono: CATEGORIAS_ALERTA[alerta.categoria].icono };
+}
+
 export function alertaTexto(alerta) {
+  // Alertas con plantilla bilingüe (clave + parámetros {x})
+  if (alerta.clave) {
+    const reemplazar = (texto) => Object.entries(alerta.params || {}).reduce(
+      (acumulado, [parametro, valor]) => acumulado.replaceAll(`{${parametro}}`, String(valor)),
+      texto
+    );
+    return { titulo: reemplazar(t(`${alerta.clave}_titulo`)), descripcion: reemplazar(t(`${alerta.clave}_msg`)) };
+  }
   const traducciones = {
     'Suspensión inminente del régimen': ['alert_title_suspension', 'alert_desc_suspension'],
     'Empleo nacional por debajo del mínimo': ['alert_title_jobs_below', 'alert_desc_jobs_below'],

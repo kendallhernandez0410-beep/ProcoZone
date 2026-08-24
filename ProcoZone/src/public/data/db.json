@@ -885,6 +885,154 @@
       "valorReportado": 2,
       "valorRequerido": 100,
       "id": 20
+    },
+    {
+      "id": 21,
+      "empresaId": 1,
+      "reporteId": null,
+      "categoria": "solicitud",
+      "tipo": "info",
+      "clave": "al_sol_aprobada",
+      "params": {
+        "n": "1024"
+      },
+      "titulo": "Solicitud aprobada",
+      "descripcion": "Su solicitud #1024 para otorgamiento de Régimen de Zona Franca ha sido APROBADA.",
+      "fechaCreacion": "2026-10-02",
+      "estado": "abierta"
+    },
+    {
+      "id": 22,
+      "empresaId": 1,
+      "reporteId": null,
+      "categoria": "solicitud",
+      "tipo": "warning",
+      "clave": "al_sol_observacion",
+      "params": {
+        "tramite": "ampliación",
+        "dias": 5
+      },
+      "titulo": "Requerimiento de corrección",
+      "descripcion": "PROCOMER ha realizado una observación en su solicitud de ampliación. Tiene 5 días hábiles para subsanar los documentos.",
+      "fechaCreacion": "2026-10-06",
+      "estado": "abierta"
+    },
+    {
+      "id": 23,
+      "empresaId": 1,
+      "reporteId": null,
+      "categoria": "solicitud",
+      "tipo": "info",
+      "clave": "al_sol_inspeccion",
+      "params": {
+        "fecha": "15 de Octubre"
+      },
+      "titulo": "Inspección programada",
+      "descripcion": "Se ha agendado una visita de inspección técnica en su planta para el día 15 de Octubre.",
+      "fechaCreacion": "2026-10-08",
+      "estado": "abierta"
+    },
+    {
+      "id": 24,
+      "empresaId": 1,
+      "reporteId": null,
+      "categoria": "cumplimiento",
+      "tipo": "warning",
+      "clave": "al_cum_iao",
+      "params": {
+        "fecha": "30 de Abril"
+      },
+      "titulo": "Informe Anual de Operaciones",
+      "descripcion": "Recordatorio: Vence el plazo para presentar el Informe Anual de Operaciones (IAO) el 30 de Abril.",
+      "fechaCreacion": "2026-09-28",
+      "estado": "abierta"
+    },
+    {
+      "id": 25,
+      "empresaId": 1,
+      "reporteId": null,
+      "categoria": "cumplimiento",
+      "tipo": "warning",
+      "clave": "al_cum_umbral",
+      "params": {
+        "pct": 80,
+        "monto": "1,500,000"
+      },
+      "titulo": "Alerta de umbral de inversión",
+      "descripcion": "Se encuentra al 80% del plazo para cumplir la inversión mínima comprometida ($1,500,000 USD).",
+      "fechaCreacion": "2026-10-10",
+      "estado": "en_proceso"
+    },
+    {
+      "id": 26,
+      "empresaId": 1,
+      "reporteId": null,
+      "categoria": "cumplimiento",
+      "tipo": "critica",
+      "clave": "al_cum_canon",
+      "params": {
+        "dias": 3
+      },
+      "titulo": "Pago de cánon",
+      "descripcion": "El cobro de cánon mensual correspondiente al periodo actual vence en 3 días.",
+      "fechaCreacion": "2026-10-12",
+      "estado": "abierta"
+    },
+    {
+      "id": 27,
+      "empresaId": 1,
+      "reporteId": null,
+      "categoria": "documentacion",
+      "tipo": "warning",
+      "clave": "al_doc_garantia",
+      "params": {
+        "dias": 30
+      },
+      "titulo": "Vencimiento de garantía",
+      "descripcion": "Su póliza / garantía de cumplimiento vence en 30 días. Por favor adjunte la renovación.",
+      "fechaCreacion": "2026-09-30",
+      "estado": "abierta"
+    },
+    {
+      "id": 28,
+      "empresaId": 1,
+      "reporteId": null,
+      "categoria": "documentacion",
+      "tipo": "info",
+      "clave": "al_doc_poder",
+      "params": {},
+      "titulo": "Vencimiento de poder legal",
+      "descripcion": "El poder de la representación legal adjunto en el sistema vence el próximo mes.",
+      "fechaCreacion": "2026-10-04",
+      "estado": "abierta"
+    },
+    {
+      "id": 29,
+      "empresaId": 1,
+      "reporteId": null,
+      "categoria": "sistema",
+      "tipo": "info",
+      "clave": "al_sis_perfil",
+      "params": {},
+      "titulo": "Actualización de perfil",
+      "descripcion": "Se ha cambiado el correo de notificación principal de la empresa.",
+      "fechaCreacion": "2026-09-25",
+      "estado": "cerrada"
+    },
+    {
+      "id": 30,
+      "empresaId": 1,
+      "reporteId": null,
+      "categoria": "sistema",
+      "tipo": "info",
+      "clave": "al_sis_documento",
+      "params": {
+        "numero": "ZF-2026-88"
+      },
+      "titulo": "Documento cargado",
+      "descripcion": "Se ha cargado con éxito la resolución aprobatoria N.º ZF-2026-88.",
+      "fechaCreacion": "2026-10-11",
+      "estado": "abierta"
     }
   ],
   "solicitudesAcceso": [

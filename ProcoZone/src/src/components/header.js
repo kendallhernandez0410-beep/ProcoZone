@@ -7,6 +7,7 @@ import { toast } from '../services/notificacion-service.js';
    ProcoZone — Componente Header
    ============================================ */
 import { t } from '../utils/translations.js';
+import { alertaTexto } from '../utils/constantes.js';
 import { renderHeaderControls } from './theme-language-controls.js';
 
 export function renderHeader(titulo, subtitulo = '') {
@@ -190,13 +191,14 @@ export function iniciarAlertasDropdown() {
       list.innerHTML = visibles.length
         ? visibles.map((alerta, indice) => {
           const estilo = ESTILO_POR_TIPO[alerta.tipo] || ESTILO_POR_TIPO.info;
+          const texto = alertaTexto(alerta);
           const noLeida = alerta.estado !== 'cerrada' && !leidas.has(String(alerta.id));
           return `
           <article class="alerta-item ${estilo.clase} alerta-item--link ${noLeida ? 'alerta-item--unread' : ''}" data-alerta-id="${alerta.id}" data-alerta-idx="${indice}" role="button" tabindex="0" title="${t('view_full_info')}">
             <i class="fa-solid ${estilo.icono}"></i>
             <div>
-              <strong>${alerta.titulo}</strong>
-              <p>${alerta.descripcion || ''}</p>
+              <strong>${texto.titulo}</strong>
+              <p>${texto.descripcion || ''}</p>
             </div>
             ${noLeida ? '<span class="alerta-item__dot" aria-hidden="true"></span>' : ''}
             <i class="fa-solid fa-chevron-right alerta-item__go" aria-hidden="true"></i>
