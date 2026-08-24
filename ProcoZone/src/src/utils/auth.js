@@ -74,5 +74,5 @@ export function esInterno() {
 
 export function cerrarSesion() {
   limpiarAlmacen();
-  window.location.hash = '#/landing';
+  window.location.hash = '#/login';
 }
